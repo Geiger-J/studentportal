@@ -7,8 +7,10 @@ package com.example.studentportal.model;
 public enum RequestStatus {
     PENDING("Pending"),
     MATCHED("Matched"),
+    NOT_MATCHED("Not Matched"),
     COMPLETED("Completed"),
-    CANCELLED("Cancelled");
+    CANCELLED("Cancelled"),
+    ARCHIVED("Archived");
 
     private final String displayName;
 

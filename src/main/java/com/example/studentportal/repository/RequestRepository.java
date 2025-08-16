@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,4 +64,29 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
      * @return list of requests for the subject
      */
     List<Request> findBySubject(Subject subject);
+    
+    /**
+     * Finds all requests that are NOT archived.
+     * @param status the status to exclude (typically ARCHIVED)
+     * @return list of non-archived requests
+     */
+    List<Request> findAllByStatusNot(RequestStatus status);
+    
+    /**
+     * Finds requests by status and weekStartDate before the given date.
+     * Used for archival of old requests.
+     * @param statuses list of statuses to include
+     * @param weekStartDate the cutoff date
+     * @return list of requests matching criteria
+     */
+    List<Request> findByStatusInAndWeekStartDateBefore(List<RequestStatus> statuses, LocalDate weekStartDate);
+    
+    /**
+     * Finds requests by status and weekStartDate.
+     * Used for matching current week requests.
+     * @param status the status to filter by
+     * @param weekStartDate the week start date
+     * @return list of requests matching criteria
+     */
+    List<Request> findByStatusAndWeekStartDate(RequestStatus status, LocalDate weekStartDate);
 }

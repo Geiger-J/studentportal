@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.example.studentportal.util.DateUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -156,14 +157,30 @@ public class Request {
     }
 
     /**
-     * Checks if this request can be cancelled (i.e., is currently PENDING).
+     * Checks if this request can be cancelled.
+     * Users can cancel a request only if status IN {PENDING, NOT_MATCHED} AND 
+     * current time is at least 24 hours before the earliest session timeslot.
      */
     public boolean canBeCancelled() {
-        return RequestStatus.PENDING.equals(this.status);
+        // Check status - can only cancel PENDING or NOT_MATCHED requests
+        if (!RequestStatus.PENDING.equals(this.status) && !RequestStatus.NOT_MATCHED.equals(this.status)) {
+            return false;
+        }
+        
+        // Check timing - must be at least 24 hours before earliest session
+        LocalDateTime earliestSession = DateUtil.getEarliestSessionTime(this.weekStartDate, this.timeslots);
+        if (earliestSession == null) {
+            return false;
+        }
+        
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime cutoffTime = earliestSession.minusHours(24);
+        
+        return now.isBefore(cutoffTime);
     }
 
     /**
-     * Cancels this request if it's currently pending.
+     * Cancels this request if it's currently cancellable.
      */
     public void cancel() {
         if (canBeCancelled()) {
