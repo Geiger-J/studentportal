@@ -1,9 +1,10 @@
 package com.example.studentportal.controller;
 
-import com.example.studentportal.model.*;
-import com.example.studentportal.service.CustomUserDetailsService;
-import com.example.studentportal.service.SubjectService;
-import com.example.studentportal.service.UserService;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -13,14 +14,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.example.studentportal.model.ExamBoard;
+import com.example.studentportal.model.Subject;
+import com.example.studentportal.model.Timeslot;
+import com.example.studentportal.model.User;
+import com.example.studentportal.service.CustomUserDetailsService;
+import com.example.studentportal.service.SubjectService;
+import com.example.studentportal.service.UserService;
 
 /**
- * Controller for user profile management.
- * Handles profile completion and updates.
+ * Controller for user profile management. Handles profile completion and
+ * updates.
  */
 @Controller
 public class ProfileController {
@@ -34,17 +38,25 @@ public class ProfileController {
         this.subjectService = subjectService;
     }
 
-    /**
-     * Shows the profile completion/editing page.
-     * Redirects to dashboard if profile is already complete.
-     */
     @GetMapping("/profile")
     public String showProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-                             Model model) {
-        
+            Model model) {
+
+        if (principal == null) {
+            // Fallback (should not normally happen if security is configured correctly)
+            return "redirect:/login";
+        }
+
         User user = principal.getUser();
-        
-        // Add data for form
+
+        // Ensure defensive non-null collections (in case of legacy data)
+        if (user.getSubjects() == null) {
+            user.setSubjects(new HashSet<>());
+        }
+        if (user.getAvailability() == null) {
+            user.setAvailability(new HashSet<>());
+        }
+
         model.addAttribute("user", user);
         model.addAttribute("subjects", subjectService.getAllSubjects());
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
@@ -53,51 +65,39 @@ public class ProfileController {
         return "profile";
     }
 
-    /**
-     * Processes profile updates.
-     * Validates data and saves profile changes.
-     */
     @PostMapping("/profile")
     public String updateProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-                               @RequestParam Integer yearGroup,
-                               @RequestParam(required = false) ExamBoard examBoard,
-                               @RequestParam(required = false) List<Long> subjectIds,
-                               @RequestParam(required = false) List<Timeslot> timeslots,
-                               @RequestParam(defaultValue = "0") Integer maxTutoringPerWeek,
-                               RedirectAttributes redirectAttributes,
-                               Model model) {
-        
+            @RequestParam Integer yearGroup,
+            @RequestParam(required = false) ExamBoard examBoard,
+            @RequestParam(required = false) List<Long> subjectIds,
+            @RequestParam(required = false) List<Timeslot> timeslots,
+            @RequestParam(defaultValue = "0") Integer maxTutoringPerWeek,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
         User user = principal.getUser();
 
         try {
-            // Validate year group
             if (yearGroup == null || yearGroup < 9 || yearGroup > 13) {
-                model.addAttribute("error", "Year group must be between 9 and 13");
-                model.addAttribute("user", user);
-                model.addAttribute("subjects", subjectService.getAllSubjects());
-                model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
-                model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
+                populateFormModel(model, user, "Year group must be between 9 and 13");
                 return "profile";
             }
 
-            // Update year group (this will auto-set exam board for years 9-11)
             user.setYearGroup(yearGroup);
 
-            // Handle exam board for years 12-13
             if (yearGroup >= 12 && yearGroup <= 13) {
                 if (examBoard != null && (examBoard == ExamBoard.A_LEVELS || examBoard == ExamBoard.IB)) {
                     user.setExamBoard(examBoard);
                 } else {
-                    model.addAttribute("error", "Please select an exam board (A Levels or IB) for years 12-13");
-                    model.addAttribute("user", user);
-                    model.addAttribute("subjects", subjectService.getAllSubjects());
-                    model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
-                    model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
+                    populateFormModel(model, user, "Please select an exam board (A Levels or IB) for years 12-13");
                     return "profile";
                 }
             }
 
-            // Update subjects
             Set<Subject> selectedSubjects = new HashSet<>();
             if (subjectIds != null && !subjectIds.isEmpty()) {
                 for (Long subjectId : subjectIds) {
@@ -106,38 +106,36 @@ public class ProfileController {
             }
             user.setSubjects(selectedSubjects);
 
-            // Update availability
             Set<Timeslot> selectedTimeslots = new HashSet<>();
             if (timeslots != null) {
                 selectedTimeslots.addAll(timeslots);
             }
             user.setAvailability(selectedTimeslots);
 
-            // Update max tutoring per week
             user.setMaxTutoringPerWeek(maxTutoringPerWeek);
 
-            // Save and update profile completeness
             userService.updateProfile(user);
 
             if (user.isProfileComplete()) {
                 redirectAttributes.addFlashAttribute("message", "Profile updated successfully!");
                 return "redirect:/dashboard";
             } else {
-                model.addAttribute("error", "Profile incomplete: Please select at least one subject and one availability slot");
-                model.addAttribute("user", user);
-                model.addAttribute("subjects", subjectService.getAllSubjects());
-                model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
-                model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
+                populateFormModel(model, user,
+                        "Profile incomplete: Please select at least one subject and one availability slot");
                 return "profile";
             }
 
         } catch (Exception e) {
-            model.addAttribute("error", "Error updating profile: " + e.getMessage());
-            model.addAttribute("user", user);
-            model.addAttribute("subjects", subjectService.getAllSubjects());
-            model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
-            model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
+            populateFormModel(model, user, "Error updating profile: " + e.getMessage());
             return "profile";
         }
+    }
+
+    private void populateFormModel(Model model, User user, String errorMessage) {
+        model.addAttribute("error", errorMessage);
+        model.addAttribute("user", user);
+        model.addAttribute("subjects", subjectService.getAllSubjects());
+        model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
+        model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
     }
 }

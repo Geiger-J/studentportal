@@ -8,24 +8,19 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <!-- Header -->
     <div th:replace="fragments/header :: header"></div>
 
-    <!-- Main Content -->
     <main class="main-content">
         <div class="container">
             <div class="profile-container">
                 <h1>Complete Your Profile</h1>
                 <p class="form-subtitle">Please complete your academic profile to access the portal features</p>
 
-                <!-- Success/Error Messages -->
                 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
                 <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-                <!-- Profile Form -->
                 <form action="/profile" method="post" class="form profile-form">
-                    
-                    <!-- User Information -->
+
                     <section class="form-section">
                         <h2>Personal Information</h2>
                         <div class="form-row">
@@ -46,11 +41,9 @@
                         </div>
                     </section>
 
-                    <!-- Academic Information -->
                     <section class="form-section">
                         <h2>Academic Information</h2>
-                        
-                        <!-- Year Group -->
+
                         <div class="form-group">
                             <label for="yearGroup" class="form-label">Year Group *</label>
                             <select id="yearGroup" name="yearGroup" class="form-select" required>
@@ -64,7 +57,6 @@
                             <small class="form-help">Required for profile completion</small>
                         </div>
 
-                        <!-- Exam Board -->
                         <div class="form-group" id="examBoardGroup">
                             <label for="examBoard" class="form-label">Exam Board</label>
                             <select id="examBoard" name="examBoard" class="form-select">
@@ -77,53 +69,49 @@
                         </div>
                     </section>
 
-                    <!-- Subjects -->
                     <section class="form-section">
                         <h2>Subjects *</h2>
                         <p class="section-description">Select the subjects you're studying or can help with:</p>
                         <div class="checkbox-grid">
                             <div th:each="subject : ${subjects}" class="checkbox-item">
-                                <input type="checkbox" 
-                                       th:id="${'subject_' + subject.id}" 
-                                       name="subjectIds" 
+                                <input type="checkbox"
+                                       th:id="${'subject_' + subject.id}"
+                                       name="subjectIds"
                                        th:value="${subject.id}"
-                                       th:checked="${user.subjects.contains(subject)}">
+                                       th:checked="${user.subjects != null and user.subjects.contains(subject)}">
                                 <label th:for="${'subject_' + subject.id}" th:text="${subject.displayName}"></label>
                             </div>
                         </div>
                         <small class="form-help">Select at least one subject to complete your profile</small>
                     </section>
 
-                    <!-- Availability -->
                     <section class="form-section">
                         <h2>Availability *</h2>
                         <p class="section-description">Select when you're available for tutoring sessions:</p>
                         <div class="timeslot-grid">
                             <div th:each="timeslot : ${timeslots}" class="checkbox-item">
-                                <input type="checkbox" 
-                                       th:id="${'timeslot_' + timeslot.name()}" 
-                                       name="timeslots" 
+                                <input type="checkbox"
+                                       th:id="${'timeslot_' + timeslot.name()}"
+                                       name="timeslots"
                                        th:value="${timeslot.name()}"
-                                       th:checked="${user.availability.contains(timeslot)}">
+                                       th:checked="${user.availability != null and user.availability.contains(timeslot)}">
                                 <label th:for="${'timeslot_' + timeslot.name()}" th:text="${timeslot.label()}"></label>
                             </div>
                         </div>
                         <small class="form-help">Select at least one time slot to complete your profile</small>
                     </section>
 
-                    <!-- Tutoring Preferences -->
                     <section class="form-section">
                         <h2>Tutoring Preferences</h2>
                         <div class="form-group">
                             <label for="maxTutoringPerWeek" class="form-label">Maximum Tutoring Sessions Per Week</label>
-                            <input type="number" id="maxTutoringPerWeek" name="maxTutoringPerWeek" 
-                                   class="form-input" min="0" max="20" 
+                            <input type="number" id="maxTutoringPerWeek" name="maxTutoringPerWeek"
+                                   class="form-input" min="0" max="20"
                                    th:value="${user.maxTutoringPerWeek ?: 0}">
                             <small class="form-help">How many tutoring sessions (giving or receiving) you want per week (0 = no limit)</small>
                         </div>
                     </section>
 
-                    <!-- Submit Button -->
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-large">Save Profile</button>
                     </div>
@@ -132,35 +120,27 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <div th:replace="fragments/footer :: footer"></div>
 
     <script>
-        // Show/hide exam board based on year group
         document.getElementById('yearGroup').addEventListener('change', function() {
             const yearGroup = parseInt(this.value);
             const examBoardSelect = document.getElementById('examBoard');
             const examBoardGroup = document.getElementById('examBoardGroup');
-            
+
             if (yearGroup >= 9 && yearGroup <= 11) {
-                // Years 9-11: Auto-set to GCSE
                 examBoardSelect.value = 'GCSE';
                 examBoardSelect.disabled = true;
                 examBoardGroup.querySelector('.form-help').textContent = 'Automatically set to GCSE for Years 9-11';
             } else if (yearGroup >= 12 && yearGroup <= 13) {
-                // Years 12-13: User can choose
                 examBoardSelect.disabled = false;
                 examBoardGroup.querySelector('.form-help').textContent = 'Choose between A Levels or IB for Years 12-13';
             } else {
-                // Other years: No exam board
                 examBoardSelect.value = '';
                 examBoardSelect.disabled = true;
-                examBoardGroup.querySelector('.form-help').textContent = 'No exam board for this year group';
+                examBoardGroup.querySelector('.form-help').textContent = 'Select a valid year group';
             }
         });
-
-        // Trigger the change event on page load to set initial state
-        document.getElementById('yearGroup').dispatchEvent(new Event('change'));
     </script>
 </body>
 </html>

@@ -1,13 +1,12 @@
 package com.example.studentportal.controller;
 
-import com.example.studentportal.model.User;
-import com.example.studentportal.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,9 +15,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.studentportal.model.User;
+import com.example.studentportal.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+
 /**
- * Controller for authentication-related actions.
- * Handles user registration and login page display.
+ * Controller for authentication-related actions. Handles user registration and
+ * login page display.
  */
 @Controller
 public class AuthController {
@@ -32,17 +38,11 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
     }
 
-    /**
-     * Shows the login page.
-     */
     @GetMapping("/login")
     public String login() {
         return "login";
     }
 
-    /**
-     * Shows the registration page with a new user form.
-     */
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new RegistrationForm());
@@ -50,31 +50,37 @@ public class AuthController {
     }
 
     /**
-     * Processes user registration.
-     * Validates form data, creates user, and auto-logs them in.
+     * Processes user registration. Validates form data, creates user, and
+     * ensures the user is authenticated immediately.
      */
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") RegistrationForm form,
-                             BindingResult result,
-                             RedirectAttributes redirectAttributes) {
-        
+            BindingResult result,
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) {
+
         if (result.hasErrors()) {
             return "register";
         }
 
         try {
-            // Register the user
+            // Create the user
             User user = userService.registerUser(form.getFullName(), form.getEmail(), form.getPassword());
 
-            // Auto-login the user after successful registration
+            // Load UserDetails and build authentication token
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-            UsernamePasswordAuthenticationToken auth = 
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            UsernamePasswordAuthenticationToken auth
+                    = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+            // Create and persist a fresh SecurityContext (ensures session persistence)
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(auth);
+            SecurityContextHolder.setContext(context);
+
+            HttpSession session = request.getSession(true);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
             redirectAttributes.addFlashAttribute("message", "Registration successful! Please complete your profile.");
-            
-            // Redirect to profile completion
             return "redirect:/profile";
 
         } catch (IllegalArgumentException e) {
@@ -87,11 +93,11 @@ public class AuthController {
      * Form bean for user registration.
      */
     public static class RegistrationForm {
+
         private String fullName;
         private String email;
         private String password;
 
-        // Getters and setters
         public String getFullName() {
             return fullName;
         }
