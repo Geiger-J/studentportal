@@ -13,8 +13,10 @@
     <main class="main-content">
         <div class="container">
             <div class="profile-container">
-                <h1>Complete Your Profile</h1>
-                <p class="form-subtitle">Please complete your academic profile to access the portal features</p>
+                <h1 th:if="${user.role.name() == 'ADMIN'}">Administrator Profile</h1>
+                <h1 th:if="${user.role.name() == 'STUDENT'}">Complete Your Profile</h1>
+                <p class="form-subtitle" th:if="${user.role.name() == 'ADMIN'}">Administrator account information and system access</p>
+                <p class="form-subtitle" th:if="${user.role.name() == 'STUDENT'}">Please complete your academic profile to access the portal features</p>
 
                 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
                 <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
@@ -36,84 +38,111 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Role</label>
-                                <input type="text" class="form-input" th:value="${user.role.displayName}" readonly>
+                                <div class="role-display">
+                                    <span class="role-badge" th:classappend="${user.role.name().toLowerCase()}" 
+                                          th:text="${user.role.displayName}">Role</span>
+                                </div>
                             </div>
                         </div>
                     </section>
 
-                    <section class="form-section">
-                        <h2>Academic Information</h2>
-
-                        <div class="form-group">
-                            <label for="yearGroup" class="form-label">Year Group *</label>
-                            <select id="yearGroup" name="yearGroup" class="form-select" required>
-                                <option value="">Select your year group</option>
-                                <option value="9" th:selected="${user.yearGroup == 9}">Year 9</option>
-                                <option value="10" th:selected="${user.yearGroup == 10}">Year 10</option>
-                                <option value="11" th:selected="${user.yearGroup == 11}">Year 11</option>
-                                <option value="12" th:selected="${user.yearGroup == 12}">Year 12</option>
-                                <option value="13" th:selected="${user.yearGroup == 13}">Year 13</option>
-                            </select>
-                            <small class="form-help">Required for profile completion</small>
-                        </div>
-
-                        <div class="form-group" id="examBoardGroup">
-                            <label for="examBoard" class="form-label">Exam Board</label>
-                            <select id="examBoard" name="examBoard" class="form-select">
-                                <option value="">Select exam board</option>
-                                <option value="GCSE" th:selected="${user.examBoard?.name() == 'GCSE'}">GCSE</option>
-                                <option value="A_LEVELS" th:selected="${user.examBoard?.name() == 'A_LEVELS'}">A Levels</option>
-                                <option value="IB" th:selected="${user.examBoard?.name() == 'IB'}">International Baccalaureate</option>
-                            </select>
-                            <small class="form-help">Automatically set for Years 9-11 (GCSE). Choose for Years 12-13.</small>
-                        </div>
-                    </section>
-
-                    <section class="form-section">
-                        <h2>Subjects *</h2>
-                        <p class="section-description">Select the subjects you're studying or can help with:</p>
-                        <div class="checkbox-grid">
-                            <div th:each="subject : ${subjects}" class="checkbox-item">
-                                <input type="checkbox"
-                                       th:id="${'subject_' + subject.id}"
-                                       name="subjectIds"
-                                       th:value="${subject.id}"
-                                       th:checked="${user.subjects != null and user.subjects.contains(subject)}">
-                                <label th:for="${'subject_' + subject.id}" th:text="${subject.displayName}"></label>
+                    <!-- Admin Profile View (Read-only) -->
+                    <div th:if="${user.role.name() == 'ADMIN'}">
+                        <section class="form-section">
+                            <h2>Administrator Account</h2>
+                            <div class="admin-info">
+                                <p>As an administrator, you have access to system management tools and can:</p>
+                                <ul>
+                                    <li>View and manage all student requests</li>
+                                    <li>Trigger manual matching processes</li>
+                                    <li>Archive old requests</li>
+                                    <li>Access system statistics and user management</li>
+                                </ul>
+                                <p>Admin accounts do not require profile completion and cannot create tutoring requests.</p>
                             </div>
+                        </section>
+                        
+                        <div class="form-actions">
+                            <a href="/admin/dashboard" class="btn btn-primary btn-large">Go to Admin Dashboard</a>
                         </div>
-                        <small class="form-help">Select at least one subject to complete your profile</small>
-                    </section>
+                    </div>
 
-                    <section class="form-section">
-                        <h2>Availability *</h2>
-                        <p class="section-description">Select when you're available for tutoring sessions:</p>
-                        <div class="timeslot-grid">
-                            <div th:each="timeslot : ${timeslots}" class="checkbox-item">
-                                <input type="checkbox"
-                                       th:id="${'timeslot_' + timeslot.name()}"
-                                       name="timeslots"
-                                       th:value="${timeslot.name()}"
-                                       th:checked="${user.availability != null and user.availability.contains(timeslot)}">
-                                <label th:for="${'timeslot_' + timeslot.name()}" th:text="${timeslot.label()}"></label>
+                    <!-- Student Profile Form (Editable) -->
+                    <div th:if="${user.role.name() == 'STUDENT'}">
+                        <section class="form-section">
+                            <h2>Academic Information</h2>
+
+                            <div class="form-group">
+                                <label for="yearGroup" class="form-label">Year Group *</label>
+                                <select id="yearGroup" name="yearGroup" class="form-select" required>
+                                    <option value="">Select your year group</option>
+                                    <option value="9" th:selected="${user.yearGroup == 9}">Year 9</option>
+                                    <option value="10" th:selected="${user.yearGroup == 10}">Year 10</option>
+                                    <option value="11" th:selected="${user.yearGroup == 11}">Year 11</option>
+                                    <option value="12" th:selected="${user.yearGroup == 12}">Year 12</option>
+                                    <option value="13" th:selected="${user.yearGroup == 13}">Year 13</option>
+                                </select>
+                                <small class="form-help">Required for profile completion</small>
                             </div>
-                        </div>
-                        <small class="form-help">Select at least one time slot to complete your profile</small>
-                    </section>
 
-                    <section class="form-section">
-                        <h2>Tutoring Preferences</h2>
-                        <div class="form-group">
-                            <label for="maxTutoringPerWeek" class="form-label">Maximum Tutoring Sessions Per Week</label>
-                            <input type="number" id="maxTutoringPerWeek" name="maxTutoringPerWeek"
-                                   class="form-input" min="0" max="20"
-                                   th:value="${user.maxTutoringPerWeek ?: 0}">
-                            <small class="form-help">How many tutoring sessions (giving or receiving) you want per week (0 = no limit)</small>
-                        </div>
-                    </section>
+                            <div class="form-group" id="examBoardGroup">
+                                <label for="examBoard" class="form-label">Exam Board</label>
+                                <select id="examBoard" name="examBoard" class="form-select">
+                                    <option value="">Select exam board</option>
+                                    <option value="GCSE" th:selected="${user.examBoard?.name() == 'GCSE'}">GCSE</option>
+                                    <option value="A_LEVELS" th:selected="${user.examBoard?.name() == 'A_LEVELS'}">A Levels</option>
+                                    <option value="IB" th:selected="${user.examBoard?.name() == 'IB'}">International Baccalaureate</option>
+                                </select>
+                                <small class="form-help">Automatically set for Years 9-11 (GCSE). Choose for Years 12-13.</small>
+                            </div>
+                        </section>
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary btn-large">Save Profile</button>
+                        <section class="form-section">
+                            <h2>Subjects *</h2>
+                            <p class="section-description">Select the subjects you're studying or can help with:</p>
+                            <div class="checkbox-grid">
+                                <div th:each="subject : ${subjects}" class="checkbox-item">
+                                    <input type="checkbox"
+                                           th:id="${'subject_' + subject.id}"
+                                           name="subjectIds"
+                                           th:value="${subject.id}"
+                                           th:checked="${user.subjects != null and user.subjects.contains(subject)}">
+                                    <label th:for="${'subject_' + subject.id}" th:text="${subject.displayName}"></label>
+                                </div>
+                            </div>
+                            <small class="form-help">Select at least one subject to complete your profile</small>
+                        </section>
+
+                        <section class="form-section">
+                            <h2>Availability *</h2>
+                            <p class="section-description">Select when you're available for tutoring sessions:</p>
+                            <div class="timeslot-grid">
+                                <div th:each="timeslot : ${timeslots}" class="checkbox-item">
+                                    <input type="checkbox"
+                                           th:id="${'timeslot_' + timeslot.name()}"
+                                           name="timeslots"
+                                           th:value="${timeslot.name()}"
+                                           th:checked="${user.availability != null and user.availability.contains(timeslot)}">
+                                    <label th:for="${'timeslot_' + timeslot.name()}" th:text="${timeslot.label()}"></label>
+                                </div>
+                            </div>
+                            <small class="form-help">Select at least one time slot to complete your profile</small>
+                        </section>
+
+                        <section class="form-section">
+                            <h2>Tutoring Preferences</h2>
+                            <div class="form-group">
+                                <label for="maxTutoringPerWeek" class="form-label">Maximum Tutoring Sessions Per Week</label>
+                                <input type="number" id="maxTutoringPerWeek" name="maxTutoringPerWeek"
+                                       class="form-input" min="0" max="20"
+                                       th:value="${user.maxTutoringPerWeek ?: 0}">
+                                <small class="form-help">How many tutoring sessions (giving or receiving) you want per week (0 = no limit)</small>
+                            </div>
+                        </section>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-large">Save Profile</button>
+                        </div>
                     </div>
                 </form>
             </div>

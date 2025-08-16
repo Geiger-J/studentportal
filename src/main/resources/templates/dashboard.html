@@ -24,7 +24,7 @@
             <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
             <!-- Action Buttons -->
-            <div class="dashboard-actions">
+            <div class="dashboard-actions" th:if="${user.role.name() == 'STUDENT'}">
                 <a href="/requests/new" class="btn btn-primary">Create New Request</a>
                 <a href="/profile" class="btn btn-secondary">Edit Profile</a>
             </div>
@@ -33,7 +33,7 @@
             <section class="requests-section">
                 <h2>Your Requests</h2>
                 
-                <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
+                <div th:if="${#lists.isEmpty(requests) and user.role.name() == 'STUDENT'}" class="empty-state">
                     <p>You haven't created any requests yet.</p>
                     <a href="/requests/new" class="btn btn-primary">Create Your First Request</a>
                 </div>
