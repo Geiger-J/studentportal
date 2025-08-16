@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Request - Bromsgrove Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="form-container">
+                <h1>Create Tutoring Request</h1>
+                <p class="form-subtitle">Submit a request to offer or seek tutoring</p>
+
+                <!-- Error Messages -->
+                <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+                <!-- Request Form -->
+                <form action="/requests" method="post" class="form">
+                    
+                    <!-- Request Type -->
+                    <div class="form-group">
+                        <label for="type" class="form-label">Request Type *</label>
+                        <select id="type" name="type" class="form-select" required>
+                            <option value="">Select request type</option>
+                            <option th:each="requestType : ${requestTypes}" 
+                                    th:value="${requestType.name()}" 
+                                    th:text="${requestType.displayName}">Offering Tutoring</option>
+                        </select>
+                        <small class="form-help">Choose whether you want to offer tutoring or seek help</small>
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="form-group">
+                        <label for="subjectId" class="form-label">Subject *</label>
+                        <select id="subjectId" name="subjectId" class="form-select" required>
+                            <option value="">Select subject</option>
+                            <option th:each="subject : ${subjects}" 
+                                    th:value="${subject.id}" 
+                                    th:text="${subject.displayName}">Mathematics</option>
+                        </select>
+                        <small class="form-help">Select the subject for this tutoring request</small>
+                    </div>
+
+                    <!-- Timeslots -->
+                    <div class="form-group">
+                        <label class="form-label">Available Timeslots *</label>
+                        <p class="section-description">Select when you're available for this tutoring:</p>
+                        <div class="timeslot-grid">
+                            <div th:each="timeslot : ${timeslots}" class="checkbox-item">
+                                <input type="checkbox" 
+                                       th:id="${'timeslot_' + timeslot.name()}" 
+                                       name="timeslots" 
+                                       th:value="${timeslot.name()}">
+                                <label th:for="${'timeslot_' + timeslot.name()}" th:text="${timeslot.label()}"></label>
+                            </div>
+                        </div>
+                        <small class="form-help">Select at least one time slot when you're available</small>
+                    </div>
+
+                    <!-- Recurring Option -->
+                    <div class="form-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="recurring" name="recurring" value="true">
+                            <label for="recurring">Recurring Request</label>
+                        </div>
+                        <small class="form-help">Check if you want this request to repeat weekly (Phase 2 feature)</small>
+                    </div>
+
+                    <!-- Information Box -->
+                    <div class="info-box">
+                        <h3>Important Information</h3>
+                        <ul>
+                            <li>Your request will be scheduled for the upcoming Monday</li>
+                            <li>You can only have one active request per subject and type</li>
+                            <li>Requests can be cancelled while in "Pending" status</li>
+                            <li>Matching with other students will happen automatically</li>
+                        </ul>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">Create Request</button>
+                        <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script>
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const timeslots = document.querySelectorAll('input[name="timeslots"]:checked');
+            if (timeslots.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one timeslot');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

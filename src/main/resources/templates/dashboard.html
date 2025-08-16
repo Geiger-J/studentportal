@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bromsgrove Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p class="welcome-message">Welcome back, <span th:text="${user.fullName}">User</span>!</p>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+            <!-- Action Buttons -->
+            <div class="dashboard-actions">
+                <a href="/requests/new" class="btn btn-primary">Create New Request</a>
+                <a href="/profile" class="btn btn-secondary">Edit Profile</a>
+            </div>
+
+            <!-- Requests Section -->
+            <section class="requests-section">
+                <h2>Your Requests</h2>
+                
+                <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
+                    <p>You haven't created any requests yet.</p>
+                    <a href="/requests/new" class="btn btn-primary">Create Your First Request</a>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(requests)}" class="requests-table-container">
+                    <table class="requests-table">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Type</th>
+                                <th>Timeslots</th>
+                                <th>Status</th>
+                                <th>Recurring</th>
+                                <th>Created</th>
+                                <th>Week Start</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="request : ${requests}">
+                                <td th:text="${request.subject.displayName}">Mathematics</td>
+                                <td>
+                                    <span class="request-type" 
+                                          th:classappend="${request.type.name() == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
+                                          th:text="${request.type.displayName}">Offering Tutoring</span>
+                                </td>
+                                <td>
+                                    <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
+                                    <div class="timeslot-details">
+                                        <span th:each="timeslot, iterStat : ${request.timeslots}" 
+                                              th:text="${timeslot.label()} + (${!iterStat.last} ? ', ' : '')"
+                                              class="timeslot-item"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${request.status.name().toLowerCase()}"
+                                          th:text="${request.status.displayName}">Pending</span>
+                                </td>
+                                <td>
+                                    <span th:text="${request.recurring ? 'Yes' : 'No'}" 
+                                          th:class="${request.recurring ? 'recurring-yes' : 'recurring-no'}">No</span>
+                                </td>
+                                <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td th:text="${#temporals.format(request.weekStartDate, 'dd/MM/yyyy')}">08/01/2024</td>
+                                <td class="actions-cell">
+                                    <form th:if="${request.canBeCancelled()}" 
+                                          th:action="@{/requests/{id}/cancel(id=${request.id})}" 
+                                          method="post" 
+                                          class="inline-form"
+                                          onsubmit="return confirm('Are you sure you want to cancel this request?')">
+                                        <button type="submit" class="btn btn-danger btn-small">Cancel</button>
+                                    </form>
+                                    <span th:unless="${request.canBeCancelled()}" class="no-actions">
+                                        No actions available
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Profile Status -->
+            <section class="profile-status">
+                <h2>Profile Status</h2>
+                <div class="status-card">
+                    <div class="status-item">
+                        <span class="status-label">Profile Complete:</span>
+                        <span th:class="${user.profileComplete ? 'status-complete' : 'status-incomplete'}"
+                              th:text="${user.profileComplete ? 'Yes' : 'No'}">Yes</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Year Group:</span>
+                        <span th:text="${user.yearGroup ?: 'Not set'}">12</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Exam Board:</span>
+                        <span th:text="${user.examBoard?.displayName ?: 'Not set'}">A Levels</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Subjects:</span>
+                        <span th:text="${#lists.size(user.subjects)} + ' selected'">3 selected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Availability:</span>
+                        <span th:text="${#lists.size(user.availability)} + ' time slots'">5 time slots</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

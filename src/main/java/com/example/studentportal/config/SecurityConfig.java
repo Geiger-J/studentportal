@@ -1,6 +1,5 @@
 package com.example.studentportal.config;
 
-import com.example.studentportal.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 /**
  * Spring Security configuration for the Student Portal.
@@ -20,10 +20,13 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Autowired
-    public SecurityConfig(PasswordEncoder passwordEncoder) {
+    public SecurityConfig(PasswordEncoder passwordEncoder, 
+                         AuthenticationSuccessHandler authenticationSuccessHandler) {
         this.passwordEncoder = passwordEncoder;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
     }
 
     /**
@@ -52,12 +55,8 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .permitAll()
-                // Custom success handler to redirect based on profile completeness
-                .successHandler((request, response, authentication) -> {
-                    // This will be implemented in the UserDetailsService/Controller
-                    // For now, redirect to dashboard
-                    response.sendRedirect("/dashboard");
-                })
+                // Use custom success handler for profile-based redirection
+                .successHandler(authenticationSuccessHandler)
                 .failureUrl("/login?error=true")
             )
             .logout(logout -> logout
