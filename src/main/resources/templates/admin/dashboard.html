@@ -35,6 +35,38 @@
                 </form>
             </div>
 
+            <!-- Weekly Summary Panel -->
+            <section class="summary-section">
+                <h2>Weekly Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>Pending (Current Week)</h3>
+                        <span class="summary-number" th:text="${summary.pendingCount}">0</span>
+                        <p class="summary-description">Requests awaiting matching</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Not Matched (Current Week)</h3>
+                        <span class="summary-number" th:text="${summary.notMatchedCount}">0</span>
+                        <p class="summary-description">Pending requests this week</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Matched (Current Week)</h3>
+                        <span class="summary-number" th:text="${summary.matchedCount}">0</span>
+                        <p class="summary-description">Successfully paired requests</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Archived (Total)</h3>
+                        <span class="summary-number" th:text="${summary.archivedCount}">0</span>
+                        <p class="summary-description">All archived requests</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Cancellations (7 days)</h3>
+                        <span class="summary-number" th:text="${summary.cancellations7d}">0</span>
+                        <p class="summary-description">Cancelled in last week</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Statistics Overview -->
             <section class="stats-section">
                 <h2>System Overview</h2>

@@ -1,6 +1,7 @@
 package com.example.studentportal.controller;
 
 import com.example.studentportal.model.Request;
+import com.example.studentportal.model.Role;
 import com.example.studentportal.model.User;
 import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.RequestService;
@@ -29,12 +30,18 @@ public class DashboardController {
     /**
      * Shows the user dashboard with their requests.
      * Redirects to profile completion if profile is not complete.
+     * Redirects ADMIN users to admin dashboard.
      */
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
                            Model model) {
         
         User user = principal.getUser();
+
+        // Redirect admin users to admin dashboard
+        if (user.getRole() == Role.ADMIN) {
+            return "redirect:/admin/dashboard";
+        }
 
         // Check if profile is complete - redirect to profile if not
         if (!user.getProfileComplete()) {

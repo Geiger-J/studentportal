@@ -57,8 +57,8 @@ class UserServiceTest {
     }
 
     @Test
-    void testRegisterUser_WithStaffEmail_AssignsAdminRole() {
-        // Given
+    void testRegisterUser_WithStaffEmail_AssignsStudentRole() {
+        // Given - Public registration now always creates STUDENT role
         String fullName = "Jane Teacher";
         String email = "jane.teacher@bromsgrove-school.co.uk";
         String password = "teacherpass";
@@ -66,11 +66,11 @@ class UserServiceTest {
         // When
         User savedUser = userService.registerUser(fullName, email, password);
 
-        // Then
+        // Then - All public registrations create STUDENT role (admins created manually)
         assertNotNull(savedUser);
         assertEquals(fullName, savedUser.getFullName());
         assertEquals(email, savedUser.getEmail());
-        assertEquals(Role.ADMIN, savedUser.getRole());
+        assertEquals(Role.STUDENT, savedUser.getRole()); // Changed: public registration forces STUDENT
         
         // Verify password is hashed
         assertNotEquals(password, savedUser.getPasswordHash());

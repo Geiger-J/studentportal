@@ -42,6 +42,45 @@ The Student Portal enables Bromsgrove School students to create tutoring request
   - CSRF protection disabled (Phase 1 - to be enabled in production)
   - Custom authentication success handlers
 
+## Roles & Permissions
+
+The system supports two distinct user roles with different capabilities:
+
+### STUDENT Role
+- **Registration**: Available through public registration form at `/register`
+- **Tutoring Requests**: Can create both TUTOR (offering help) and TUTEE (seeking help) requests
+- **Profile Requirements**: Must complete profile (year group, subjects, availability) to access dashboard
+- **Matching**: Participates in the automated matching system
+- **Dashboard**: Access to student dashboard at `/dashboard` showing personal requests
+- **Navigation**: Student-focused navigation menu with request creation links
+
+### ADMIN Role (Teachers/Staff)
+- **Registration**: Manual creation only (no public registration path)
+- **Tutoring Requests**: Cannot create tutoring requests (restricted access)
+- **Profile Requirements**: Profile always considered complete (no validation requirements)
+- **Matching**: Excluded from all matching queries and processes
+- **Dashboard**: Access to admin dashboard at `/admin/dashboard` with system management tools
+- **Navigation**: Admin-focused navigation with system management links
+- **Permissions**:
+  - View and manage all requests across the system
+  - View and manage all users
+  - Trigger manual matching processes
+  - Archive old requests
+  - Access system statistics and summaries
+
+### Role Assignment
+- **Email Pattern Recognition**: Role determined by email prefix
+  - Emails starting with digits (e.g., `2024student@bromsgrove-school.co.uk`) → STUDENT
+  - Emails starting with letters (e.g., `teacher@bromsgrove-school.co.uk`) → ADMIN
+- **Registration Override**: Public registration always creates STUDENT role regardless of email pattern
+- **Manual Admin Creation**: ADMIN accounts must be created manually by system administrators
+
+### Security Features
+- Dashboard redirection: ADMIN users accessing `/dashboard` are redirected to `/admin/dashboard`
+- Request restrictions: HTTP 403 or redirect with error message for ADMIN users attempting to create requests
+- Matching exclusion: ADMIN users never appear as potential partners in matching algorithms
+- Profile bypass: Profile completeness checks short-circuited for ADMIN users
+
 ## Tech Stack
 
 - **Backend**: Spring Boot 3.5.4, Java 17

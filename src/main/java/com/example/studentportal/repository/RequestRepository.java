@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Repository interface for Request entity operations.
@@ -80,4 +81,20 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
      * @return list of requests matching criteria
      */
     List<Request> findByStatusInAndWeekStartDateBefore(List<RequestStatus> statuses, LocalDate weekStartDate);
+    
+    /**
+     * Finds requests for a specific week range.
+     * @param weekStartDate the start of the week (inclusive)
+     * @param nextWeekStartDate the start of the next week (exclusive)
+     * @return list of requests for the specified week
+     */
+    List<Request> findByWeekStartDateGreaterThanEqualAndWeekStartDateLessThan(LocalDate weekStartDate, LocalDate nextWeekStartDate);
+    
+    /**
+     * Finds requests that were cancelled after a specific datetime.
+     * @param dateTime the cutoff datetime
+     * @return list of cancelled requests after the specified time
+     */
+    @Query("SELECT r FROM Request r WHERE r.status = 'CANCELLED' AND r.updatedAt > :dateTime")
+    List<Request> findByCancelledAfter(@Param("dateTime") LocalDateTime dateTime);
 }

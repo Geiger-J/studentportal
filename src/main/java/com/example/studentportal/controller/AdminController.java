@@ -1,6 +1,7 @@
 package com.example.studentportal.controller;
 
 import com.example.studentportal.model.*;
+import com.example.studentportal.service.AdminSummaryService;
 import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.MatchingService;
 import com.example.studentportal.service.RequestService;
@@ -27,23 +28,29 @@ public class AdminController {
     private final RequestService requestService;
     private final UserService userService;
     private final MatchingService matchingService;
+    private final AdminSummaryService adminSummaryService;
 
     @Autowired
-    public AdminController(RequestService requestService, UserService userService, MatchingService matchingService) {
+    public AdminController(RequestService requestService, UserService userService, 
+                          MatchingService matchingService, AdminSummaryService adminSummaryService) {
         this.requestService = requestService;
         this.userService = userService;
         this.matchingService = matchingService;
+        this.adminSummaryService = adminSummaryService;
     }
 
     /**
-     * Admin dashboard showing system overview
+     * Admin dashboard showing system overview with summary statistics
      */
     @GetMapping("/dashboard")
     public String adminDashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
                                 Model model) {
         User admin = principal.getUser();
 
-        // Get all non-archived requests
+        // Get summary statistics
+        AdminSummaryService.AdminSummary summary = adminSummaryService.getSummary();
+
+        // Get all non-archived requests for display
         List<Request> allRequests = requestService.getAllNonArchivedRequests();
         List<Request> pendingRequests = requestService.getPendingRequests();
         List<Request> matchedRequests = requestService.getMatchedRequests();
@@ -54,6 +61,7 @@ public class AdminController {
         long adminCount = allUsers.stream().filter(u -> u.getRole() == Role.ADMIN).count();
 
         model.addAttribute("admin", admin);
+        model.addAttribute("summary", summary);
         model.addAttribute("allRequests", allRequests);
         model.addAttribute("pendingRequests", pendingRequests);
         model.addAttribute("matchedRequests", matchedRequests);

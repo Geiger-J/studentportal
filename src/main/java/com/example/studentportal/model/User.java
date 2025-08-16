@@ -224,6 +224,10 @@ public class User {
     }
 
     public boolean isProfileComplete() {
+        // Admin profiles are always considered complete
+        if (role == Role.ADMIN) {
+            return true;
+        }
         return yearGroup != null
                 && yearGroup >= 9 && yearGroup <= 13
                 && !getSubjects().isEmpty()

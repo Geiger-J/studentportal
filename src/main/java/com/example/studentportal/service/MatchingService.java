@@ -64,6 +64,7 @@ public class MatchingService {
 
     /**
      * Manual matching trigger - performs the matching algorithm immediately.
+     * Only matches STUDENT users (excludes ADMIN users).
      * 
      * @return number of requests matched
      */
@@ -72,11 +73,13 @@ public class MatchingService {
         List<Request> tutorRequests = requestRepository.findByStatus(RequestStatus.PENDING)
                 .stream()
                 .filter(r -> r.getType() == RequestType.TUTOR)
+                .filter(r -> r.getUser().getRole() == Role.STUDENT) // Exclude admin users
                 .toList();
 
         List<Request> tuteeRequests = requestRepository.findByStatus(RequestStatus.PENDING)
                 .stream()
                 .filter(r -> r.getType() == RequestType.TUTEE)
+                .filter(r -> r.getUser().getRole() == Role.STUDENT) // Exclude admin users
                 .toList();
 
         int matchedCount = 0;

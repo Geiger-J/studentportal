@@ -1124,3 +1124,85 @@ a:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* Summary Section Styling */
+.summary-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.summary-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.summary-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.summary-card h3 {
+    color: var(--medium-gray);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0.5rem 0;
+}
+
+.summary-description {
+    font-size: 0.85rem;
+    color: var(--medium-gray);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Responsive adjustments for summary */
+@media (max-width: 768px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .summary-number {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-number {
+        font-size: 1.8rem;
+    }
+}

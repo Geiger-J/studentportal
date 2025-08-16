@@ -36,12 +36,21 @@ public class RequestController {
     /**
      * Shows the request creation form.
      * Redirects to profile if profile is not complete.
+     * Forbids access for ADMIN users.
      */
     @GetMapping("/new")
     public String showRequestForm(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-                                 Model model) {
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
         
         User user = principal.getUser();
+
+        // Block admin users from accessing request creation
+        if (user.getRole() == Role.ADMIN) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Administrators cannot create tutoring requests. Please use the admin dashboard to manage the system.");
+            return "redirect:/admin/dashboard";
+        }
 
         // Check if profile is complete
         if (!user.getProfileComplete()) {
@@ -58,6 +67,7 @@ public class RequestController {
     /**
      * Processes request creation.
      * Validates data and creates the request.
+     * Forbids access for ADMIN users.
      */
     @PostMapping
     public String createRequest(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -69,6 +79,13 @@ public class RequestController {
                                Model model) {
         
         User user = principal.getUser();
+
+        // Block admin users from creating requests
+        if (user.getRole() == Role.ADMIN) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Administrators cannot create tutoring requests.");
+            return "redirect:/admin/dashboard";
+        }
 
         // Check if profile is complete
         if (!user.getProfileComplete()) {

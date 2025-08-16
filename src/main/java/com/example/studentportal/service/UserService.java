@@ -30,7 +30,8 @@ public class UserService {
 
     /**
      * Registers a new user with the given details.
-     * Determines role based on email pattern and encodes password.
+     * Always assigns STUDENT role for public registration (admins must be created manually).
+     * Encodes password before saving.
      * 
      * @param fullName the user's full name
      * @param email the user's email (must end with @bromsgrove-school.co.uk)
@@ -49,8 +50,8 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        // Determine role based on email pattern
-        Role role = determineRoleFromEmail(email);
+        // Force STUDENT role for public registration (admins created manually)
+        Role role = Role.STUDENT;
 
         // Create and save user
         String hashedPassword = passwordEncoder.encode(rawPassword);
@@ -103,12 +104,17 @@ public class UserService {
      * Checks if a user's profile is complete.
      * Profile is complete when yearGroup is set (9-13), at least one subject
      * is selected, and at least one availability slot is selected.
+     * For ADMIN users, profile is always considered complete.
      * 
      * @param user the user to check
      * @return true if profile is complete, false otherwise
      */
     @Transactional(readOnly = true)
     public boolean isProfileComplete(User user) {
+        // Admin profiles are always considered complete
+        if (user.getRole() == Role.ADMIN) {
+            return true;
+        }
         return user.isProfileComplete();
     }
 

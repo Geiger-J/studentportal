@@ -202,4 +202,40 @@ class MatchingServiceTest {
         assertEquals(RequestStatus.PENDING, stillCurrent.getStatus());
         assertEquals(RequestStatus.MATCHED, stillMatched.getStatus());
     }
+    
+    @Test
+    void testPerformMatching_ExcludesAdminUsers() {
+        // Given - Create admin user
+        User adminUser = new User("Admin User", "admin@bromsgrove-school.co.uk", "hashedpass", Role.ADMIN);
+        adminUser = userRepository.save(adminUser);
+        
+        Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
+        
+        // Admin user creates a tutor request (shouldn't be matched)
+        Request adminTutorRequest = new Request(adminUser, RequestType.TUTOR, mathSubject, timeslots, false, nextMonday);
+        adminTutorRequest = requestRepository.save(adminTutorRequest);
+        
+        // Student creates a tutee request
+        Request studentTuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, timeslots, false, nextMonday);
+        studentTuteeRequest = requestRepository.save(studentTuteeRequest);
+
+        // When
+        int matchedCount = matchingService.performMatching();
+
+        // Then - No matches should occur because admin user is excluded
+        assertEquals(0, matchedCount);
+        
+        // Check that requests are still pending
+        Request updatedAdminRequest = requestRepository.findById(adminTutorRequest.getId()).orElse(null);
+        Request updatedStudentRequest = requestRepository.findById(studentTuteeRequest.getId()).orElse(null);
+        
+        assertNotNull(updatedAdminRequest);
+        assertNotNull(updatedStudentRequest);
+        
+        assertEquals(RequestStatus.PENDING, updatedAdminRequest.getStatus());
+        assertEquals(RequestStatus.PENDING, updatedStudentRequest.getStatus());
+        
+        assertNull(updatedAdminRequest.getMatchedPartner());
+        assertNull(updatedStudentRequest.getMatchedPartner());
+    }
 }
