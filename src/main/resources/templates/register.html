@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Bromsgrove Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="form-container">
+                <h1>Register</h1>
+                <p class="form-subtitle">Create your student portal account</p>
+
+                <!-- Error Messages -->
+                <div th:if="${#fields.hasErrors('user.*')}" class="alert alert-error">
+                    <ul class="error-list">
+                        <li th:each="err : ${#fields.errors('user.*')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+
+                <!-- Registration Form -->
+                <form th:action="@{/register}" th:object="${user}" method="post" class="form">
+                    <div class="form-group">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" id="fullName" th:field="*{fullName}" class="form-input" 
+                               placeholder="Your full name" required>
+                        <span th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="error-text"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">School Email Address</label>
+                        <input type="email" id="email" th:field="*{email}" class="form-input" 
+                               placeholder="your.email@bromsgrove-school.co.uk" required>
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-text"></span>
+                        <small class="form-help">Must be a valid Bromsgrove School email address</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" th:field="*{password}" class="form-input" 
+                               placeholder="Enter password (minimum 4 characters)" required minlength="4">
+                        <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-text"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Register</button>
+                </form>
+
+                <div class="form-footer">
+                    <p>Already have an account? <a href="/login" class="link">Login here</a></p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Role Assignment</h3>
+                    <p><strong>Students:</strong> Email starting with a number (e.g., 1234@bromsgrove-school.co.uk)</p>
+                    <p><strong>Staff:</strong> Email starting with a letter (e.g., name@bromsgrove-school.co.uk)</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

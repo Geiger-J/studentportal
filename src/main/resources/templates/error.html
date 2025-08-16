@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Bromsgrove Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="form-container">
+                <h1>Oops! Something went wrong</h1>
+                <p class="form-subtitle">We're sorry, but an error occurred while processing your request.</p>
+
+                <div class="alert alert-error">
+                    <h3>Error Details</h3>
+                    <p th:if="${error}" th:text="${error}">An unexpected error occurred.</p>
+                    <p th:unless="${error}">An unexpected error occurred. Please try again later.</p>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/" class="btn btn-primary">Go Home</a>
+                    <a href="/dashboard" sec:authorize="isAuthenticated()" class="btn btn-secondary">Dashboard</a>
+                </div>
+
+                <div class="info-box">
+                    <h3>Need Help?</h3>
+                    <p>If you continue to experience issues, please contact our support team:</p>
+                    <p>Email: <a href="mailto:support@bromsgrove-school.co.uk">support@bromsgrove-school.co.uk</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
