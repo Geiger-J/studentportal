@@ -868,3 +868,226 @@ a:hover {
         color: black !important;
     }
 }
+
+/* Email Input with Domain Suffix */
+.email-input-container {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.email-input-container:focus-within {
+    border-color: var(--primary-color);
+}
+
+.email-prefix {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0.75rem;
+    flex: 1;
+    outline: none;
+}
+
+.email-domain {
+    background-color: #8B4513;
+    color: white;
+    padding: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Status Badge Styles */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.status-matched {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-not_matched {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-completed {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.status-cancelled {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+.status-archived {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+
+.archived-badge {
+    background-color: #6c757d;
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+/* Status Tooltips */
+.status-container {
+    position: relative;
+    display: inline-block;
+}
+
+.status-tooltip {
+    position: relative;
+    display: inline-block;
+    margin-left: 0.25rem;
+    cursor: help;
+}
+
+.status-tooltip::before {
+    content: "ℹ";
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.75rem;
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.status-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Admin Dashboard Styles */
+.filter-controls {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.filter-group label {
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+
+.summary-card {
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.summary-card h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.requests-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+}
+
+.request-card {
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.request-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.request-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.timeslot-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.timeslot-tag {
+    background-color: var(--light-gray);
+    padding: 0.125rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--dark-gray);
+}
+
+.admin-note {
+    color: var(--medium-gray);
+    font-style: italic;
+}

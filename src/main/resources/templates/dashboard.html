@@ -69,9 +69,23 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-badge" 
-                                          th:classappend="${request.status.name().toLowerCase()}"
-                                          th:text="${request.status.displayName}">Pending</span>
+                                    <div class="status-container">
+                                        <span class="status-badge" 
+                                              th:classappend="'status-' + ${request.status.name().toLowerCase()}"
+                                              th:text="${request.status.displayName}">Pending</span>
+                                        <div th:if="${request.status.name() == 'PENDING'}" class="status-tooltip">
+                                            <span class="tooltip-text">Matching runs Saturday</span>
+                                        </div>
+                                        <div th:if="${request.status.name() == 'NOT_MATCHED'}" class="status-tooltip">
+                                            <span class="tooltip-text">No match found in last run</span>
+                                        </div>
+                                        <div th:if="${request.status.name() == 'MATCHED'}" class="status-tooltip">
+                                            <span class="tooltip-text">Partner assigned - check details</span>
+                                        </div>
+                                        <div th:if="${request.status.name() == 'ARCHIVED'}" class="status-tooltip">
+                                            <span class="tooltip-text">Request archived from previous week</span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     <span th:text="${request.recurring ? 'Yes' : 'No'}" 

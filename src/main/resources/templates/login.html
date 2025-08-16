@@ -26,9 +26,13 @@
                 <!-- Login Form -->
                 <form action="/login" method="post" class="form">
                     <div class="form-group">
-                        <label for="username" class="form-label">Email Address</label>
-                        <input type="email" id="username" name="username" class="form-input" 
-                               placeholder="your.email@bromsgrove-school.co.uk" required>
+                        <label for="email-prefix" class="form-label">Email Address</label>
+                        <div class="email-input-container">
+                            <input type="text" id="email-prefix" name="email-prefix" class="form-input email-prefix" 
+                                   placeholder="your.username" required>
+                            <span class="email-domain">@bromsgrove-school.co.uk</span>
+                        </div>
+                        <input type="hidden" id="username" name="username">
                     </div>
 
                     <div class="form-group">
@@ -49,5 +53,41 @@
 
     <!-- Footer -->
     <div th:replace="fragments/footer :: footer"></div>
+
+    <!-- Email reconstruction script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const emailPrefix = document.getElementById('email-prefix');
+            const usernameField = document.getElementById('username');
+            const domain = '@bromsgrove-school.co.uk';
+            
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                const prefix = emailPrefix.value.trim();
+                
+                // Sanitize input - if user pasted full email, strip domain
+                let cleanPrefix = prefix;
+                if (prefix.includes('@')) {
+                    cleanPrefix = prefix.split('@')[0];
+                }
+                
+                // Reconstruct full email
+                const fullEmail = cleanPrefix + domain;
+                usernameField.value = fullEmail;
+            });
+            
+            // Real-time validation feedback
+            emailPrefix.addEventListener('input', function() {
+                let value = this.value;
+                
+                // Auto-strip domain if user pastes full email
+                if (value.includes('@')) {
+                    value = value.split('@')[0];
+                    this.value = value;
+                }
+            });
+        });
+    </script>
 </body>
 </html>

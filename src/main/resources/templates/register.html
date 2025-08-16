@@ -35,11 +35,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="email" class="form-label">School Email Address</label>
-                        <input type="email" id="email" th:field="*{email}" class="form-input" 
-                               placeholder="your.email@bromsgrove-school.co.uk" required>
+                        <label for="email-prefix" class="form-label">School Email Address</label>
+                        <div class="email-input-container">
+                            <input type="text" id="email-prefix" name="email-prefix" class="form-input email-prefix" 
+                                   placeholder="your.username" required>
+                            <span class="email-domain">@bromsgrove-school.co.uk</span>
+                        </div>
+                        <input type="hidden" id="email" th:field="*{email}">
                         <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-text"></span>
-                        <small class="form-help">Must be a valid Bromsgrove School email address</small>
+                        <small class="form-help">Enter your username before @bromsgrove-school.co.uk</small>
                     </div>
 
                     <div class="form-group">
@@ -67,5 +71,45 @@
 
     <!-- Footer -->
     <div th:replace="fragments/footer :: footer"></div>
+
+    <!-- Email reconstruction script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const emailPrefix = document.getElementById('email-prefix');
+            const emailField = document.getElementById('email');
+            const domain = '@bromsgrove-school.co.uk';
+            
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                const prefix = emailPrefix.value.trim();
+                
+                // Sanitize input - if user pasted full email, strip domain
+                let cleanPrefix = prefix;
+                if (prefix.includes('@')) {
+                    cleanPrefix = prefix.split('@')[0];
+                }
+                
+                // Reconstruct full email for form binding
+                const fullEmail = cleanPrefix + domain;
+                emailField.value = fullEmail;
+            });
+            
+            // Real-time validation feedback
+            emailPrefix.addEventListener('input', function() {
+                let value = this.value;
+                
+                // Auto-strip domain if user pastes full email
+                if (value.includes('@')) {
+                    value = value.split('@')[0];
+                    this.value = value;
+                }
+                
+                // Update hidden field in real-time for validation
+                const fullEmail = value + domain;
+                emailField.value = fullEmail;
+            });
+        });
+    </script>
 </body>
 </html>

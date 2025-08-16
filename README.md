@@ -178,6 +178,50 @@ src/main/java/com/example/studentportal/
 - **Database Tests**: Repository functionality with H2
 - **Test Profiles**: Separate configuration for testing
 
+## Request Lifecycle
+
+### Status Overview
+
+The system manages tutoring requests through the following status lifecycle:
+
+- **PENDING**: Newly created requests awaiting matching
+- **MATCHED**: Successfully paired with a partner
+- **NOT_MATCHED**: No suitable match found in latest matching run
+- **COMPLETED**: Tutoring session completed successfully
+- **CANCELLED**: Request cancelled by user before session
+- **ARCHIVED**: Historical requests from previous weeks
+
+### Weekly Matching Process
+
+**Saturday 11:00 PM (Europe/London)**: Automated matching and archival runs
+
+1. **Matching Phase**: Current week PENDING requests are processed
+   - Matched requests → status changes to MATCHED
+   - Unmatched requests → status changes to NOT_MATCHED
+   - Matching algorithm determines optimal tutor-tutee pairings
+
+2. **Archival Phase**: Previous week requests are archived
+   - All requests from the previous week (regardless of status) → ARCHIVED
+   - Prevents system from becoming cluttered with old requests
+   - Historical data maintained for reporting and analytics
+
+### Cancellation Rules
+
+Users can cancel requests under specific conditions:
+
+- **Status Requirements**: Request must be PENDING or NOT_MATCHED
+- **Timing Requirements**: Current time must be at least 24 hours before the earliest session timeslot
+- **Ownership**: Users can only cancel their own requests
+
+### Admin Dashboard
+
+Administrators have access to system-wide request management:
+
+- **Default View**: Shows all active (non-archived) requests
+- **Archived Filter**: Toggle to include archived requests in the view
+- **Request Details**: Full visibility into all request information
+- **Status Management**: Future features will allow status modifications
+
 ## Roadmap - Phase 2
 
 ### Planned Features

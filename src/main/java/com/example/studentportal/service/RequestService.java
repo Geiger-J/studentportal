@@ -152,6 +152,37 @@ public class RequestService {
         return getRequestsByStatus(RequestStatus.PENDING);
     }
 
+    /**
+     * Retrieves all non-archived requests.
+     * 
+     * @return list of requests that are not archived
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getAllNonArchivedRequests() {
+        return requestRepository.findAllByStatusNot(RequestStatus.ARCHIVED);
+    }
+
+    /**
+     * Retrieves all matched requests.
+     * 
+     * @return list of matched requests
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getMatchedRequests() {
+        return getRequestsByStatus(RequestStatus.MATCHED);
+    }
+
+    /**
+     * Retrieves all requests (including archived).
+     * Used for admin dashboard with full view.
+     * 
+     * @return list of all requests
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getAllRequests() {
+        return requestRepository.findAll();
+    }
+
     // TODO: Phase 2 - Implement matching algorithm integration
     // TODO: Phase 2 - Add recurring request handling
     // TODO: Phase 2 - Add maxTutoringPerWeek enforcement

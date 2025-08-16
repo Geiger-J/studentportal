@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bromsgrove Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-container">
+                <h1>Admin Dashboard</h1>
+                <p class="dashboard-subtitle">Manage all tutoring requests in the system</p>
+
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label>Show Requests:</label>
+                        <a th:href="@{/admin}" 
+                           th:class="${showingArchived} ? 'btn btn-secondary' : 'btn btn-primary'"
+                           class="btn">Active Only</a>
+                        <a th:href="@{/admin(archived=1)}" 
+                           th:class="${showingArchived} ? 'btn btn-primary' : 'btn btn-secondary'"
+                           class="btn">Include Archived</a>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="summary-card">
+                    <h3>Summary</h3>
+                    <p>Total Requests: <span th:text="${totalRequests}">0</span></p>
+                    <p>View: <span th:text="${showingArchived} ? 'All Requests (including archived)' : 'Active Requests Only'">Active Requests Only</span></p>
+                </div>
+
+                <!-- Requests Table -->
+                <div class="requests-section">
+                    <h2>All Requests</h2>
+                    
+                    <div th:if="${#lists.isEmpty(requests)}" class="no-requests">
+                        <p>No requests found.</p>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(requests)}" class="requests-grid">
+                        <div th:each="request : ${requests}" class="request-card">
+                            <div class="request-header">
+                                <h3 th:text="${request.subject.displayName}">Subject</h3>
+                                <div class="status-container">
+                                    <span th:class="'status-badge status-' + ${#strings.toLowerCase(request.status.name())}"
+                                          th:text="${request.status.displayName}">Status</span>
+                                    <span th:if="${request.status.name() == 'ARCHIVED'}" class="archived-badge">Archived</span>
+                                </div>
+                            </div>
+                            
+                            <div class="request-details">
+                                <p><strong>User:</strong> <span th:text="${request.user.fullName}">User Name</span></p>
+                                <p><strong>Email:</strong> <span th:text="${request.user.email}">user@email.com</span></p>
+                                <p><strong>Type:</strong> <span th:text="${request.type.displayName}">Type</span></p>
+                                <p><strong>Week:</strong> <span th:text="${#dates.format(request.weekStartDate, 'MMM dd, yyyy')}">Week</span></p>
+                                <p><strong>Created:</strong> <span th:text="${#dates.format(request.createdAt, 'MMM dd, yyyy HH:mm')}">Created</span></p>
+                                
+                                <div class="timeslots">
+                                    <strong>Timeslots:</strong>
+                                    <div class="timeslot-list">
+                                        <span th:each="timeslot : ${request.timeslots}" 
+                                              th:text="${timeslot.label()}" 
+                                              class="timeslot-tag">Timeslot</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Admin Actions -->
+                            <div th:unless="${request.status.name() == 'ARCHIVED'}" class="request-actions">
+                                <small class="admin-note">Status changes available in future admin features</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

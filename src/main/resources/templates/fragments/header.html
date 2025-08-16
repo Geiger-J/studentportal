@@ -29,6 +29,10 @@
                     <li class="nav-item">
                         <a href="/profile" class="nav-link">Profile</a>
                     </li>
+                    <!-- Admin Only Menu -->
+                    <li sec:authorize="hasAuthority('ADMIN')" class="nav-item">
+                        <a href="/admin" class="nav-link admin-link">Admin</a>
+                    </li>
                     <li class="nav-item">
                         <form action="/logout" method="post" class="logout-form">
                             <button type="submit" class="nav-link logout-btn">Logout</button>
