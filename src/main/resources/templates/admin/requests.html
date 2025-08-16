@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Requests - Admin - Bromsgrove Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Manage Requests</h1>
+                <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+
+            <!-- Filter Section -->
+            <section class="filter-section">
+                <h2>Filter Requests</h2>
+                <form method="get" action="/admin/requests" class="filter-form">
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status" onchange="this.form.submit()">
+                            <option value="">All Statuses</option>
+                            <option th:each="status : ${allStatuses}" 
+                                    th:value="${status.name()}"
+                                    th:text="${status.displayName}"
+                                    th:selected="${selectedStatus != null && selectedStatus.equalsIgnoreCase(status.name())}">
+                                Status
+                            </option>
+                        </select>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Requests Table -->
+            <section class="requests-section">
+                <h2>All Requests 
+                    <span th:if="${selectedStatus != null and !selectedStatus.isEmpty()}" 
+                          th:text="'- ' + ${selectedStatus}"></span>
+                </h2>
+                
+                <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
+                    <p>No requests found matching the current filter.</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(requests)}" class="requests-table-container">
+                    <table class="requests-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Type</th>
+                                <th>Timeslots</th>
+                                <th>Status</th>
+                                <th>Matched Partner</th>
+                                <th>Recurring</th>
+                                <th>Created</th>
+                                <th>Week Start</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="request : ${requests}">
+                                <td th:text="${request.id}">1</td>
+                                <td th:text="${request.user.fullName}">John Doe</td>
+                                <td th:text="${request.user.email}">john@bromsgrove-school.co.uk</td>
+                                <td th:text="${request.subject.displayName}">Mathematics</td>
+                                <td>
+                                    <span class="request-type" 
+                                          th:classappend="${request.type.name() == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
+                                          th:text="${request.type.displayName}">Offering Tutoring</span>
+                                </td>
+                                <td>
+                                    <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
+                                    <div class="timeslot-details">
+                                        <span th:each="timeslot, iterStat : ${request.timeslots}" 
+                                              th:text="${timeslot.label()} + (${!iterStat.last} ? ', ' : '')"
+                                              class="timeslot-item"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${request.status.name().toLowerCase()}"
+                                          th:text="${request.status.displayName}">Pending</span>
+                                </td>
+                                <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : 'None'}">None</td>
+                                <td>
+                                    <span th:text="${request.recurring ? 'Yes' : 'No'}" 
+                                          th:class="${request.recurring ? 'recurring-yes' : 'recurring-no'}">No</span>
+                                </td>
+                                <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td th:text="${#temporals.format(request.weekStartDate, 'dd/MM/yyyy')}">08/01/2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

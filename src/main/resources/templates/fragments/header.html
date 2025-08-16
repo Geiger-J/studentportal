@@ -26,6 +26,12 @@
                     <li class="nav-item">
                         <a href="/dashboard" class="nav-link">Dashboard</a>
                     </li>
+                    <!-- Admin Menu -->
+                    <div sec:authorize="hasRole('ADMIN')">
+                        <li class="nav-item">
+                            <a href="/admin/dashboard" class="nav-link admin-link">Admin</a>
+                        </li>
+                    </div>
                     <li class="nav-item">
                         <a href="/profile" class="nav-link">Profile</a>
                     </li>

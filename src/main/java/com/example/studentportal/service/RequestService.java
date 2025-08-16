@@ -152,6 +152,39 @@ public class RequestService {
         return getRequestsByStatus(RequestStatus.PENDING);
     }
 
+    /**
+     * Retrieves all non-archived requests.
+     * 
+     * @return list of requests that are not archived
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getAllNonArchivedRequests() {
+        return requestRepository.findAllByStatusNot(RequestStatus.ARCHIVED);
+    }
+
+    /**
+     * Retrieves all matched requests.
+     * 
+     * @return list of matched requests
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getMatchedRequests() {
+        return getRequestsByStatus(RequestStatus.MATCHED);
+    }
+
+    /**
+     * Archives old requests (placeholder implementation).
+     * In the future, this will archive requests older than a certain date.
+     * 
+     * @return number of requests archived
+     */
+    @Transactional
+    public int archiveOldRequests() {
+        // TODO: Implement archival logic based on weekStartDate
+        // For now, return 0 as placeholder
+        return 0;
+    }
+
     // TODO: Phase 2 - Implement matching algorithm integration
     // TODO: Phase 2 - Add recurring request handling
     // TODO: Phase 2 - Add maxTutoringPerWeek enforcement

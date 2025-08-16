@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
@@ -49,6 +51,8 @@ public class SecurityConfig {
                 // Permit public access to these paths
                 .requestMatchers("/", "/login", "/register", "/about", 
                                 "/css/**", "/images/**", "/js/**").permitAll()
+                // Admin routes require ADMIN role
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )
