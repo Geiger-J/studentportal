@@ -2,6 +2,7 @@ package com.example.studentportal.controller;
 
 import com.example.studentportal.model.*;
 import com.example.studentportal.service.CustomUserDetailsService;
+import com.example.studentportal.service.MatchingService;
 import com.example.studentportal.service.RequestService;
 import com.example.studentportal.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,13 @@ public class AdminController {
 
     private final RequestService requestService;
     private final UserService userService;
+    private final MatchingService matchingService;
 
     @Autowired
-    public AdminController(RequestService requestService, UserService userService) {
+    public AdminController(RequestService requestService, UserService userService, MatchingService matchingService) {
         this.requestService = requestService;
         this.userService = userService;
+        this.matchingService = matchingService;
     }
 
     /**
@@ -100,13 +103,12 @@ public class AdminController {
     }
 
     /**
-     * Manual matching trigger - placeholder for matching algorithm
+     * Manual matching trigger - uses the matching service
      */
     @PostMapping("/match")
     public String triggerMatching(RedirectAttributes redirectAttributes) {
         try {
-            // TODO: Implement matching algorithm
-            int matchedCount = 0; // Placeholder
+            int matchedCount = matchingService.performMatching();
             
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Matching process completed. " + matchedCount + " requests matched.");
@@ -119,12 +121,12 @@ public class AdminController {
     }
 
     /**
-     * Archive old requests manually
+     * Archive old requests manually using the matching service
      */
     @PostMapping("/archive")
     public String archiveOldRequests(RedirectAttributes redirectAttributes) {
         try {
-            int archivedCount = requestService.archiveOldRequests();
+            int archivedCount = matchingService.performArchival();
             
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Archived " + archivedCount + " old requests.");

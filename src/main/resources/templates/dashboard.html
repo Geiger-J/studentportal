@@ -46,6 +46,7 @@
                                 <th>Type</th>
                                 <th>Timeslots</th>
                                 <th>Status</th>
+                                <th>Matched Partner</th>
                                 <th>Recurring</th>
                                 <th>Created</th>
                                 <th>Week Start</th>
@@ -72,6 +73,13 @@
                                     <span class="status-badge" 
                                           th:classappend="${request.status.name().toLowerCase()}"
                                           th:text="${request.status.displayName}">Pending</span>
+                                </td>
+                                <td class="matched-partner-cell">
+                                    <span th:if="${request.matchedPartner != null}" 
+                                          th:text="${request.matchedPartner.fullName}"
+                                          class="matched-partner-name">John Smith</span>
+                                    <span th:if="${request.matchedPartner == null}" 
+                                          class="no-partner">Not matched</span>
                                 </td>
                                 <td>
                                     <span th:text="${request.recurring ? 'Yes' : 'No'}" 
