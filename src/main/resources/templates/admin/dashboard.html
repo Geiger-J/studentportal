@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bromsgrove Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Admin Dashboard</h1>
+                <p class="welcome-message">Welcome, <span th:text="${admin.fullName}">Admin</span>!</p>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+            <!-- Admin Actions -->
+            <div class="dashboard-actions">
+                <a href="/admin/requests" class="btn btn-primary">Manage Requests</a>
+                <a href="/admin/users" class="btn btn-secondary">Manage Users</a>
+                <form th:action="@{/admin/match}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-action">Trigger Matching</button>
+                </form>
+                <form th:action="@{/admin/archive}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-warning">Archive Old Requests</button>
+                </form>
+            </div>
+
+            <!-- Statistics Overview -->
+            <section class="stats-section">
+                <h2>System Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Requests</h3>
+                        <span class="stat-number" th:text="${totalRequests}">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pending Requests</h3>
+                        <span class="stat-number" th:text="${#lists.size(pendingRequests)}">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Matched Requests</h3>
+                        <span class="stat-number" th:text="${#lists.size(matchedRequests)}">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <span class="stat-number" th:text="${totalUsers}">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Students</h3>
+                        <span class="stat-number" th:text="${studentCount}">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Administrators</h3>
+                        <span class="stat-number" th:text="${adminCount}">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Requests -->
+            <section class="recent-requests-section">
+                <h2>Recent Requests</h2>
+                
+                <div th:if="${#lists.isEmpty(allRequests)}" class="empty-state">
+                    <p>No active requests in the system.</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(allRequests)}" class="requests-table-container">
+                    <table class="requests-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Subject</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Matched Partner</th>
+                                <th>Created</th>
+                                <th>Week Start</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="request : ${allRequests}" th:if="${requestStat.index < 10}">
+                                <td th:text="${request.id}">1</td>
+                                <td th:text="${request.user.fullName}">John Doe</td>
+                                <td th:text="${request.subject.displayName}">Mathematics</td>
+                                <td>
+                                    <span class="request-type" 
+                                          th:classappend="${request.type.name() == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
+                                          th:text="${request.type.displayName}">Offering Tutoring</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge" 
+                                          th:classappend="${request.status.name().toLowerCase()}"
+                                          th:text="${request.status.displayName}">Pending</span>
+                                </td>
+                                <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : 'None'}">None</td>
+                                <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td th:text="${#temporals.format(request.weekStartDate, 'dd/MM/yyyy')}">08/01/2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div th:if="${#lists.size(allRequests) > 10}" class="show-more">
+                        <a href="/admin/requests" class="btn btn-link">View All Requests</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -179,5 +181,73 @@ class RequestServiceTest {
         // Then
         assertFalse(hasActiveBefore);
         assertTrue(hasActiveAfter);
+    }
+
+    @Test
+    void testArchivedStatus() {
+        // Given
+        Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
+        Request request = requestService.createRequest(
+            testUser, RequestType.TUTOR, testSubject, timeslots, false
+        );
+
+        // When - Set status to ARCHIVED
+        request.setStatus(RequestStatus.ARCHIVED);
+        requestRepository.save(request);
+
+        // Then
+        Request archivedRequest = requestRepository.findById(request.getId()).orElse(null);
+        assertNotNull(archivedRequest);
+        assertEquals(RequestStatus.ARCHIVED, archivedRequest.getStatus());
+        assertEquals("Archived", RequestStatus.ARCHIVED.getDisplayName());
+    }
+
+    @Test
+    void testMatchedPartnerField() {
+        // Given
+        Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
+        
+        // Create two users for matching
+        User partner = new User("Partner Student", "5678@bromsgrove-school.co.uk", "hashedpass", Role.STUDENT);
+        partner = userRepository.save(partner);
+        
+        Request request = requestService.createRequest(
+            testUser, RequestType.TUTOR, testSubject, timeslots, false
+        );
+
+        // When - Set matched partner and status
+        request.setMatchedPartner(partner);
+        request.setStatus(RequestStatus.MATCHED);
+        requestRepository.save(request);
+
+        // Then
+        Request matchedRequest = requestRepository.findById(request.getId()).orElse(null);
+        assertNotNull(matchedRequest);
+        assertEquals(RequestStatus.MATCHED, matchedRequest.getStatus());
+        assertEquals(partner, matchedRequest.getMatchedPartner());
+        assertEquals(partner.getId(), matchedRequest.getMatchedPartner().getId());
+    }
+
+    @Test
+    void testFindAllByStatusNot() {
+        // Given
+        Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
+        
+        // Create requests with different statuses
+        Request pendingRequest = requestService.createRequest(
+            testUser, RequestType.TUTOR, testSubject, timeslots, false
+        );
+        
+        Request archivedRequest = new Request(testUser, RequestType.TUTEE, testSubject, timeslots, false, pendingRequest.getWeekStartDate());
+        archivedRequest.setStatus(RequestStatus.ARCHIVED);
+        requestRepository.save(archivedRequest);
+
+        // When - Find all non-archived requests
+        var nonArchivedRequests = requestRepository.findAllByStatusNot(RequestStatus.ARCHIVED);
+
+        // Then
+        assertEquals(1, nonArchivedRequests.size());
+        assertEquals(RequestStatus.PENDING, nonArchivedRequests.get(0).getStatus());
+        assertEquals(pendingRequest.getId(), nonArchivedRequests.get(0).getId());
     }
 }

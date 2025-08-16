@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
 
 /**
  * Repository interface for Request entity operations.
@@ -63,4 +64,20 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
      * @return list of requests for the subject
      */
     List<Request> findBySubject(Subject subject);
+    
+    /**
+     * Finds all requests excluding archived ones.
+     * @param status the status to exclude (typically ARCHIVED)
+     * @return list of requests that are not archived
+     */
+    List<Request> findAllByStatusNot(RequestStatus status);
+    
+    /**
+     * Finds requests with specified statuses and week start date before given date.
+     * Used for archival processes.
+     * @param statuses list of statuses to include
+     * @param weekStartDate the cutoff date
+     * @return list of requests matching criteria
+     */
+    List<Request> findByStatusInAndWeekStartDateBefore(List<RequestStatus> statuses, LocalDate weekStartDate);
 }

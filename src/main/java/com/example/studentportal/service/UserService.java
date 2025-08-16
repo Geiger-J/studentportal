@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -130,5 +131,15 @@ public class UserService {
      */
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    /**
+     * Retrieves all users in the system.
+     * 
+     * @return list of all users
+     */
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

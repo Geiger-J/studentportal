@@ -8,7 +8,8 @@ public enum RequestStatus {
     PENDING("Pending"),
     MATCHED("Matched"),
     COMPLETED("Completed"),
-    CANCELLED("Cancelled");
+    CANCELLED("Cancelled"),
+    ARCHIVED("Archived");
 
     private final String displayName;
 

@@ -53,6 +53,10 @@ public class Request {
     @Column(nullable = false)
     private RequestStatus status = RequestStatus.PENDING;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "matched_partner_id")
+    private User matchedPartner;
+    
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -137,6 +141,14 @@ public class Request {
 
     public void setStatus(RequestStatus status) {
         this.status = status;
+    }
+
+    public User getMatchedPartner() {
+        return matchedPartner;
+    }
+
+    public void setMatchedPartner(User matchedPartner) {
+        this.matchedPartner = matchedPartner;
     }
 
     public LocalDateTime getCreatedAt() {
