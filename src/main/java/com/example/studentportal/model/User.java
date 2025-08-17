@@ -224,6 +224,11 @@ public class User {
     }
 
     public boolean isProfileComplete() {
+        // Admin users don't need academic profile completion
+        if (role == Role.ADMIN) {
+            return true;
+        }
+        
         return yearGroup != null
                 && yearGroup >= 9 && yearGroup <= 13
                 && !getSubjects().isEmpty()

@@ -5,6 +5,7 @@ import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.RequestService;
 import com.example.studentportal.service.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +20,11 @@ import java.util.Set;
 /**
  * Controller for tutoring request management.
  * Handles request creation and cancellation.
+ * Only accessible to STUDENT role users.
  */
 @Controller
 @RequestMapping("/requests")
+@PreAuthorize("hasRole('STUDENT')")
 public class RequestController {
 
     private final RequestService requestService;
