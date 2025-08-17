@@ -1411,4 +1411,52 @@ a:hover {
         font-size: 0.75rem;
     }
 }
+
+/* Request Form Enhancements */
+.available-slot .checkbox-item {
+    opacity: 1;
+}
+
+.unavailable-slot {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.disabled-timeslot {
+    background-color: #f5f5f5;
+    color: #999;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+    position: relative;
+}
+
+.disabled-label {
+    text-decoration: line-through;
+}
+
+/* Updated tooltip styles for better positioning */
+.disabled-timeslot.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 250px;
+    background-color: var(--dark-gray);
+    color: var(--white);
+    text-align: center;
+    border-radius: var(--border-radius);
+    padding: 8px 10px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -125px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.disabled-timeslot.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
 }

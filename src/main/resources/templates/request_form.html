@@ -51,26 +51,26 @@
                     <!-- Timeslots -->
                     <div class="form-group">
                         <label class="form-label">Available Timeslots *</label>
-                        <p class="section-description">Select when you're available for this tutoring:</p>
+                        <p class="section-description">Select when you're available for this tutoring session:</p>
                         <div class="timeslot-grid">
-                            <div th:each="timeslot : ${timeslots}" class="checkbox-item">
-                                <input type="checkbox" 
-                                       th:id="${'timeslot_' + timeslot.name()}" 
-                                       name="timeslots" 
-                                       th:value="${timeslot.name()}">
-                                <label th:for="${'timeslot_' + timeslot.name()}" th:text="${timeslot.label()}"></label>
+                            <div th:each="timeslot : ${timeslots}" 
+                                 class="checkbox-item"
+                                 th:classappend="${userAvailability.contains(timeslot)} ? 'available-slot' : 'unavailable-slot'">
+                                <div th:if="${userAvailability.contains(timeslot)}">
+                                    <input type="checkbox" 
+                                           th:id="${'timeslot_' + timeslot.name()}" 
+                                           name="timeslots" 
+                                           th:value="${timeslot.name()}">
+                                    <label th:for="${'timeslot_' + timeslot.name()}" th:text="${timeslot.label()}"></label>
+                                </div>
+                                <div th:unless="${userAvailability.contains(timeslot)}" 
+                                     class="disabled-timeslot tooltip">
+                                    <span th:text="${timeslot.label()}" class="disabled-label"></span>
+                                    <span class="tooltip-text">Not in your availability. Edit profile to enable.</span>
+                                </div>
                             </div>
                         </div>
-                        <small class="form-help">Select at least one time slot when you're available</small>
-                    </div>
-
-                    <!-- Recurring Option -->
-                    <div class="form-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="recurring" name="recurring" value="true">
-                            <label for="recurring">Recurring Request</label>
-                        </div>
-                        <small class="form-help">Check if you want this request to repeat weekly (Phase 2 feature)</small>
+                        <small class="form-help">Select at least one time slot when you're available. Grayed out slots are not in your profile availability.</small>
                     </div>
 
                     <!-- Information Box -->
