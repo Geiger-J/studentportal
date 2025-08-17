@@ -9,13 +9,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-/**
- * Spring Security configuration for the Student Portal.
- * Configures authentication, authorization, and custom login handling.
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -23,63 +20,50 @@ public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final AccessDeniedHandler roleRedirectAccessDeniedHandler;
 
     @Autowired
-    public SecurityConfig(PasswordEncoder passwordEncoder, 
-                         AuthenticationSuccessHandler authenticationSuccessHandler) {
+    public SecurityConfig(PasswordEncoder passwordEncoder,
+            AuthenticationSuccessHandler authenticationSuccessHandler,
+            AccessDeniedHandler roleRedirectAccessDeniedHandler) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
+        this.roleRedirectAccessDeniedHandler = roleRedirectAccessDeniedHandler;
     }
 
-    /**
-     * Configures the security filter chain with custom authentication rules.
-     * 
-     * Key features:
-     * - Permits public access to landing, login, register, about pages and static resources
-     * - Requires authentication for all other routes
-     * - Custom login page with redirect logic based on profile completeness
-     * - Logout redirects to landing page
-     * 
-     * @param http the HttpSecurity configuration
-     * @return configured SecurityFilterChain
-     * @throws Exception if configuration fails
-     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authz -> authz
-                // Permit public access to these paths
-                .requestMatchers("/", "/login", "/register", "/about", 
-                                "/css/**", "/images/**", "/js/**").permitAll()
-                // Admin routes require ADMIN role
+                .authorizeHttpRequests(authz -> authz
+                // Public
+                .requestMatchers("/", "/login", "/register", "/about",
+                        "/css/**", "/images/**", "/js/**").permitAll()
+                // Admin-only area
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                // All other requests require authentication
+                // Student-only functional pages
+                .requestMatchers("/dashboard", "/profile/**", "/requests/**").hasRole("STUDENT")
+                // Any other authenticated route (tighten if desired)
                 .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
+                )
+                .formLogin(form -> form
                 .loginPage("/login")
                 .permitAll()
-                // Use custom success handler for profile-based redirection
                 .successHandler(authenticationSuccessHandler)
                 .failureUrl("/login?error=true")
-            )
-            .logout(logout -> logout
+                )
+                .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .permitAll()
-            )
-            // Disable CSRF for simplicity in Phase 1 (should be enabled in production)
-            .csrf(csrf -> csrf.disable());
+                )
+                .exceptionHandling(ex -> ex
+                .accessDeniedHandler(roleRedirectAccessDeniedHandler)
+                )
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 
-    /**
-     * Authentication provider using our custom UserDetailsService and password encoder.
-     * 
-     * @param userDetailsService the custom user details service
-     * @return configured DaoAuthenticationProvider
-     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
