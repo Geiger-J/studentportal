@@ -131,6 +131,12 @@ a:hover {
     align-items: center;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .nav-link {
     color: var(--white);
     text-decoration: none;
@@ -345,6 +351,42 @@ a:hover {
 .form-input[readonly] {
     background-color: var(--light-gray);
     color: var(--medium-gray);
+}
+
+/* Email Input with Domain Suffix */
+.email-input-container {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.email-input-container:focus-within {
+    border-color: var(--primary-color);
+}
+
+.email-prefix {
+    border: none !important;
+    border-radius: 0 !important;
+    flex: 1;
+    margin: 0;
+    padding: 0.75rem;
+}
+
+.email-prefix:focus {
+    outline: none;
+    border: none !important;
+}
+
+.email-domain {
+    background-color: var(--light-gray);
+    padding: 0.75rem 1rem;
+    color: var(--medium-gray);
+    font-size: 1rem;
+    white-space: nowrap;
+    border-left: 1px solid var(--border-color);
 }
 
 .form-help {
@@ -987,6 +1029,39 @@ a:hover {
     border: 1px solid #FFE69C;
 }
 
+.admin-badge {
+    font-size: 1.2em;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Select Cards for subjects and timeslots */
+.select-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    background-color: var(--white);
+    user-select: none;
+}
+
+.select-card:hover {
+    border-color: var(--primary-color);
+    background-color: var(--light-gray);
+}
+
+.select-card.selected {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.select-card:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
 /* Profile Status */
 .profile-status {
     padding: 0.25rem 0.75rem;
@@ -1188,11 +1263,35 @@ a:hover {
     color: #999;
     cursor: not-allowed;
     opacity: 0.6;
+    position: relative;
 }
 
 .timeslot-cell.disabled:hover {
     background-color: #f5f5f5;
     color: #999;
+}
+
+.timeslot-cell .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    top: 125%;
+    left: 50%;
+    margin-left: -100px;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.timeslot-cell.disabled:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }
 
 /* Grouped Subject Selection with Cards */

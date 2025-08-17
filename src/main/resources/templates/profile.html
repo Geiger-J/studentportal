@@ -41,8 +41,10 @@
                         </div>
                     </section>
 
-                    <section class="form-section">
-                        <h2>Academic Information</h2>
+                    <!-- Academic sections (only for STUDENT users) -->
+                    <div th:if="${user.role.name() == 'STUDENT'}">
+                        <section class="form-section">
+                            <h2>Academic Information</h2>
 
                         <div class="form-group">
                             <label for="yearGroup" class="form-label">Year Group *</label>
@@ -77,9 +79,14 @@
                                 <h3 th:text="${group.key}">Subject Group</h3>
                                 <div class="subject-cards">
                                     <div th:each="subject : ${group.value}" 
-                                         class="subject-card"
+                                         class="subject-card select-card"
                                          th:classappend="${user.subjects != null and user.subjects.contains(subject)} ? 'selected' : ''"
-                                         onclick="toggleSubject(this)">
+                                         role="button"
+                                         tabindex="0"
+                                         th:aria-pressed="${user.subjects != null and user.subjects.contains(subject)} ? 'true' : 'false'"
+                                         th:aria-label="${'Select ' + subject.displayName + ' subject'}"
+                                         onclick="toggleSubject(this)"
+                                         onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSubject(this); }">
                                         <input type="checkbox"
                                                th:id="${'subject_' + subject.id}"
                                                name="subjectIds"
@@ -110,7 +117,14 @@
                             <tbody>
                                 <tr>
                                     <td class="period-label">P1 (09:00-09:50)</td>
-                                    <td class="timeslot-cell" th:classappend="${user.availability != null and user.availability.contains(T(com.example.studentportal.model.Timeslot).MON_P1)} ? 'selected' : ''" onclick="toggleTimeslot(this)">
+                                    <td class="timeslot-cell select-card" 
+                                        th:classappend="${user.availability != null and user.availability.contains(T(com.example.studentportal.model.Timeslot).MON_P1)} ? 'selected' : ''" 
+                                        role="button"
+                                        tabindex="0"
+                                        th:aria-pressed="${user.availability != null and user.availability.contains(T(com.example.studentportal.model.Timeslot).MON_P1)} ? 'true' : 'false'"
+                                        aria-label="Monday Period 1 (09:00-09:50)"
+                                        onclick="toggleTimeslot(this)"
+                                        onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleTimeslot(this); }">
                                         <input type="checkbox" name="timeslots" value="MON_P1" th:checked="${user.availability != null and user.availability.contains(T(com.example.studentportal.model.Timeslot).MON_P1)}">
                                     </td>
                                     <td class="timeslot-cell" th:classappend="${user.availability != null and user.availability.contains(T(com.example.studentportal.model.Timeslot).TUE_P1)} ? 'selected' : ''" onclick="toggleTimeslot(this)">
@@ -238,6 +252,8 @@
                         </table>
                         <small class="form-help">Select at least one time slot to complete your profile</small>
                     </section>
+                    </div>
+                    <!-- End of academic sections for STUDENT users -->
 
                     <section class="form-section">
                         <h2>Tutoring Preferences</h2>
@@ -285,6 +301,7 @@
             const checkbox = card.querySelector('input[type="checkbox"]');
             checkbox.checked = !checkbox.checked;
             card.classList.toggle('selected', checkbox.checked);
+            card.setAttribute('aria-pressed', checkbox.checked.toString());
         }
 
         // Timeslot cell toggle functionality
@@ -292,6 +309,7 @@
             const checkbox = cell.querySelector('input[type="checkbox"]');
             checkbox.checked = !checkbox.checked;
             cell.classList.toggle('selected', checkbox.checked);
+            cell.setAttribute('aria-pressed', checkbox.checked.toString());
         }
 
         // Initialize selected states on page load

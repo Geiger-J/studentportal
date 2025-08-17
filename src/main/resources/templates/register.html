@@ -35,11 +35,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="email" class="form-label">School Email Address</label>
-                        <input type="email" id="email" th:field="*{email}" class="form-input" 
-                               placeholder="your.email@bromsgrove-school.co.uk" required>
+                        <label for="email-prefix" class="form-label">School Email Address</label>
+                        <div class="email-input-container">
+                            <input type="text" id="email-prefix" class="form-input email-prefix" 
+                                   placeholder="your.email" required>
+                            <span class="email-domain">@bromsgrove-school.co.uk</span>
+                        </div>
+                        <input type="hidden" id="email" th:field="*{email}">
                         <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-text"></span>
-                        <small class="form-help">Must be a valid Bromsgrove School email address</small>
+                        <small class="form-help">Enter only the part before @bromsgrove-school.co.uk</small>
                     </div>
 
                     <div class="form-group">
@@ -67,5 +71,43 @@
 
     <!-- Footer -->
     <div th:replace="fragments/footer :: footer"></div>
+    
+    <script>
+        // Email composition logic
+        const emailPrefix = document.getElementById('email-prefix');
+        const hiddenEmail = document.getElementById('email');
+        const domain = '@bromsgrove-school.co.uk';
+        
+        function updateEmail() {
+            let prefix = emailPrefix.value.toLowerCase().trim();
+            
+            // Remove any domain if user pasted full email
+            if (prefix.includes('@')) {
+                prefix = prefix.split('@')[0];
+                emailPrefix.value = prefix;
+            }
+            
+            // Only allow alphanumeric, dots, and hyphens
+            prefix = prefix.replace(/[^a-z0-9.-]/g, '');
+            emailPrefix.value = prefix;
+            
+            // Update hidden field with full email
+            hiddenEmail.value = prefix + domain;
+        }
+        
+        emailPrefix.addEventListener('input', updateEmail);
+        emailPrefix.addEventListener('blur', updateEmail);
+        
+        // Initialize on page load
+        updateEmail();
+        
+        // Set initial value if there was an error and email exists
+        window.addEventListener('DOMContentLoaded', function() {
+            const existingEmail = hiddenEmail.value;
+            if (existingEmail && existingEmail.includes('@bromsgrove-school.co.uk')) {
+                emailPrefix.value = existingEmail.replace('@bromsgrove-school.co.uk', '');
+            }
+        });
+    </script>
 </body>
 </html>
