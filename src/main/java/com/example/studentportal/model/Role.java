@@ -1,8 +1,8 @@
 package com.example.studentportal.model;
 
 /**
- * Enum representing user roles within the system.
- * Determines access levels and UI features available.
+ * Enum representing user roles within the system. Determines access levels and
+ * UI features available.
  */
 public enum Role {
     STUDENT("Student"),
