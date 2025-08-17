@@ -48,16 +48,26 @@ public class DataSeeder implements CommandLineRunner {
 
         logger.info("Seeding subjects...");
 
-        // Define standard subjects offered at the school
+        // Define standard subjects with groupings per requirements:
+        // Languages: English, German, French
+        // STEM: Mathematics, Physics, Biology, Chemistry  
+        // Social Sciences: Economics, Politics, Business
         String[][] subjectData = {
-            {"MATHS", "Mathematics"},
-            {"PHYSICS", "Physics"},
-            {"CHEMISTRY", "Chemistry"},
+            // Languages
             {"ENGLISH", "English"},
+            {"GERMAN", "German"},
+            {"FRENCH", "French"},
+            
+            // STEM
+            {"MATHEMATICS", "Mathematics"},
+            {"PHYSICS", "Physics"},
             {"BIOLOGY", "Biology"},
-            {"HISTORY", "History"},
-            {"GEOGRAPHY", "Geography"},
-            {"COMPUTER_SCIENCE", "Computer Science"}
+            {"CHEMISTRY", "Chemistry"},
+            
+            // Social Sciences
+            {"ECONOMICS", "Economics"},
+            {"POLITICS", "Politics"},
+            {"BUSINESS", "Business"}
         };
 
         for (String[] subjectInfo : subjectData) {

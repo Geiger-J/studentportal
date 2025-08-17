@@ -66,11 +66,10 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findBySubject(Subject subject);
     
     /**
-     * Finds all requests excluding archived ones.
-     * @param status the status to exclude (typically ARCHIVED)
+     * Finds all requests excluding archived ones using the archived flag.
      * @return list of requests that are not archived
      */
-    List<Request> findAllByStatusNot(RequestStatus status);
+    List<Request> findAllByArchivedFalse();
     
     /**
      * Finds requests with specified statuses and week start date before given date.
@@ -80,4 +79,13 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
      * @return list of requests matching criteria
      */
     List<Request> findByStatusInAndWeekStartDateBefore(List<RequestStatus> statuses, LocalDate weekStartDate);
+    
+    /**
+     * Finds non-archived requests with week start date before given date.
+     * Used for new archival process.
+     * @param archived whether archived or not
+     * @param weekStartDate the cutoff date
+     * @return list of requests matching criteria
+     */
+    List<Request> findByArchivedAndWeekStartDateBefore(Boolean archived, LocalDate weekStartDate);
 }

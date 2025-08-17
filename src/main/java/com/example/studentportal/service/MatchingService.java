@@ -116,21 +116,16 @@ public class MatchingService {
      */
     @Transactional
     public int performArchival() {
-        // Archive requests older than current week
+        // Archive requests older than current week using boolean flag
         LocalDate currentWeekStart = getCurrentWeekStart();
         
-        List<RequestStatus> statusesToArchive = List.of(
-            RequestStatus.PENDING, 
-            RequestStatus.COMPLETED,
-            RequestStatus.CANCELLED
-        );
-        
+        // Find all non-archived requests from previous weeks
         List<Request> requestsToArchive = requestRepository
-            .findByStatusInAndWeekStartDateBefore(statusesToArchive, currentWeekStart);
+            .findByArchivedAndWeekStartDateBefore(false, currentWeekStart);
         
         int archivedCount = 0;
         for (Request request : requestsToArchive) {
-            request.setStatus(RequestStatus.ARCHIVED);
+            request.setArchived(true);
             requestRepository.save(request);
             archivedCount++;
         }

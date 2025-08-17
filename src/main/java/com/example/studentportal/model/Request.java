@@ -43,8 +43,9 @@ public class Request {
     @Column(name = "timeslot")
     private Set<Timeslot> timeslots = new HashSet<>();
     
-    @Column(nullable = false)
-    private Boolean recurring = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "chosen_timeslot")
+    private Timeslot chosenTimeslot;
     
     @Column(nullable = false)
     private LocalDate weekStartDate;
@@ -52,6 +53,9 @@ public class Request {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RequestStatus status = RequestStatus.PENDING;
+    
+    @Column(nullable = false)
+    private Boolean archived = false;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "matched_partner_id")
@@ -68,14 +72,14 @@ public class Request {
     public Request() {}
 
     public Request(User user, RequestType type, Subject subject, Set<Timeslot> timeslots, 
-                   Boolean recurring, LocalDate weekStartDate) {
+                   LocalDate weekStartDate) {
         this.user = user;
         this.type = type;
         this.subject = subject;
         this.timeslots = timeslots != null ? new HashSet<>(timeslots) : new HashSet<>();
-        this.recurring = recurring != null ? recurring : false;
         this.weekStartDate = weekStartDate;
         this.status = RequestStatus.PENDING;
+        this.archived = false;
     }
 
     // Getters and setters
@@ -119,12 +123,12 @@ public class Request {
         this.timeslots = timeslots != null ? timeslots : new HashSet<>();
     }
 
-    public Boolean getRecurring() {
-        return recurring;
+    public Timeslot getChosenTimeslot() {
+        return chosenTimeslot;
     }
 
-    public void setRecurring(Boolean recurring) {
-        this.recurring = recurring != null ? recurring : false;
+    public void setChosenTimeslot(Timeslot chosenTimeslot) {
+        this.chosenTimeslot = chosenTimeslot;
     }
 
     public LocalDate getWeekStartDate() {
@@ -133,6 +137,14 @@ public class Request {
 
     public void setWeekStartDate(LocalDate weekStartDate) {
         this.weekStartDate = weekStartDate;
+    }
+
+    public Boolean getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Boolean archived) {
+        this.archived = archived != null ? archived : false;
     }
 
     public RequestStatus getStatus() {
@@ -203,9 +215,10 @@ public class Request {
                 ", type=" + type +
                 ", subject=" + (subject != null ? subject.getDisplayName() : "null") +
                 ", timeslots=" + timeslots.size() +
-                ", recurring=" + recurring +
+                ", chosenTimeslot=" + chosenTimeslot +
                 ", weekStartDate=" + weekStartDate +
                 ", status=" + status +
+                ", archived=" + archived +
                 '}';
     }
 }

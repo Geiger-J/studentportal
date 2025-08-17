@@ -70,8 +70,8 @@ class MatchingServiceTest {
         // Given
         Set<Timeslot> overlappingSlots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
         
-        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots, false, nextMonday);
-        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, overlappingSlots, false, nextMonday);
+        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots, nextMonday);
+        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, overlappingSlots, nextMonday);
         
         requestRepository.save(tutorRequest);
         requestRepository.save(tuteeRequest);
@@ -102,8 +102,8 @@ class MatchingServiceTest {
         Set<Timeslot> tutorSlots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
         Set<Timeslot> tuteeSlots = Set.of(Timeslot.WED_P3, Timeslot.THU_P4);
         
-        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, tutorSlots, false, nextMonday);
-        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, tuteeSlots, false, nextMonday);
+        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, tutorSlots, nextMonday);
+        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, tuteeSlots, nextMonday);
         
         requestRepository.save(tutorRequest);
         requestRepository.save(tuteeRequest);
@@ -136,8 +136,8 @@ class MatchingServiceTest {
         
         Set<Timeslot> overlappingSlots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
         
-        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots, false, nextMonday);
-        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, scienceSubject, overlappingSlots, false, nextMonday);
+        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots, nextMonday);
+        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, scienceSubject, overlappingSlots, nextMonday);
         
         requestRepository.save(tutorRequest);
         requestRepository.save(tuteeRequest);
@@ -165,20 +165,20 @@ class MatchingServiceTest {
         Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
         
         // Old pending request (should be archived)
-        Request oldPendingRequest = new Request(tutor, RequestType.TUTOR, mathSubject, timeslots, false, lastWeek);
+        Request oldPendingRequest = new Request(tutor, RequestType.TUTOR, mathSubject, timeslots, lastWeek);
         oldPendingRequest = requestRepository.save(oldPendingRequest);
         
         // Old completed request (should be archived)
-        Request oldCompletedRequest = new Request(tutee, RequestType.TUTEE, mathSubject, timeslots, false, lastWeek);
-        oldCompletedRequest.setStatus(RequestStatus.COMPLETED);
+        Request oldCompletedRequest = new Request(tutee, RequestType.TUTEE, mathSubject, timeslots, lastWeek);
+        oldCompletedRequest.setStatus(RequestStatus.DONE);
         oldCompletedRequest = requestRepository.save(oldCompletedRequest);
         
         // Current week request (should NOT be archived)
-        Request currentRequest = new Request(tutor, RequestType.TUTOR, mathSubject, timeslots, false, currentWeek);
+        Request currentRequest = new Request(tutor, RequestType.TUTOR, mathSubject, timeslots, currentWeek);
         currentRequest = requestRepository.save(currentRequest);
         
         // Already matched request from last week (should NOT be archived)
-        Request matchedRequest = new Request(tutee, RequestType.TUTEE, mathSubject, timeslots, false, lastWeek);
+        Request matchedRequest = new Request(tutee, RequestType.TUTEE, mathSubject, timeslots, lastWeek);
         matchedRequest.setStatus(RequestStatus.MATCHED);
         matchedRequest = requestRepository.save(matchedRequest);
 
@@ -186,20 +186,25 @@ class MatchingServiceTest {
         int archivedCount = matchingService.performArchival();
 
         // Then
-        assertEquals(2, archivedCount);
+        assertEquals(3, archivedCount);
         
         // Check archived requests
         Request archivedPending = requestRepository.findById(oldPendingRequest.getId()).orElse(null);
         Request archivedCompleted = requestRepository.findById(oldCompletedRequest.getId()).orElse(null);
+        Request archivedMatched = requestRepository.findById(matchedRequest.getId()).orElse(null);
         
-        assertEquals(RequestStatus.ARCHIVED, archivedPending.getStatus());
-        assertEquals(RequestStatus.ARCHIVED, archivedCompleted.getStatus());
+        assertTrue(archivedPending.getArchived());
+        assertTrue(archivedCompleted.getArchived());
+        assertTrue(archivedMatched.getArchived());
+        // Original statuses should be preserved
+        assertEquals(RequestStatus.PENDING, archivedPending.getStatus());
+        assertEquals(RequestStatus.DONE, archivedCompleted.getStatus());
+        assertEquals(RequestStatus.MATCHED, archivedMatched.getStatus());
         
         // Check non-archived requests
         Request stillCurrent = requestRepository.findById(currentRequest.getId()).orElse(null);
-        Request stillMatched = requestRepository.findById(matchedRequest.getId()).orElse(null);
         
+        assertFalse(stillCurrent.getArchived());
         assertEquals(RequestStatus.PENDING, stillCurrent.getStatus());
-        assertEquals(RequestStatus.MATCHED, stillMatched.getStatus());
     }
 }

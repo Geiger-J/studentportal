@@ -64,7 +64,6 @@ public class RequestController {
                                @RequestParam RequestType type,
                                @RequestParam Long subjectId,
                                @RequestParam List<Timeslot> timeslots,
-                               @RequestParam(defaultValue = "false") Boolean recurring,
                                RedirectAttributes redirectAttributes,
                                Model model) {
         
@@ -92,7 +91,7 @@ public class RequestController {
             Set<Timeslot> timeslotSet = new HashSet<>(timeslots);
 
             // Create the request
-            Request request = requestService.createRequest(user, type, subject, timeslotSet, recurring);
+            Request request = requestService.createRequest(user, type, subject, timeslotSet);
 
             redirectAttributes.addFlashAttribute("message", 
                 "Request created successfully! Your " + type.getDisplayName().toLowerCase() + 
