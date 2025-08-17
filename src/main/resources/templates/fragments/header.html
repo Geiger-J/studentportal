@@ -9,7 +9,7 @@
             <!-- Logo and Brand -->
             <div class="nav-brand">
                 <img src="/images/bromsgrove-logo.svg" alt="Bromsgrove School" class="logo">
-                <a href="/" class="brand-link">Student Portal</a>
+                <a href="/">Student Portal</a>
             </div>
             
             <!-- Navigation Links -->
@@ -31,7 +31,7 @@
                 </div>
                 
                 <!-- Authenticated User Menu -->
-                <div sec:authorize="isAuthenticated()" class="nav-actions">
+                <div sec:authorize="isAuthenticated()">
                     <li class="nav-item">
                         <a href="/about" class="nav-link">About</a>
                     </li>
@@ -49,7 +49,7 @@
                     <!-- Admin Menu -->
                     <div sec:authorize="hasRole('ADMIN')">
                         <li class="nav-item">
-                            <a href="/admin/dashboard" class="nav-link admin-link">Admin</a>
+                            <a href="/admin/dashboard" class="nav-link">Admin</a>
                         </li>
                     </div>
                     <li class="nav-item">

@@ -15,33 +15,33 @@
     <main class="main-content">
         <div class="container">
             <!-- Hero Section -->
-            <section class="hero">
-                <h1 class="hero-title">Welcome to the Student Portal</h1>
-                <p class="hero-subtitle">Connect with fellow students for tutoring and academic support</p>
+            <section>
+                <h1>Welcome to the Student Portal</h1>
+                <p>Connect with fellow students for tutoring and academic support</p>
                 
-                <div sec:authorize="!isAuthenticated()" class="hero-actions">
-                    <a href="/register" class="btn btn-primary">Get Started</a>
-                    <a href="/login" class="btn btn-secondary">Login</a>
+                <div sec:authorize="!isAuthenticated()">
+                    <a href="/register" class="btn">Get Started</a>
+                    <a href="/login" class="btn">Login</a>
                 </div>
                 
-                <div sec:authorize="isAuthenticated()" class="hero-actions">
-                    <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+                <div sec:authorize="isAuthenticated()">
+                    <a href="/dashboard" class="btn">Go to Dashboard</a>
                 </div>
             </section>
 
             <!-- Features Section -->
-            <section class="features">
+            <section>
                 <h2>How It Works</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
+                <div>
+                    <div>
                         <h3>Register</h3>
                         <p>Create your account with your Bromsgrove School email and complete your academic profile.</p>
                     </div>
-                    <div class="feature-card">
+                    <div>
                         <h3>Create Requests</h3>
                         <p>Post requests to offer tutoring or seek help in specific subjects and timeslots.</p>
                     </div>
-                    <div class="feature-card">
+                    <div>
                         <h3>Connect</h3>
                         <p>Get matched with other students and start your peer tutoring sessions.</p>
                     </div>
