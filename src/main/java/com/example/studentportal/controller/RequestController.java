@@ -48,7 +48,9 @@ public class RequestController {
             return "redirect:/profile";
         }
 
-        model.addAttribute("subjects", subjectService.getAllSubjects());
+        // Only show subjects the user has selected in their profile
+        model.addAttribute("subjects", user.getSubjects());
+        model.addAttribute("userAvailability", user.getAvailability());
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
         model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
 
@@ -64,7 +66,6 @@ public class RequestController {
                                @RequestParam RequestType type,
                                @RequestParam Long subjectId,
                                @RequestParam List<Timeslot> timeslots,
-                               @RequestParam(defaultValue = "false") Boolean recurring,
                                RedirectAttributes redirectAttributes,
                                Model model) {
         
@@ -83,7 +84,8 @@ public class RequestController {
             // Validate timeslots
             if (timeslots == null || timeslots.isEmpty()) {
                 model.addAttribute("error", "Please select at least one timeslot");
-                model.addAttribute("subjects", subjectService.getAllSubjects());
+                model.addAttribute("subjects", user.getSubjects());
+                model.addAttribute("userAvailability", user.getAvailability());
                 model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
                 model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
                 return "request_form";
@@ -92,7 +94,7 @@ public class RequestController {
             Set<Timeslot> timeslotSet = new HashSet<>(timeslots);
 
             // Create the request
-            Request request = requestService.createRequest(user, type, subject, timeslotSet, recurring);
+            Request request = requestService.createRequest(user, type, subject, timeslotSet);
 
             redirectAttributes.addFlashAttribute("message", 
                 "Request created successfully! Your " + type.getDisplayName().toLowerCase() + 
@@ -102,13 +104,15 @@ public class RequestController {
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("subjects", subjectService.getAllSubjects());
+            model.addAttribute("subjects", user.getSubjects());
+            model.addAttribute("userAvailability", user.getAvailability());
             model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
             model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
             return "request_form";
         } catch (Exception e) {
             model.addAttribute("error", "Error creating request: " + e.getMessage());
-            model.addAttribute("subjects", subjectService.getAllSubjects());
+            model.addAttribute("subjects", user.getSubjects());
+            model.addAttribute("userAvailability", user.getAvailability());
             model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
             model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
             return "request_form";

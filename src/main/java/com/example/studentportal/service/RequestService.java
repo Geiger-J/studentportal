@@ -35,12 +35,11 @@ public class RequestService {
      * @param type the request type (TUTOR/TUTEE)
      * @param subject the subject for tutoring
      * @param timeslots the selected timeslots (must have at least one)
-     * @param recurring whether the request is recurring
      * @return the created request
      * @throws IllegalArgumentException if validation fails or duplicate exists
      */
     public Request createRequest(User user, RequestType type, Subject subject, 
-                               Set<Timeslot> timeslots, Boolean recurring) {
+                               Set<Timeslot> timeslots) {
         
         // Validate timeslots
         if (timeslots == null || timeslots.isEmpty()) {
@@ -58,7 +57,7 @@ public class RequestService {
         LocalDate weekStartDate = DateUtil.nextMonday();
 
         // Create and save request
-        Request request = new Request(user, type, subject, timeslots, recurring, weekStartDate);
+        Request request = new Request(user, type, subject, timeslots, weekStartDate);
         return requestRepository.save(request);
     }
 
@@ -159,7 +158,7 @@ public class RequestService {
      */
     @Transactional(readOnly = true)
     public List<Request> getAllNonArchivedRequests() {
-        return requestRepository.findAllByStatusNot(RequestStatus.ARCHIVED);
+        return requestRepository.findAllByArchivedFalse();
     }
 
     /**

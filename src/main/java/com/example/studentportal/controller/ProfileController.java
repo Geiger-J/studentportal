@@ -1,9 +1,12 @@
 package com.example.studentportal.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,6 +62,7 @@ public class ProfileController {
 
         model.addAttribute("user", user);
         model.addAttribute("subjects", subjectService.getAllSubjects());
+        model.addAttribute("subjectGroups", getGroupedSubjects());
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
         model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
 
@@ -135,7 +139,34 @@ public class ProfileController {
         model.addAttribute("error", errorMessage);
         model.addAttribute("user", user);
         model.addAttribute("subjects", subjectService.getAllSubjects());
+        model.addAttribute("subjectGroups", getGroupedSubjects());
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
         model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
+    }
+
+    /**
+     * Groups subjects according to requirements:
+     * Languages: English, German, French
+     * STEM: Mathematics, Physics, Biology, Chemistry  
+     * Social Sciences: Economics, Politics, Business
+     */
+    private Map<String, List<Subject>> getGroupedSubjects() {
+        List<Subject> allSubjects = subjectService.getAllSubjects();
+        Map<String, List<Subject>> groups = new HashMap<>();
+        
+        groups.put("Languages", allSubjects.stream()
+            .filter(s -> s.getCode().equals("ENGLISH") || s.getCode().equals("GERMAN") || s.getCode().equals("FRENCH"))
+            .collect(Collectors.toList()));
+            
+        groups.put("STEM", allSubjects.stream()
+            .filter(s -> s.getCode().equals("MATHEMATICS") || s.getCode().equals("PHYSICS") || 
+                        s.getCode().equals("BIOLOGY") || s.getCode().equals("CHEMISTRY"))
+            .collect(Collectors.toList()));
+            
+        groups.put("Social Sciences", allSubjects.stream()
+            .filter(s -> s.getCode().equals("ECONOMICS") || s.getCode().equals("POLITICS") || s.getCode().equals("BUSINESS"))
+            .collect(Collectors.toList()));
+            
+        return groups;
     }
 }

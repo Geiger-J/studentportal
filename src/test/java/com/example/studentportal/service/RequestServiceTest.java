@@ -62,7 +62,7 @@ class RequestServiceTest {
 
         // When
         Request request = requestService.createRequest(
-            testUser, RequestType.TUTOR, testSubject, timeslots, false
+            testUser, RequestType.TUTOR, testSubject, timeslots
         );
 
         // Then
@@ -74,7 +74,7 @@ class RequestServiceTest {
         assertEquals(timeslots, request.getTimeslots());
         assertEquals(RequestStatus.PENDING, request.getStatus());
         assertNotNull(request.getWeekStartDate());
-        assertFalse(request.getRecurring());
+        assertFalse(request.getArchived());
     }
 
     @Test
@@ -86,7 +86,7 @@ class RequestServiceTest {
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> requestService.createRequest(
-                testUser, RequestType.TUTOR, testSubject, emptyTimeslots, false
+                testUser, RequestType.TUTOR, testSubject, emptyTimeslots
             )
         );
         
@@ -99,13 +99,13 @@ class RequestServiceTest {
         Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
 
         // Create first request
-        requestService.createRequest(testUser, RequestType.TUTOR, testSubject, timeslots, false);
+        requestService.createRequest(testUser, RequestType.TUTOR, testSubject, timeslots);
 
         // When & Then - Try to create duplicate
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> requestService.createRequest(
-                testUser, RequestType.TUTOR, testSubject, timeslots, false
+                testUser, RequestType.TUTOR, testSubject, timeslots
             )
         );
         
@@ -120,12 +120,12 @@ class RequestServiceTest {
 
         // Create TUTOR request
         Request tutorRequest = requestService.createRequest(
-            testUser, RequestType.TUTOR, testSubject, timeslots, false
+            testUser, RequestType.TUTOR, testSubject, timeslots
         );
 
         // When - Create TUTEE request for same subject
         Request tuteeRequest = requestService.createRequest(
-            testUser, RequestType.TUTEE, testSubject, timeslots, false
+            testUser, RequestType.TUTEE, testSubject, timeslots
         );
 
         // Then
@@ -141,7 +141,7 @@ class RequestServiceTest {
         // Given
         Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
         Request request = requestService.createRequest(
-            testUser, RequestType.TUTOR, testSubject, timeslots, false
+            testUser, RequestType.TUTOR, testSubject, timeslots
         );
 
         // When
@@ -175,7 +175,7 @@ class RequestServiceTest {
         boolean hasActiveBefore = requestService.hasActiveRequest(testUser, testSubject, RequestType.TUTOR);
 
         // Create active request
-        requestService.createRequest(testUser, RequestType.TUTOR, testSubject, timeslots, false);
+        requestService.createRequest(testUser, RequestType.TUTOR, testSubject, timeslots);
         boolean hasActiveAfter = requestService.hasActiveRequest(testUser, testSubject, RequestType.TUTOR);
 
         // Then
@@ -188,18 +188,17 @@ class RequestServiceTest {
         // Given
         Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
         Request request = requestService.createRequest(
-            testUser, RequestType.TUTOR, testSubject, timeslots, false
+            testUser, RequestType.TUTOR, testSubject, timeslots
         );
 
-        // When - Set status to ARCHIVED
-        request.setStatus(RequestStatus.ARCHIVED);
+        // When - Set archived flag
+        request.setArchived(true);
         requestRepository.save(request);
 
         // Then
         Request archivedRequest = requestRepository.findById(request.getId()).orElse(null);
         assertNotNull(archivedRequest);
-        assertEquals(RequestStatus.ARCHIVED, archivedRequest.getStatus());
-        assertEquals("Archived", RequestStatus.ARCHIVED.getDisplayName());
+        assertTrue(archivedRequest.getArchived());
     }
 
     @Test
@@ -212,7 +211,7 @@ class RequestServiceTest {
         partner = userRepository.save(partner);
         
         Request request = requestService.createRequest(
-            testUser, RequestType.TUTOR, testSubject, timeslots, false
+            testUser, RequestType.TUTOR, testSubject, timeslots
         );
 
         // When - Set matched partner and status
@@ -235,15 +234,15 @@ class RequestServiceTest {
         
         // Create requests with different statuses
         Request pendingRequest = requestService.createRequest(
-            testUser, RequestType.TUTOR, testSubject, timeslots, false
+            testUser, RequestType.TUTOR, testSubject, timeslots
         );
         
-        Request archivedRequest = new Request(testUser, RequestType.TUTEE, testSubject, timeslots, false, pendingRequest.getWeekStartDate());
-        archivedRequest.setStatus(RequestStatus.ARCHIVED);
+        Request archivedRequest = new Request(testUser, RequestType.TUTEE, testSubject, timeslots, pendingRequest.getWeekStartDate());
+        archivedRequest.setArchived(true);
         requestRepository.save(archivedRequest);
 
         // When - Find all non-archived requests
-        var nonArchivedRequests = requestRepository.findAllByStatusNot(RequestStatus.ARCHIVED);
+        var nonArchivedRequests = requestRepository.findAllByArchivedFalse();
 
         // Then
         assertEquals(1, nonArchivedRequests.size());
