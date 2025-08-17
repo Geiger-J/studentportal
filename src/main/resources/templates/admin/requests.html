@@ -61,7 +61,7 @@
                                 <th>Timeslots</th>
                                 <th>Status</th>
                                 <th>Matched Partner</th>
-                                <th>Recurring</th>
+                                <th>Chosen Timeslot</th>
                                 <th>Created</th>
                                 <th>Week Start</th>
                             </tr>
@@ -91,10 +91,7 @@
                                           th:text="${request.status.displayName}">Pending</span>
                                 </td>
                                 <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : 'None'}">None</td>
-                                <td>
-                                    <span th:text="${request.recurring ? 'Yes' : 'No'}" 
-                                          th:class="${request.recurring ? 'recurring-yes' : 'recurring-no'}">No</span>
-                                </td>
+                                <td th:text="${request.chosenTimeslot != null ? request.chosenTimeslot.label() : 'Not assigned'}">Not assigned</td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                                 <td th:text="${#temporals.format(request.weekStartDate, 'dd/MM/yyyy')}">08/01/2024</td>
                             </tr>

@@ -41,8 +41,10 @@
                         </div>
                     </section>
 
-                    <section class="form-section">
-                        <h2>Academic Information</h2>
+                    <!-- Academic sections (only for STUDENT users) -->
+                    <div th:if="${user.role.name() == 'STUDENT'}">
+                        <section class="form-section">
+                            <h2>Academic Information</h2>
 
                         <div class="form-group">
                             <label for="yearGroup" class="form-label">Year Group *</label>
@@ -238,6 +240,8 @@
                         </table>
                         <small class="form-help">Select at least one time slot to complete your profile</small>
                     </section>
+                    </div>
+                    <!-- End of academic sections for STUDENT users -->
 
                     <section class="form-section">
                         <h2>Tutoring Preferences</h2>

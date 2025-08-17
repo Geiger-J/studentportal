@@ -31,56 +31,23 @@
                     <table class="users-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Full Name</th>
                                 <th>Email</th>
-                                <th>Role</th>
                                 <th>Year Group</th>
-                                <th>Exam Board</th>
-                                <th>Subjects</th>
-                                <th>Availability</th>
-                                <th>Max Tutoring/Week</th>
-                                <th>Profile Complete</th>
-                                <th>Created</th>
+                                <th>Role</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="user : ${users}">
-                                <td th:text="${user.id}">1</td>
                                 <td th:text="${user.fullName}">John Doe</td>
                                 <td th:text="${user.email}">john@bromsgrove-school.co.uk</td>
+                                <td th:text="${user.yearGroup != null ? user.yearGroup : 'N/A'}">12</td>
                                 <td>
                                     <span class="role-badge" 
                                           th:classappend="${user.role.name().toLowerCase()}"
                                           th:text="${user.role.displayName}">Student</span>
+                                    <span th:if="${user.role.name() == 'ADMIN'}" class="admin-badge">👑</span>
                                 </td>
-                                <td th:text="${user.yearGroup != null ? user.yearGroup : 'N/A'}">12</td>
-                                <td th:text="${user.examBoard != null ? user.examBoard.name() : 'N/A'}">A_LEVELS</td>
-                                <td>
-                                    <span th:if="${user.subjects.isEmpty()}">None</span>
-                                    <span th:if="${!user.subjects.isEmpty()}" th:text="${#lists.size(user.subjects)} + ' subjects'">3 subjects</span>
-                                    <div th:if="${!user.subjects.isEmpty()}" class="subjects-details">
-                                        <span th:each="subject, iterStat : ${user.subjects}" 
-                                              th:text="${subject.displayName} + (${!iterStat.last} ? ', ' : '')"
-                                              class="subject-item"></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span th:if="${user.availability.isEmpty()}">None</span>
-                                    <span th:if="${!user.availability.isEmpty()}" th:text="${#lists.size(user.availability)} + ' slots'">5 slots</span>
-                                    <div th:if="${!user.availability.isEmpty()}" class="availability-details">
-                                        <span th:each="timeslot, iterStat : ${user.availability}" 
-                                              th:text="${timeslot.label()} + (${!iterStat.last} ? ', ' : '')"
-                                              class="timeslot-item"></span>
-                                    </div>
-                                </td>
-                                <td th:text="${user.maxTutoringPerWeek != null ? user.maxTutoringPerWeek : 0}">3</td>
-                                <td>
-                                    <span class="profile-status" 
-                                          th:classappend="${user.profileComplete ? 'complete' : 'incomplete'}"
-                                          th:text="${user.profileComplete ? 'Complete' : 'Incomplete'}">Complete</span>
-                                </td>
-                                <td th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                             </tr>
                         </tbody>
                     </table>
