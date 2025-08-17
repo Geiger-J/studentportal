@@ -132,15 +132,23 @@ The system automatically assigns roles based on email patterns:
 
 ## Available Subjects
 
-The system includes 8 core subjects:
-- Mathematics
-- Physics  
-- Chemistry
+The system includes curated core subjects:
+
+**Languages:**
 - English
+- German  
+- French
+
+**STEM:**
+- Mathematics
+- Physics
 - Biology
-- History
-- Geography
-- Computer Science
+- Chemistry
+
+**Social Sciences:**
+- Economics
+- Politics
+- Business
 
 ## Development Notes
 
