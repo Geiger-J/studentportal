@@ -27,13 +27,13 @@
                     <!-- Request Type -->
                     <div class="form-group">
                         <label for="type" class="form-label">Request Type *</label>
-                        <select id="type" name="type" class="form-select" required>
+                        <select id="type" name="type" class="form-control" required>
                             <option value="">Select request type</option>
                             <option th:each="requestType : ${requestTypes}" 
                                     th:value="${requestType.name()}" 
                                     th:text="${requestType.displayName}">Offering Tutoring</option>
                         </select>
-                        <small class="form-help">Choose whether you want to offer tutoring or seek help</small>
+                        <small>Choose whether you want to offer tutoring or seek help</small>
                     </div>
 
                     <!-- Subject -->
