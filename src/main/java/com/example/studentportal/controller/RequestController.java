@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Controller for tutoring request management.
@@ -51,9 +52,17 @@ public class RequestController {
             return "redirect:/profile";
         }
 
+        // Convert userAvailability Set<Timeslot> to Set<String> for template usage
+        Set<String> userAvailabilityNames = user.getAvailability() == null ? 
+            new HashSet<>() : 
+            user.getAvailability().stream()
+                .map(Enum::name)
+                .collect(Collectors.toSet());
+
         // Only show subjects the user has selected in their profile
         model.addAttribute("subjects", user.getSubjects());
         model.addAttribute("userAvailability", user.getAvailability());
+        model.addAttribute("userAvailabilityNames", userAvailabilityNames);
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
         model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
 
@@ -89,6 +98,15 @@ public class RequestController {
                 model.addAttribute("error", "Please select at least one timeslot");
                 model.addAttribute("subjects", user.getSubjects());
                 model.addAttribute("userAvailability", user.getAvailability());
+                
+                // Convert userAvailability Set<Timeslot> to Set<String> for template usage
+                Set<String> userAvailabilityNames = user.getAvailability() == null ? 
+                    new HashSet<>() : 
+                    user.getAvailability().stream()
+                        .map(Enum::name)
+                        .collect(Collectors.toSet());
+                model.addAttribute("userAvailabilityNames", userAvailabilityNames);
+                
                 model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
                 model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
                 return "request_form";
@@ -109,6 +127,15 @@ public class RequestController {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("subjects", user.getSubjects());
             model.addAttribute("userAvailability", user.getAvailability());
+            
+            // Convert userAvailability Set<Timeslot> to Set<String> for template usage
+            Set<String> userAvailabilityNames = user.getAvailability() == null ? 
+                new HashSet<>() : 
+                user.getAvailability().stream()
+                    .map(Enum::name)
+                    .collect(Collectors.toSet());
+            model.addAttribute("userAvailabilityNames", userAvailabilityNames);
+            
             model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
             model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
             return "request_form";
@@ -116,6 +143,15 @@ public class RequestController {
             model.addAttribute("error", "Error creating request: " + e.getMessage());
             model.addAttribute("subjects", user.getSubjects());
             model.addAttribute("userAvailability", user.getAvailability());
+            
+            // Convert userAvailability Set<Timeslot> to Set<String> for template usage
+            Set<String> userAvailabilityNames = user.getAvailability() == null ? 
+                new HashSet<>() : 
+                user.getAvailability().stream()
+                    .map(Enum::name)
+                    .collect(Collectors.toSet());
+            model.addAttribute("userAvailabilityNames", userAvailabilityNames);
+            
             model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
             model.addAttribute("requestTypes", Arrays.asList(RequestType.values()));
             return "request_form";

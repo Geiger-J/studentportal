@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,11 +62,19 @@ public class ProfileController {
             user.setAvailability(new HashSet<>());
         }
 
+        // Convert availability Set<Timeslot> to Set<String> for template usage
+        Set<String> availabilityNames = user.getAvailability() == null ? 
+            new HashSet<>() : 
+            user.getAvailability().stream()
+                .map(Enum::name)
+                .collect(Collectors.toSet());
+
         model.addAttribute("user", user);
         model.addAttribute("subjects", subjectService.getAllSubjects());
         model.addAttribute("subjectGroups", getGroupedSubjects());
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
         model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
+        model.addAttribute("availabilityNames", availabilityNames);
 
         return "profile";
     }
@@ -142,6 +152,14 @@ public class ProfileController {
         model.addAttribute("subjectGroups", getGroupedSubjects());
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
         model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
+        
+        // Convert availability Set<Timeslot> to Set<String> for template usage
+        Set<String> availabilityNames = user.getAvailability() == null ? 
+            new HashSet<>() : 
+            user.getAvailability().stream()
+                .map(Enum::name)
+                .collect(Collectors.toSet());
+        model.addAttribute("availabilityNames", availabilityNames);
     }
 
     /**

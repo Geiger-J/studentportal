@@ -361,7 +361,7 @@ th {
 
 /* Print styles */
 @media print {
-    .header,
+    .site-header,
     .footer,
     .nav-menu,
     .form-actions {
@@ -398,16 +398,19 @@ a:hover {
 }
 
 /* Header Styles */
-.header {
-    background-color: var(--primary-color);
-    color: var(--white);
-    box-shadow: var(--box-shadow);
+.site-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
-.navbar {
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 1rem 0;
 }
 
@@ -418,6 +421,7 @@ a:hover {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    width: 100%;
 }
 
 .nav-brand {
