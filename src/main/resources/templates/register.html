@@ -9,7 +9,7 @@
 </head>
 <body>
     <!-- Header -->
-    <div th:replace="fragments/header :: header"></div>
+    <div th:replace="~{fragments/header :: header}"></div>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -70,7 +70,7 @@
     </main>
 
     <!-- Footer -->
-    <div th:replace="fragments/footer :: footer"></div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
     
     <script>
         // Email composition logic
