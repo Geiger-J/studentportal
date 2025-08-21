@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,8 +61,9 @@ public class RequestController {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        // Only show subjects the user has selected in their profile
-        model.addAttribute("subjects", user.getSubjects());
+        // Show grouped subjects like in profile completion
+        model.addAttribute("subjects", user.getSubjects()); // User's selected subjects for default values
+        model.addAttribute("subjectGroups", getGroupedSubjects()); // All subjects grouped for selection
         model.addAttribute("userAvailability", user.getAvailability());
         model.addAttribute("userAvailabilityNames", userAvailabilityNames);
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
@@ -142,6 +145,7 @@ public class RequestController {
         } catch (Exception e) {
             model.addAttribute("error", "Error creating request: " + e.getMessage());
             model.addAttribute("subjects", user.getSubjects());
+            model.addAttribute("subjectGroups", getGroupedSubjects());
             model.addAttribute("userAvailability", user.getAvailability());
             
             // Convert userAvailability Set<Timeslot> to Set<String> for template usage
@@ -185,5 +189,31 @@ public class RequestController {
         }
 
         return "redirect:/dashboard";
+    }
+
+    /**
+     * Groups subjects according to requirements:
+     * Languages: English, German, French
+     * STEM: Mathematics, Physics, Biology, Chemistry  
+     * Social Sciences: Economics, Politics, Business
+     */
+    private Map<String, List<Subject>> getGroupedSubjects() {
+        List<Subject> allSubjects = subjectService.getAllSubjects();
+        Map<String, List<Subject>> groups = new HashMap<>();
+        
+        groups.put("Languages", allSubjects.stream()
+            .filter(s -> s.getCode().equals("ENGLISH") || s.getCode().equals("GERMAN") || s.getCode().equals("FRENCH"))
+            .collect(Collectors.toList()));
+            
+        groups.put("STEM", allSubjects.stream()
+            .filter(s -> s.getCode().equals("MATHEMATICS") || s.getCode().equals("PHYSICS") || 
+                        s.getCode().equals("BIOLOGY") || s.getCode().equals("CHEMISTRY"))
+            .collect(Collectors.toList()));
+            
+        groups.put("Social Sciences", allSubjects.stream()
+            .filter(s -> s.getCode().equals("ECONOMICS") || s.getCode().equals("POLITICS") || s.getCode().equals("BUSINESS"))
+            .collect(Collectors.toList()));
+            
+        return groups;
     }
 }
