@@ -132,6 +132,7 @@
                                     <td class="period-label">P2 (09:55-10:45)</td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('MON_P2')} ? '' : 'disabled'"
+                                        data-timeslot="MON_P2"
                                         th:onclick="${userAvailabilityNames.contains('MON_P2')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="MON_P2" 
                                                th:disabled="${!userAvailabilityNames.contains('MON_P2')}"
@@ -140,6 +141,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('TUE_P2')} ? '' : 'disabled'"
+                                        data-timeslot="TUE_P2"
                                         th:onclick="${userAvailabilityNames.contains('TUE_P2')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="TUE_P2" 
                                                th:disabled="${!userAvailabilityNames.contains('TUE_P2')}"
@@ -148,6 +150,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('WED_P2')} ? '' : 'disabled'"
+                                        data-timeslot="WED_P2"
                                         th:onclick="${userAvailabilityNames.contains('WED_P2')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="WED_P2" 
                                                th:disabled="${!userAvailabilityNames.contains('WED_P2')}"
@@ -156,6 +159,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('THU_P2')} ? '' : 'disabled'"
+                                        data-timeslot="THU_P2"
                                         th:onclick="${userAvailabilityNames.contains('THU_P2')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="THU_P2" 
                                                th:disabled="${!userAvailabilityNames.contains('THU_P2')}"
@@ -164,6 +168,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('FRI_P2')} ? '' : 'disabled'"
+                                        data-timeslot="FRI_P2"
                                         th:onclick="${userAvailabilityNames.contains('FRI_P2')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="FRI_P2" 
                                                th:disabled="${!userAvailabilityNames.contains('FRI_P2')}"
@@ -175,6 +180,7 @@
                                     <td class="period-label">P3 (11:05-11:55)</td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('MON_P3')} ? '' : 'disabled'"
+                                        data-timeslot="MON_P3"
                                         th:onclick="${userAvailabilityNames.contains('MON_P3')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="MON_P3" 
                                                th:disabled="${!userAvailabilityNames.contains('MON_P3')}"
@@ -183,6 +189,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('TUE_P3')} ? '' : 'disabled'"
+                                        data-timeslot="TUE_P3"
                                         th:onclick="${userAvailabilityNames.contains('TUE_P3')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="TUE_P3" 
                                                th:disabled="${!userAvailabilityNames.contains('TUE_P3')}"
@@ -191,6 +198,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('WED_P3')} ? '' : 'disabled'"
+                                        data-timeslot="WED_P3"
                                         th:onclick="${userAvailabilityNames.contains('WED_P3')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="WED_P3" 
                                                th:disabled="${!userAvailabilityNames.contains('WED_P3')}"
@@ -199,6 +207,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('THU_P3')} ? '' : 'disabled'"
+                                        data-timeslot="THU_P3"
                                         th:onclick="${userAvailabilityNames.contains('THU_P3')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="THU_P3" 
                                                th:disabled="${!userAvailabilityNames.contains('THU_P3')}"
@@ -207,6 +216,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('FRI_P3')} ? '' : 'disabled'"
+                                        data-timeslot="FRI_P3"
                                         th:onclick="${userAvailabilityNames.contains('FRI_P3')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="FRI_P3" 
                                                th:disabled="${!userAvailabilityNames.contains('FRI_P3')}"
@@ -218,6 +228,7 @@
                                     <td class="period-label">P4 (12:00-12:50)</td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('MON_P4')} ? '' : 'disabled'"
+                                        data-timeslot="MON_P4"
                                         th:onclick="${userAvailabilityNames.contains('MON_P4')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="MON_P4" 
                                                th:disabled="${!userAvailabilityNames.contains('MON_P4')}"
@@ -226,6 +237,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('TUE_P4')} ? '' : 'disabled'"
+                                        data-timeslot="TUE_P4"
                                         th:onclick="${userAvailabilityNames.contains('TUE_P4')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="TUE_P4" 
                                                th:disabled="${!userAvailabilityNames.contains('TUE_P4')}"
@@ -234,6 +246,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('WED_P4')} ? '' : 'disabled'"
+                                        data-timeslot="WED_P4"
                                         th:onclick="${userAvailabilityNames.contains('WED_P4')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="WED_P4" 
                                                th:disabled="${!userAvailabilityNames.contains('WED_P4')}"
@@ -242,6 +255,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('THU_P4')} ? '' : 'disabled'"
+                                        data-timeslot="THU_P4"
                                         th:onclick="${userAvailabilityNames.contains('THU_P4')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="THU_P4" 
                                                th:disabled="${!userAvailabilityNames.contains('THU_P4')}"
@@ -250,6 +264,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('FRI_P4')} ? '' : 'disabled'"
+                                        data-timeslot="FRI_P4"
                                         th:onclick="${userAvailabilityNames.contains('FRI_P4')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="FRI_P4" 
                                                th:disabled="${!userAvailabilityNames.contains('FRI_P4')}"
@@ -261,6 +276,7 @@
                                     <td class="period-label">P5 (13:45-14:35)</td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('MON_P5')} ? '' : 'disabled'"
+                                        data-timeslot="MON_P5"
                                         th:onclick="${userAvailabilityNames.contains('MON_P5')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="MON_P5" 
                                                th:disabled="${!userAvailabilityNames.contains('MON_P5')}"
@@ -269,6 +285,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('TUE_P5')} ? '' : 'disabled'"
+                                        data-timeslot="TUE_P5"
                                         th:onclick="${userAvailabilityNames.contains('TUE_P5')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="TUE_P5" 
                                                th:disabled="${!userAvailabilityNames.contains('TUE_P5')}"
@@ -277,6 +294,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('WED_P5')} ? '' : 'disabled'"
+                                        data-timeslot="WED_P5"
                                         th:onclick="${userAvailabilityNames.contains('WED_P5')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="WED_P5" 
                                                th:disabled="${!userAvailabilityNames.contains('WED_P5')}"
@@ -285,6 +303,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('THU_P5')} ? '' : 'disabled'"
+                                        data-timeslot="THU_P5"
                                         th:onclick="${userAvailabilityNames.contains('THU_P5')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="THU_P5" 
                                                th:disabled="${!userAvailabilityNames.contains('THU_P5')}"
@@ -293,6 +312,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('FRI_P5')} ? '' : 'disabled'"
+                                        data-timeslot="FRI_P5"
                                         th:onclick="${userAvailabilityNames.contains('FRI_P5')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="FRI_P5" 
                                                th:disabled="${!userAvailabilityNames.contains('FRI_P5')}"
@@ -304,6 +324,7 @@
                                     <td class="period-label">P6 (14:40-15:30)</td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('MON_P6')} ? '' : 'disabled'"
+                                        data-timeslot="MON_P6"
                                         th:onclick="${userAvailabilityNames.contains('MON_P6')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="MON_P6" 
                                                th:disabled="${!userAvailabilityNames.contains('MON_P6')}"
@@ -312,6 +333,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('TUE_P6')} ? '' : 'disabled'"
+                                        data-timeslot="TUE_P6"
                                         th:onclick="${userAvailabilityNames.contains('TUE_P6')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="TUE_P6" 
                                                th:disabled="${!userAvailabilityNames.contains('TUE_P6')}"
@@ -320,6 +342,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('WED_P6')} ? '' : 'disabled'"
+                                        data-timeslot="WED_P6"
                                         th:onclick="${userAvailabilityNames.contains('WED_P6')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="WED_P6" 
                                                th:disabled="${!userAvailabilityNames.contains('WED_P6')}"
@@ -328,6 +351,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('THU_P6')} ? '' : 'disabled'"
+                                        data-timeslot="THU_P6"
                                         th:onclick="${userAvailabilityNames.contains('THU_P6')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="THU_P6" 
                                                th:disabled="${!userAvailabilityNames.contains('THU_P6')}"
@@ -336,6 +360,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('FRI_P6')} ? '' : 'disabled'"
+                                        data-timeslot="FRI_P6"
                                         th:onclick="${userAvailabilityNames.contains('FRI_P6')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="FRI_P6" 
                                                th:disabled="${!userAvailabilityNames.contains('FRI_P6')}"
@@ -347,6 +372,7 @@
                                     <td class="period-label">P7 (16:00-17:15)</td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('MON_P7')} ? '' : 'disabled'"
+                                        data-timeslot="MON_P7"
                                         th:onclick="${userAvailabilityNames.contains('MON_P7')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="MON_P7" 
                                                th:disabled="${!userAvailabilityNames.contains('MON_P7')}"
@@ -355,6 +381,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('TUE_P7')} ? '' : 'disabled'"
+                                        data-timeslot="TUE_P7"
                                         th:onclick="${userAvailabilityNames.contains('TUE_P7')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="TUE_P7" 
                                                th:disabled="${!userAvailabilityNames.contains('TUE_P7')}"
@@ -363,6 +390,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('WED_P7')} ? '' : 'disabled'"
+                                        data-timeslot="WED_P7"
                                         th:onclick="${userAvailabilityNames.contains('WED_P7')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="WED_P7" 
                                                th:disabled="${!userAvailabilityNames.contains('WED_P7')}"
@@ -371,6 +399,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('THU_P7')} ? '' : 'disabled'"
+                                        data-timeslot="THU_P7"
                                         th:onclick="${userAvailabilityNames.contains('THU_P7')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="THU_P7" 
                                                th:disabled="${!userAvailabilityNames.contains('THU_P7')}"
@@ -379,6 +408,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('FRI_P7')} ? '' : 'disabled'"
+                                        data-timeslot="FRI_P7"
                                         th:onclick="${userAvailabilityNames.contains('FRI_P7')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="FRI_P7" 
                                                th:disabled="${!userAvailabilityNames.contains('FRI_P7')}"
