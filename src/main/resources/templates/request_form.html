@@ -38,14 +38,30 @@
 
                     <!-- Subject -->
                     <div class="form-group">
-                        <label for="subjectId" class="form-label">Subject *</label>
-                        <select id="subjectId" name="subjectId" class="form-select" required>
-                            <option value="">Select subject</option>
-                            <option th:each="subject : ${subjects}" 
-                                    th:value="${subject.id}" 
-                                    th:text="${subject.displayName}">Mathematics</option>
-                        </select>
-                        <small class="form-help">Select the subject for this tutoring request</small>
+                        <h3 class="form-label">Subject *</h3>
+                        <p class="section-description">Select the subject for this tutoring request:</p>
+                        <div class="subject-groups">
+                            <div th:each="group : ${subjectGroups}" class="subject-group">
+                                <h4 th:text="${group.key}">Subject Group</h4>
+                                <div class="subject-cards">
+                                    <div th:each="subject : ${group.value}" 
+                                         class="subject-card select-card"
+                                         role="button"
+                                         tabindex="0"
+                                         th:aria-label="${'Select ' + subject.displayName + ' subject'}"
+                                         onclick="selectSingleSubject(this)"
+                                         onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectSingleSubject(this); }">
+                                        <input type="radio"
+                                               th:id="${'subject_' + subject.id}"
+                                               name="subjectId"
+                                               th:value="${subject.id}"
+                                               style="display: none;">
+                                        <div class="subject-name" th:text="${subject.displayName}">Subject Name</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="form-help">Select one subject for this tutoring request</small>
                     </div>
 
                     <!-- Timeslots -->
@@ -68,6 +84,7 @@
                                     <td class="period-label">P1 (09:00-09:50)</td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('MON_P1')} ? '' : 'disabled'"
+                                        data-timeslot="MON_P1"
                                         th:onclick="${userAvailabilityNames.contains('MON_P1')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="MON_P1" 
                                                th:disabled="${!userAvailabilityNames.contains('MON_P1')}"
@@ -76,6 +93,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('TUE_P1')} ? '' : 'disabled'"
+                                        data-timeslot="TUE_P1"
                                         th:onclick="${userAvailabilityNames.contains('TUE_P1')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="TUE_P1" 
                                                th:disabled="${!userAvailabilityNames.contains('TUE_P1')}"
@@ -84,6 +102,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('WED_P1')} ? '' : 'disabled'"
+                                        data-timeslot="WED_P1"
                                         th:onclick="${userAvailabilityNames.contains('WED_P1')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="WED_P1" 
                                                th:disabled="${!userAvailabilityNames.contains('WED_P1')}"
@@ -92,6 +111,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('THU_P1')} ? '' : 'disabled'"
+                                        data-timeslot="THU_P1"
                                         th:onclick="${userAvailabilityNames.contains('THU_P1')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="THU_P1" 
                                                th:disabled="${!userAvailabilityNames.contains('THU_P1')}"
@@ -100,6 +120,7 @@
                                     </td>
                                     <td class="timeslot-cell" 
                                         th:classappend="${userAvailabilityNames.contains('FRI_P1')} ? '' : 'disabled'"
+                                        data-timeslot="FRI_P1"
                                         th:onclick="${userAvailabilityNames.contains('FRI_P1')} ? 'toggleTimeslot(this)' : ''">
                                         <input type="checkbox" name="timeslots" value="FRI_P1" 
                                                th:disabled="${!userAvailabilityNames.contains('FRI_P1')}"
@@ -395,6 +416,23 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script>
+        // Subject selection functionality (single selection for requests)
+        function selectSingleSubject(card) {
+            // Remove selection from all subject cards
+            document.querySelectorAll('.subject-card').forEach(c => {
+                c.classList.remove('selected');
+                c.setAttribute('aria-pressed', 'false');
+                const radio = c.querySelector('input[type="radio"]');
+                if (radio) radio.checked = false;
+            });
+            
+            // Select the clicked card
+            card.classList.add('selected');
+            card.setAttribute('aria-pressed', 'true');
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        }
+
         // Timeslot cell toggle functionality (same as profile page)
         function toggleTimeslot(cell) {
             const checkbox = cell.querySelector('input[type="checkbox"]');
@@ -417,6 +455,13 @@
 
         // Form validation
         document.querySelector('form').addEventListener('submit', function(e) {
+            const subject = document.querySelector('input[name="subjectId"]:checked');
+            if (!subject) {
+                e.preventDefault();
+                alert('Please select a subject');
+                return false;
+            }
+            
             const timeslots = document.querySelectorAll('input[name="timeslots"]:checked');
             if (timeslots.length === 0) {
                 e.preventDefault();
