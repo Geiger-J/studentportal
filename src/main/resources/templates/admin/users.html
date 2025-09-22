@@ -19,6 +19,10 @@
                 <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
             </div>
 
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
             <!-- Users Table -->
             <section class="users-section">
                 <h2>All Users</h2>
@@ -35,6 +39,7 @@
                                 <th>Email</th>
                                 <th>Year Group</th>
                                 <th>Role</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -47,6 +52,12 @@
                                           th:classappend="${user.role.name().toLowerCase()}"
                                           th:text="${user.role.displayName}">Student</span>
                                     <span th:if="${user.role.name() == 'ADMIN'}" class="admin-badge">👑</span>
+                                </td>
+                                <td>
+                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" 
+                                          onsubmit="return confirm('Are you sure you want to permanently delete this user and all their data?');">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         </tbody>

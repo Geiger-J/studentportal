@@ -2,6 +2,7 @@ package com.example.studentportal.service;
 
 import com.example.studentportal.model.Role;
 import com.example.studentportal.model.User;
+import com.example.studentportal.repository.RequestRepository;
 import com.example.studentportal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,11 +22,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RequestRepository requestRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RequestRepository requestRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.requestRepository = requestRepository;
     }
 
     /**
@@ -141,5 +144,24 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    /**
+     * Deletes a user and all their associated data.
+     * This method is transactional to ensure all-or-nothing operation.
+     * 
+     * @param id the ID of the user to delete
+     * @throws IllegalArgumentException if user not found
+     */
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+        
+        // Delete all tutoring requests associated with this user first
+        requestRepository.deleteByUser(user);
+        
+        // Finally, delete the user
+        userRepository.delete(user);
     }
 }

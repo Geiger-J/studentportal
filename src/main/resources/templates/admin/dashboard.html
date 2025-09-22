@@ -30,6 +30,9 @@
                 <form th:action="@{/admin/match}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-action">Trigger Matching</button>
                 </form>
+                <form th:action="@{/admin/matches/run}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-primary">Run Matching Algorithm</button>
+                </form>
                 <form th:action="@{/admin/archive}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-warning">Archive Old Requests</button>
                 </form>

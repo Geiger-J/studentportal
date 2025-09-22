@@ -81,6 +81,13 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findByStatusInAndWeekStartDateBefore(List<RequestStatus> statuses, LocalDate weekStartDate);
     
     /**
+     * Deletes all requests associated with a specific user.
+     * Used when deleting a user to maintain data integrity.
+     * @param user the user whose requests should be deleted
+     */
+    void deleteByUser(User user);
+    
+    /**
      * Finds non-archived requests with week start date before given date.
      * Used for new archival process.
      * @param archived whether archived or not
