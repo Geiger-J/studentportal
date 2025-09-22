@@ -20,6 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -73,11 +74,14 @@ public class User {
     )
     private Set<Subject> subjects = new HashSet<>();
 
-    @ElementCollection(targetClass = Timeslot.class)
+    @ElementCollection(targetClass = Timeslot.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_availability", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "timeslot")
     private Set<Timeslot> availability = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<Request> requests = new HashSet<>();
 
     @Min(value = 0, message = "Max tutoring per week must be non-negative")
     private Integer maxTutoringPerWeek = 0;
@@ -190,6 +194,17 @@ public class User {
 
     public void setAvailability(Set<Timeslot> availability) {
         this.availability = (availability != null) ? availability : new HashSet<>();
+    }
+
+    public Set<Request> getRequests() {
+        if (requests == null) {
+            requests = new HashSet<>();
+        }
+        return requests;
+    }
+
+    public void setRequests(Set<Request> requests) {
+        this.requests = (requests != null) ? requests : new HashSet<>();
     }
 
     public Integer getMaxTutoringPerWeek() {
