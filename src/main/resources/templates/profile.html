@@ -117,15 +117,10 @@
                             <tbody>
                                 <tr>
                                     <td class="period-label">P1 (09:00-09:50)</td>
-                                    <td class="timeslot-cell select-card" 
+                                    <td class="timeslot-cell" 
                                         th:classappend="${availabilityNames.contains('MON_P1')} ? 'selected' : ''" 
-                                        role="button"
-                                        tabindex="0"
-                                        th:aria-pressed="${availabilityNames.contains('MON_P1')} ? 'true' : 'false'"
-                                        aria-label="Monday Period 1 (09:00-09:50)"
                                         data-timeslot="MON_P1"
-                                        onclick="toggleTimeslot(this)"
-                                        onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleTimeslot(this); }">
+                                        onclick="toggleTimeslot(this)">
                                         <input type="checkbox" name="timeslots" value="MON_P1" th:checked="${availabilityNames.contains('MON_P1')}">
                                     </td>
                                     <td class="timeslot-cell" 
