@@ -103,6 +103,25 @@ public class AdminController {
     }
 
     /**
+     * Delete a user and all their associated data
+     */
+    @PostMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            userService.deleteUser(id);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "User deleted successfully along with all associated data.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error deleting user: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/users";
+    }
+
+    /**
      * Manual matching trigger - uses the matching service
      */
     @PostMapping("/match")
@@ -115,6 +134,40 @@ public class AdminController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", 
                 "Matching process failed: " + e.getMessage());
+        }
+
+        return "redirect:/admin/dashboard";
+    }
+
+    /**
+     * Run intelligent matching algorithm
+     */
+    @PostMapping("/matches/run")
+    public String runMatchingAlgorithm(RedirectAttributes redirectAttributes) {
+        try {
+            List<MatchingService.Match> matches = matchingService.runMatching();
+            
+            // Process the matches
+            int matchedCount = 0;
+            for (MatchingService.Match match : matches) {
+                Request offerRequest = match.getOfferRequest();
+                Request seekRequest = match.getSeekRequest();
+                
+                // Update status and matched partners  
+                offerRequest.setStatus(RequestStatus.MATCHED);
+                offerRequest.setMatchedPartner(seekRequest.getUser());
+                
+                seekRequest.setStatus(RequestStatus.MATCHED);
+                seekRequest.setMatchedPartner(offerRequest.getUser());
+                
+                matchedCount += 2;
+            }
+            
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Intelligent matching completed. " + matchedCount + " requests matched with " + matches.size() + " optimal pairs.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Matching algorithm failed: " + e.getMessage());
         }
 
         return "redirect:/admin/dashboard";
