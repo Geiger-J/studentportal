@@ -50,7 +50,7 @@
                                 <td>
                                     <span class="role-badge" 
                                           th:classappend="${user.role.name().toLowerCase()}"
-                                          th:text="${user.role.displayName}">Student</span>
+                                          th:text="${user.role.getDisplayName()}">Student</span>
                                     <span th:if="${user.role.name() == 'ADMIN'}" class="admin-badge">👑</span>
                                 </td>
                                 <td>
