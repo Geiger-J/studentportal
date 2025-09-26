@@ -158,10 +158,13 @@ public class UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
         
-        // Delete all tutoring requests associated with this user first
+        // Clear any references to this user as a matched partner in other requests
+        requestRepository.clearMatchedPartnerReferences(user);
+        
+        // Delete all tutoring requests associated with this user
         requestRepository.deleteByUser(user);
         
-        // Finally, delete the user
+        // Finally, delete the user (this will cascade to user_subjects and user_availability tables)
         userRepository.delete(user);
     }
 }

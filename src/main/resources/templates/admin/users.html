@@ -56,6 +56,7 @@
                                 <td>
                                     <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" 
                                           onsubmit="return confirm('Are you sure you want to permanently delete this user and all their data?');">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
