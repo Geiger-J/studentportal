@@ -50,9 +50,11 @@ class MatchingServiceTest {
 
         // Create test users
         tutor = new User("Tutor Student", "tutor@bromsgrove-school.co.uk", "hashedpass", Role.STUDENT);
+        tutor.setYearGroup(12); // Set year group for matching constraints
         tutor = userRepository.save(tutor);
 
         tutee = new User("Tutee Student", "tutee@bromsgrove-school.co.uk", "hashedpass", Role.STUDENT);
+        tutee.setYearGroup(11); // Set year group for matching constraints  
         tutee = userRepository.save(tutee);
 
         // Create test subject

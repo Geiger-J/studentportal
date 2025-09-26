@@ -6,6 +6,7 @@ import com.example.studentportal.model.RequestType;
 import com.example.studentportal.model.Subject;
 import com.example.studentportal.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -86,6 +87,15 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
      * @param user the user whose requests should be deleted
      */
     void deleteByUser(User user);
+    
+    /**
+     * Updates requests to clear matched partner references when a user is deleted.
+     * Used to prevent foreign key constraint violations.
+     * @param matchedPartner the user to remove as matched partner
+     */
+    @Modifying
+    @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner")
+    void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner);
     
     /**
      * Finds non-archived requests with week start date before given date.
