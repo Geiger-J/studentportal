@@ -28,11 +28,9 @@
                 <a href="/admin/requests" class="btn btn-primary">Manage Requests</a>
                 <a href="/admin/users" class="btn btn-secondary">Manage Users</a>
                 <form th:action="@{/admin/matching/run}" method="post" style="display: inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-primary">Run Matching Algorithm</button>
                 </form>
                 <form th:action="@{/admin/archive}" method="post" style="display: inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-warning">Archive Old Requests</button>
                 </form>
             </div>

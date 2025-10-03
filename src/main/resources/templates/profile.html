@@ -81,6 +81,7 @@
                                     <div th:each="subject : ${group.value}" 
                                          class="subject-card select-card"
                                          th:classappend="${user.subjects != null and user.subjects.contains(subject)} ? 'selected' : ''"
+                                         th:attr="data-exam-board=${subject.examBoard}"
                                          role="button"
                                          tabindex="0"
                                          th:aria-pressed="${user.subjects != null and user.subjects.contains(subject)} ? 'true' : 'false'"
@@ -202,6 +203,7 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script>
+        // Year group change handler
         document.getElementById('yearGroup').addEventListener('change', function() {
             const yearGroup = parseInt(this.value);
             const examBoardSelect = document.getElementById('examBoard');
@@ -211,15 +213,66 @@
                 examBoardSelect.value = 'GCSE';
                 examBoardSelect.disabled = true;
                 examBoardGroup.querySelector('.form-help').textContent = 'Automatically set to GCSE for Years 9-11';
+                filterSubjectsByExamBoard('GCSE');
             } else if (yearGroup >= 12 && yearGroup <= 13) {
                 examBoardSelect.disabled = false;
                 examBoardGroup.querySelector('.form-help').textContent = 'Choose between A Levels or IB for Years 12-13';
+                // Filter subjects based on currently selected exam board
+                if (examBoardSelect.value) {
+                    filterSubjectsByExamBoard(examBoardSelect.value);
+                } else {
+                    showAllSubjects();
+                }
             } else {
                 examBoardSelect.value = '';
                 examBoardSelect.disabled = true;
                 examBoardGroup.querySelector('.form-help').textContent = 'Select a valid year group';
+                showAllSubjects();
             }
         });
+
+        // Exam board change handler
+        document.getElementById('examBoard').addEventListener('change', function() {
+            const examBoard = this.value;
+            if (examBoard) {
+                filterSubjectsByExamBoard(examBoard);
+            } else {
+                showAllSubjects();
+            }
+        });
+
+        // Filter subjects by exam board
+        function filterSubjectsByExamBoard(examBoard) {
+            const subjectCards = document.querySelectorAll('.subject-card');
+            subjectCards.forEach(card => {
+                const cardExamBoard = card.getAttribute('data-exam-board');
+                if (cardExamBoard === examBoard) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Hide empty groups
+            document.querySelectorAll('.subject-group').forEach(group => {
+                const visibleCards = group.querySelectorAll('.subject-card[style=""], .subject-card:not([style*="display: none"])');
+                if (visibleCards.length === 0) {
+                    group.style.display = 'none';
+                } else {
+                    group.style.display = '';
+                }
+            });
+        }
+
+        // Show all subjects
+        function showAllSubjects() {
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.style.display = '';
+            });
+            document.querySelectorAll('.subject-group').forEach(group => {
+                group.style.display = '';
+            });
+        }
 
         // Subject card toggle functionality
         function toggleSubject(card) {
@@ -238,6 +291,16 @@
                     card.classList.add('selected');
                 }
             });
+            
+            // Apply initial filtering based on current year group and exam board
+            const yearGroup = parseInt(document.getElementById('yearGroup').value);
+            const examBoard = document.getElementById('examBoard').value;
+            
+            if (yearGroup >= 9 && yearGroup <= 11) {
+                filterSubjectsByExamBoard('GCSE');
+            } else if (yearGroup >= 12 && yearGroup <= 13 && examBoard) {
+                filterSubjectsByExamBoard(examBoard);
+            }
         });
     </script>
 </body>

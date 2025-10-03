@@ -167,22 +167,49 @@ public class ProfileController {
      * Languages: English, German, French
      * STEM: Mathematics, Physics, Biology, Chemistry  
      * Social Sciences: Economics, Politics, Business
+     * 
+     * Filters subjects by exam board if provided
      */
     private Map<String, List<Subject>> getGroupedSubjects() {
         List<Subject> allSubjects = subjectService.getAllSubjects();
+        return groupSubjectsByCategory(allSubjects);
+    }
+    
+    /**
+     * Groups subjects by category, filtering by exam board
+     */
+    private Map<String, List<Subject>> getGroupedSubjectsByExamBoard(ExamBoard examBoard) {
+        List<Subject> allSubjects = subjectService.getAllSubjects();
+        List<Subject> filteredSubjects = allSubjects.stream()
+            .filter(s -> s.getExamBoard() == examBoard)
+            .collect(Collectors.toList());
+        return groupSubjectsByCategory(filteredSubjects);
+    }
+    
+    /**
+     * Helper method to group subjects by category
+     */
+    private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
         
-        groups.put("Languages", allSubjects.stream()
-            .filter(s -> s.getCode().equals("ENGLISH") || s.getCode().equals("GERMAN") || s.getCode().equals("FRENCH"))
+        groups.put("Languages", subjects.stream()
+            .filter(s -> s.getDisplayName().equals("English") || 
+                        s.getDisplayName().equals("German") || 
+                        s.getDisplayName().equals("French"))
             .collect(Collectors.toList()));
             
-        groups.put("STEM", allSubjects.stream()
-            .filter(s -> s.getCode().equals("MATHEMATICS") || s.getCode().equals("PHYSICS") || 
-                        s.getCode().equals("BIOLOGY") || s.getCode().equals("CHEMISTRY"))
+        groups.put("STEM", subjects.stream()
+            .filter(s -> s.getDisplayName().startsWith("Mathematics") || 
+                        s.getDisplayName().equals("Physics") || 
+                        s.getDisplayName().equals("Biology") || 
+                        s.getDisplayName().equals("Chemistry"))
             .collect(Collectors.toList()));
             
-        groups.put("Social Sciences", allSubjects.stream()
-            .filter(s -> s.getCode().equals("ECONOMICS") || s.getCode().equals("POLITICS") || s.getCode().equals("BUSINESS"))
+        groups.put("Social Sciences", subjects.stream()
+            .filter(s -> s.getDisplayName().equals("Economics") || 
+                        s.getDisplayName().equals("Politics") || 
+                        s.getDisplayName().equals("Business") ||
+                        s.getDisplayName().equals("Business Management"))
             .collect(Collectors.toList()));
             
         return groups;

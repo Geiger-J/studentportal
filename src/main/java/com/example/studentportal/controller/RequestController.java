@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,9 +62,8 @@ public class RequestController {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        // Show grouped subjects like in profile completion
-        model.addAttribute("subjects", user.getSubjects()); // User's selected subjects for default values
-        model.addAttribute("subjectGroups", getGroupedSubjects()); // All subjects grouped for selection
+        // Show only subjects that the user has in their profile (curated subjects)
+        model.addAttribute("subjectGroups", getGroupedUserSubjects(user));
         model.addAttribute("userAvailability", user.getAvailability());
         model.addAttribute("userAvailabilityNames", userAvailabilityNames);
         model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
@@ -99,7 +99,7 @@ public class RequestController {
             // Validate timeslots
             if (timeslots == null || timeslots.isEmpty()) {
                 model.addAttribute("error", "Please select at least one timeslot");
-                model.addAttribute("subjects", user.getSubjects());
+                model.addAttribute("subjectGroups", getGroupedUserSubjects(user));
                 model.addAttribute("userAvailability", user.getAvailability());
                 
                 // Convert userAvailability Set<Timeslot> to Set<String> for template usage
@@ -128,7 +128,7 @@ public class RequestController {
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("subjects", user.getSubjects());
+            model.addAttribute("subjectGroups", getGroupedUserSubjects(user));
             model.addAttribute("userAvailability", user.getAvailability());
             
             // Convert userAvailability Set<Timeslot> to Set<String> for template usage
@@ -144,8 +144,7 @@ public class RequestController {
             return "request_form";
         } catch (Exception e) {
             model.addAttribute("error", "Error creating request: " + e.getMessage());
-            model.addAttribute("subjects", user.getSubjects());
-            model.addAttribute("subjectGroups", getGroupedSubjects());
+            model.addAttribute("subjectGroups", getGroupedUserSubjects(user));
             model.addAttribute("userAvailability", user.getAvailability());
             
             // Convert userAvailability Set<Timeslot> to Set<String> for template usage
@@ -192,6 +191,14 @@ public class RequestController {
     }
 
     /**
+     * Groups user's subjects by category for request creation
+     */
+    private Map<String, List<Subject>> getGroupedUserSubjects(User user) {
+        List<Subject> userSubjects = new ArrayList<>(user.getSubjects());
+        return groupSubjectsByCategory(userSubjects);
+    }
+    
+    /**
      * Groups subjects according to requirements:
      * Languages: English, German, French
      * STEM: Mathematics, Physics, Biology, Chemistry  
@@ -199,19 +206,33 @@ public class RequestController {
      */
     private Map<String, List<Subject>> getGroupedSubjects() {
         List<Subject> allSubjects = subjectService.getAllSubjects();
+        return groupSubjectsByCategory(allSubjects);
+    }
+    
+    /**
+     * Helper method to group subjects by category
+     */
+    private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
         
-        groups.put("Languages", allSubjects.stream()
-            .filter(s -> s.getCode().equals("ENGLISH") || s.getCode().equals("GERMAN") || s.getCode().equals("FRENCH"))
+        groups.put("Languages", subjects.stream()
+            .filter(s -> s.getDisplayName().equals("English") || 
+                        s.getDisplayName().equals("German") || 
+                        s.getDisplayName().equals("French"))
             .collect(Collectors.toList()));
             
-        groups.put("STEM", allSubjects.stream()
-            .filter(s -> s.getCode().equals("MATHEMATICS") || s.getCode().equals("PHYSICS") || 
-                        s.getCode().equals("BIOLOGY") || s.getCode().equals("CHEMISTRY"))
+        groups.put("STEM", subjects.stream()
+            .filter(s -> s.getDisplayName().startsWith("Mathematics") || 
+                        s.getDisplayName().equals("Physics") || 
+                        s.getDisplayName().equals("Biology") || 
+                        s.getDisplayName().equals("Chemistry"))
             .collect(Collectors.toList()));
             
-        groups.put("Social Sciences", allSubjects.stream()
-            .filter(s -> s.getCode().equals("ECONOMICS") || s.getCode().equals("POLITICS") || s.getCode().equals("BUSINESS"))
+        groups.put("Social Sciences", subjects.stream()
+            .filter(s -> s.getDisplayName().equals("Economics") || 
+                        s.getDisplayName().equals("Politics") || 
+                        s.getDisplayName().equals("Business") ||
+                        s.getDisplayName().equals("Business Management"))
             .collect(Collectors.toList()));
             
         return groups;
