@@ -58,8 +58,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(ex -> ex
                 .accessDeniedHandler(roleRedirectAccessDeniedHandler)
-                )
-                .csrf(csrf -> csrf.disable());
+                );
 
         return http.build();
     }

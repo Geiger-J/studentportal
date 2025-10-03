@@ -22,7 +22,7 @@
                 <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
                 <!-- Request Form -->
-                <form action="/requests" method="post" class="form">
+                <form th:action="@{/requests}" method="post" class="form">
                     
                     <!-- Request Type -->
                     <div class="form-group">

@@ -19,7 +19,7 @@
                 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
                 <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-                <form action="/profile" method="post" class="form profile-form">
+                <form th:action="@{/profile}" method="post" class="form profile-form">
 
                     <section class="form-section">
                         <h2>Personal Information</h2>
