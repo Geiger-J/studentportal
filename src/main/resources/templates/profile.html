@@ -103,202 +103,79 @@
                     <section class="form-section">
                         <h2>Availability *</h2>
                         <p class="section-description">Select when you're available for tutoring sessions:</p>
-                        <table class="timeslot-table">
-                            <thead>
-                                <tr>
-                                    <th>Period</th>
-                                    <th>Monday</th>
-                                    <th>Tuesday</th>
-                                    <th>Wednesday</th>
-                                    <th>Thursday</th>
-                                    <th>Friday</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="period-label">P1 (09:00-09:50)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('MON_P1')} ? 'selected' : ''" 
-                                        data-timeslot="MON_P1"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="MON_P1" th:checked="${availabilityNames.contains('MON_P1')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('TUE_P1')} ? 'selected' : ''" 
-                                        data-timeslot="TUE_P1"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="TUE_P1" th:checked="${availabilityNames.contains('TUE_P1')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('WED_P1')} ? 'selected' : ''" 
-                                        data-timeslot="WED_P1"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="WED_P1" th:checked="${availabilityNames.contains('WED_P1')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('THU_P1')} ? 'selected' : ''" 
-                                        data-timeslot="THU_P1"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="THU_P1" th:checked="${availabilityNames.contains('THU_P1')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('FRI_P1')} ? 'selected' : ''" 
-                                        data-timeslot="FRI_P1"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="FRI_P1" th:checked="${availabilityNames.contains('FRI_P1')}">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P2 (09:55-10:45)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('MON_P2')} ? 'selected' : ''" 
-                                        data-timeslot="MON_P2"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="MON_P2" th:checked="${availabilityNames.contains('MON_P2')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('TUE_P2')} ? 'selected' : ''" 
-                                        data-timeslot="TUE_P2"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="TUE_P2" th:checked="${availabilityNames.contains('TUE_P2')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('WED_P2')} ? 'selected' : ''" 
-                                        data-timeslot="WED_P2"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="WED_P2" th:checked="${availabilityNames.contains('WED_P2')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('THU_P2')} ? 'selected' : ''" 
-                                        data-timeslot="THU_P2"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="THU_P2" th:checked="${availabilityNames.contains('THU_P2')}">
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${availabilityNames.contains('FRI_P2')} ? 'selected' : ''" 
-                                        data-timeslot="FRI_P2"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="FRI_P2" th:checked="${availabilityNames.contains('FRI_P2')}">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P3 (11:05-11:55)</td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('MON_P3')} ? 'selected' : ''" data-timeslot="MON_P3"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="MON_P3" th:checked="${availabilityNames.contains('MON_P3')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('TUE_P3')} ? 'selected' : ''" data-timeslot="TUE_P3"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="TUE_P3" th:checked="${availabilityNames.contains('TUE_P3')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('WED_P3')} ? 'selected' : ''" data-timeslot="WED_P3"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="WED_P3" th:checked="${availabilityNames.contains('WED_P3')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('THU_P3')} ? 'selected' : ''" data-timeslot="THU_P3"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="THU_P3" th:checked="${availabilityNames.contains('THU_P3')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('FRI_P3')} ? 'selected' : ''" data-timeslot="FRI_P3"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="FRI_P3" th:checked="${availabilityNames.contains('FRI_P3')}">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P4 (12:00-12:50)</td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('MON_P4')} ? 'selected' : ''" data-timeslot="MON_P4"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="MON_P4" th:checked="${availabilityNames.contains('MON_P4')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('TUE_P4')} ? 'selected' : ''" data-timeslot="TUE_P4"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="TUE_P4" th:checked="${availabilityNames.contains('TUE_P4')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('WED_P4')} ? 'selected' : ''" data-timeslot="WED_P4"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="WED_P4" th:checked="${availabilityNames.contains('WED_P4')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('THU_P4')} ? 'selected' : ''" data-timeslot="THU_P4"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="THU_P4" th:checked="${availabilityNames.contains('THU_P4')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('FRI_P4')} ? 'selected' : ''" data-timeslot="FRI_P4"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="FRI_P4" th:checked="${availabilityNames.contains('FRI_P4')}">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P5 (14:05-14:55)</td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('MON_P5')} ? 'selected' : ''" data-timeslot="MON_P5"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="MON_P5" th:checked="${availabilityNames.contains('MON_P5')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('TUE_P5')} ? 'selected' : ''" data-timeslot="TUE_P5"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="TUE_P5" th:checked="${availabilityNames.contains('TUE_P5')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('WED_P5')} ? 'selected' : ''" data-timeslot="WED_P5"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="WED_P5" th:checked="${availabilityNames.contains('WED_P5')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('THU_P5')} ? 'selected' : ''" data-timeslot="THU_P5"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="THU_P5" th:checked="${availabilityNames.contains('THU_P5')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('FRI_P5')} ? 'selected' : ''" data-timeslot="FRI_P5"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="FRI_P5" th:checked="${availabilityNames.contains('FRI_P5')}">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P6 (15:00-15:50)</td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('MON_P6')} ? 'selected' : ''" data-timeslot="MON_P6"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="MON_P6" th:checked="${availabilityNames.contains('MON_P6')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('TUE_P6')} ? 'selected' : ''" data-timeslot="TUE_P6"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="TUE_P6" th:checked="${availabilityNames.contains('TUE_P6')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('WED_P6')} ? 'selected' : ''" data-timeslot="WED_P6"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="WED_P6" th:checked="${availabilityNames.contains('WED_P6')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('THU_P6')} ? 'selected' : ''" data-timeslot="THU_P6"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="THU_P6" th:checked="${availabilityNames.contains('THU_P6')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('FRI_P6')} ? 'selected' : ''" data-timeslot="FRI_P6"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="FRI_P6" th:checked="${availabilityNames.contains('FRI_P6')}">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P7 (16:00-17:15)</td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('MON_P7')} ? 'selected' : ''" data-timeslot="MON_P7"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="MON_P7" th:checked="${availabilityNames.contains('MON_P7')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('TUE_P7')} ? 'selected' : ''" data-timeslot="TUE_P7"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="TUE_P7" th:checked="${availabilityNames.contains('TUE_P7')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('WED_P7')} ? 'selected' : ''" data-timeslot="WED_P7"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="WED_P7" th:checked="${availabilityNames.contains('WED_P7')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('THU_P7')} ? 'selected' : ''" data-timeslot="THU_P7"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="THU_P7" th:checked="${availabilityNames.contains('THU_P7')}">
-                                    </td>
-                                    <td class="timeslot-cell" th:classappend="${availabilityNames.contains('FRI_P7')} ? 'selected' : ''" data-timeslot="FRI_P7"
-                                        onclick="toggleTimeslot(this)">
-                                        <input type="checkbox" name="timeslots" value="FRI_P7" th:checked="${availabilityNames.contains('FRI_P7')}">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <small class="form-help">Select at least one time slot to complete your profile</small>
+                        <div class="timeslot-grid-wrapper">
+                            <table class="timeslot-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>P1<br/><small>09:00-09:50</small></th>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P1" th:checked="${availabilityNames.contains('MON_P1')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P1" th:checked="${availabilityNames.contains('TUE_P1')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P1" th:checked="${availabilityNames.contains('WED_P1')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P1" th:checked="${availabilityNames.contains('THU_P1')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P1" th:checked="${availabilityNames.contains('FRI_P1')}"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P2<br/><small>09:55-10:45</small></th>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P2" th:checked="${availabilityNames.contains('MON_P2')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P2" th:checked="${availabilityNames.contains('TUE_P2')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P2" th:checked="${availabilityNames.contains('WED_P2')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P2" th:checked="${availabilityNames.contains('THU_P2')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P2" th:checked="${availabilityNames.contains('FRI_P2')}"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P3<br/><small>11:05-11:55</small></th>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P3" th:checked="${availabilityNames.contains('MON_P3')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P3" th:checked="${availabilityNames.contains('TUE_P3')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P3" th:checked="${availabilityNames.contains('WED_P3')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P3" th:checked="${availabilityNames.contains('THU_P3')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P3" th:checked="${availabilityNames.contains('FRI_P3')}"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P4<br/><small>12:00-12:50</small></th>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P4" th:checked="${availabilityNames.contains('MON_P4')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P4" th:checked="${availabilityNames.contains('TUE_P4')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P4" th:checked="${availabilityNames.contains('WED_P4')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P4" th:checked="${availabilityNames.contains('THU_P4')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P4" th:checked="${availabilityNames.contains('FRI_P4')}"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P5<br/><small>14:05-14:55</small></th>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P5" th:checked="${availabilityNames.contains('MON_P5')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P5" th:checked="${availabilityNames.contains('TUE_P5')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P5" th:checked="${availabilityNames.contains('WED_P5')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P5" th:checked="${availabilityNames.contains('THU_P5')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P5" th:checked="${availabilityNames.contains('FRI_P5')}"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P6<br/><small>15:00-15:50</small></th>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P6" th:checked="${availabilityNames.contains('MON_P6')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P6" th:checked="${availabilityNames.contains('TUE_P6')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P6" th:checked="${availabilityNames.contains('WED_P6')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P6" th:checked="${availabilityNames.contains('THU_P6')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P6" th:checked="${availabilityNames.contains('FRI_P6')}"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P7<br/><small>16:00-17:15</small></th>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P7" th:checked="${availabilityNames.contains('MON_P7')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P7" th:checked="${availabilityNames.contains('TUE_P7')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P7" th:checked="${availabilityNames.contains('WED_P7')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P7" th:checked="${availabilityNames.contains('THU_P7')}"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P7" th:checked="${availabilityNames.contains('FRI_P7')}"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="form-help">Click on checkboxes to select your available timeslots</small>
                     </section>
                     </div>
                     <!-- End of academic sections for STUDENT users -->
@@ -352,14 +229,6 @@
             card.setAttribute('aria-pressed', checkbox.checked.toString());
         }
 
-        // Timeslot cell toggle functionality
-        function toggleTimeslot(cell) {
-            const checkbox = cell.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            cell.classList.toggle('selected', checkbox.checked);
-            cell.setAttribute('aria-pressed', checkbox.checked.toString());
-        }
-
         // Initialize selected states on page load
         document.addEventListener('DOMContentLoaded', function() {
             // Set initial state for subject cards
@@ -367,14 +236,6 @@
                 const checkbox = card.querySelector('input[type="checkbox"]');
                 if (checkbox && checkbox.checked) {
                     card.classList.add('selected');
-                }
-            });
-
-            // Set initial state for timeslot cells
-            document.querySelectorAll('.timeslot-cell').forEach(cell => {
-                const checkbox = cell.querySelector('input[type="checkbox"]');
-                if (checkbox && checkbox.checked) {
-                    cell.classList.add('selected');
                 }
             });
         });

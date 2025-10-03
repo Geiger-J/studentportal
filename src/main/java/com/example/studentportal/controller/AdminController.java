@@ -142,29 +142,13 @@ public class AdminController {
     /**
      * Run intelligent matching algorithm
      */
-    @PostMapping("/matches/run")
+    @PostMapping("/matching/run")
     public String runMatchingAlgorithm(RedirectAttributes redirectAttributes) {
         try {
-            List<MatchingService.Match> matches = matchingService.runMatching();
-            
-            // Process the matches
-            int matchedCount = 0;
-            for (MatchingService.Match match : matches) {
-                Request offerRequest = match.getOfferRequest();
-                Request seekRequest = match.getSeekRequest();
-                
-                // Update status and matched partners  
-                offerRequest.setStatus(RequestStatus.MATCHED);
-                offerRequest.setMatchedPartner(seekRequest.getUser());
-                
-                seekRequest.setStatus(RequestStatus.MATCHED);
-                seekRequest.setMatchedPartner(offerRequest.getUser());
-                
-                matchedCount += 2;
-            }
+            int matchedCount = matchingService.performMatching();
             
             redirectAttributes.addFlashAttribute("successMessage", 
-                "Intelligent matching completed. " + matchedCount + " requests matched with " + matches.size() + " optimal pairs.");
+                "Intelligent matching completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", 
                 "Matching algorithm failed: " + e.getMessage());

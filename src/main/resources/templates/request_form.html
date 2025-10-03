@@ -68,357 +68,79 @@
                     <div class="form-group">
                         <label class="form-label">Available Timeslots *</label>
                         <p class="section-description">Select when you're available for this tutoring session:</p>
-                        <table class="timeslot-table">
-                            <thead>
-                                <tr>
-                                    <th>Period</th>
-                                    <th>Monday</th>
-                                    <th>Tuesday</th>
-                                    <th>Wednesday</th>
-                                    <th>Thursday</th>
-                                    <th>Friday</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="period-label">P1 (09:00-09:50)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('MON_P1')} ? '' : 'disabled'"
-                                        data-timeslot="MON_P1"
-                                        th:onclick="${userAvailabilityNames.contains('MON_P1')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="MON_P1" 
-                                               th:disabled="${!userAvailabilityNames.contains('MON_P1')}"
-                                               th:title="${!userAvailabilityNames.contains('MON_P1')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('MON_P1')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('TUE_P1')} ? '' : 'disabled'"
-                                        data-timeslot="TUE_P1"
-                                        th:onclick="${userAvailabilityNames.contains('TUE_P1')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="TUE_P1" 
-                                               th:disabled="${!userAvailabilityNames.contains('TUE_P1')}"
-                                               th:title="${!userAvailabilityNames.contains('TUE_P1')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('TUE_P1')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('WED_P1')} ? '' : 'disabled'"
-                                        data-timeslot="WED_P1"
-                                        th:onclick="${userAvailabilityNames.contains('WED_P1')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="WED_P1" 
-                                               th:disabled="${!userAvailabilityNames.contains('WED_P1')}"
-                                               th:title="${!userAvailabilityNames.contains('WED_P1')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('WED_P1')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('THU_P1')} ? '' : 'disabled'"
-                                        data-timeslot="THU_P1"
-                                        th:onclick="${userAvailabilityNames.contains('THU_P1')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="THU_P1" 
-                                               th:disabled="${!userAvailabilityNames.contains('THU_P1')}"
-                                               th:title="${!userAvailabilityNames.contains('THU_P1')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('THU_P1')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('FRI_P1')} ? '' : 'disabled'"
-                                        data-timeslot="FRI_P1"
-                                        th:onclick="${userAvailabilityNames.contains('FRI_P1')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="FRI_P1" 
-                                               th:disabled="${!userAvailabilityNames.contains('FRI_P1')}"
-                                               th:title="${!userAvailabilityNames.contains('FRI_P1')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('FRI_P1')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P2 (09:55-10:45)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('MON_P2')} ? '' : 'disabled'"
-                                        data-timeslot="MON_P2"
-                                        th:onclick="${userAvailabilityNames.contains('MON_P2')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="MON_P2" 
-                                               th:disabled="${!userAvailabilityNames.contains('MON_P2')}"
-                                               th:title="${!userAvailabilityNames.contains('MON_P2')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('MON_P2')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('TUE_P2')} ? '' : 'disabled'"
-                                        data-timeslot="TUE_P2"
-                                        th:onclick="${userAvailabilityNames.contains('TUE_P2')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="TUE_P2" 
-                                               th:disabled="${!userAvailabilityNames.contains('TUE_P2')}"
-                                               th:title="${!userAvailabilityNames.contains('TUE_P2')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('TUE_P2')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('WED_P2')} ? '' : 'disabled'"
-                                        data-timeslot="WED_P2"
-                                        th:onclick="${userAvailabilityNames.contains('WED_P2')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="WED_P2" 
-                                               th:disabled="${!userAvailabilityNames.contains('WED_P2')}"
-                                               th:title="${!userAvailabilityNames.contains('WED_P2')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('WED_P2')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('THU_P2')} ? '' : 'disabled'"
-                                        data-timeslot="THU_P2"
-                                        th:onclick="${userAvailabilityNames.contains('THU_P2')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="THU_P2" 
-                                               th:disabled="${!userAvailabilityNames.contains('THU_P2')}"
-                                               th:title="${!userAvailabilityNames.contains('THU_P2')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('THU_P2')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('FRI_P2')} ? '' : 'disabled'"
-                                        data-timeslot="FRI_P2"
-                                        th:onclick="${userAvailabilityNames.contains('FRI_P2')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="FRI_P2" 
-                                               th:disabled="${!userAvailabilityNames.contains('FRI_P2')}"
-                                               th:title="${!userAvailabilityNames.contains('FRI_P2')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('FRI_P2')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P3 (11:05-11:55)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('MON_P3')} ? '' : 'disabled'"
-                                        data-timeslot="MON_P3"
-                                        th:onclick="${userAvailabilityNames.contains('MON_P3')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="MON_P3" 
-                                               th:disabled="${!userAvailabilityNames.contains('MON_P3')}"
-                                               th:title="${!userAvailabilityNames.contains('MON_P3')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('MON_P3')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('TUE_P3')} ? '' : 'disabled'"
-                                        data-timeslot="TUE_P3"
-                                        th:onclick="${userAvailabilityNames.contains('TUE_P3')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="TUE_P3" 
-                                               th:disabled="${!userAvailabilityNames.contains('TUE_P3')}"
-                                               th:title="${!userAvailabilityNames.contains('TUE_P3')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('TUE_P3')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('WED_P3')} ? '' : 'disabled'"
-                                        data-timeslot="WED_P3"
-                                        th:onclick="${userAvailabilityNames.contains('WED_P3')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="WED_P3" 
-                                               th:disabled="${!userAvailabilityNames.contains('WED_P3')}"
-                                               th:title="${!userAvailabilityNames.contains('WED_P3')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('WED_P3')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('THU_P3')} ? '' : 'disabled'"
-                                        data-timeslot="THU_P3"
-                                        th:onclick="${userAvailabilityNames.contains('THU_P3')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="THU_P3" 
-                                               th:disabled="${!userAvailabilityNames.contains('THU_P3')}"
-                                               th:title="${!userAvailabilityNames.contains('THU_P3')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('THU_P3')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('FRI_P3')} ? '' : 'disabled'"
-                                        data-timeslot="FRI_P3"
-                                        th:onclick="${userAvailabilityNames.contains('FRI_P3')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="FRI_P3" 
-                                               th:disabled="${!userAvailabilityNames.contains('FRI_P3')}"
-                                               th:title="${!userAvailabilityNames.contains('FRI_P3')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('FRI_P3')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P4 (12:00-12:50)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('MON_P4')} ? '' : 'disabled'"
-                                        data-timeslot="MON_P4"
-                                        th:onclick="${userAvailabilityNames.contains('MON_P4')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="MON_P4" 
-                                               th:disabled="${!userAvailabilityNames.contains('MON_P4')}"
-                                               th:title="${!userAvailabilityNames.contains('MON_P4')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('MON_P4')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('TUE_P4')} ? '' : 'disabled'"
-                                        data-timeslot="TUE_P4"
-                                        th:onclick="${userAvailabilityNames.contains('TUE_P4')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="TUE_P4" 
-                                               th:disabled="${!userAvailabilityNames.contains('TUE_P4')}"
-                                               th:title="${!userAvailabilityNames.contains('TUE_P4')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('TUE_P4')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('WED_P4')} ? '' : 'disabled'"
-                                        data-timeslot="WED_P4"
-                                        th:onclick="${userAvailabilityNames.contains('WED_P4')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="WED_P4" 
-                                               th:disabled="${!userAvailabilityNames.contains('WED_P4')}"
-                                               th:title="${!userAvailabilityNames.contains('WED_P4')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('WED_P4')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('THU_P4')} ? '' : 'disabled'"
-                                        data-timeslot="THU_P4"
-                                        th:onclick="${userAvailabilityNames.contains('THU_P4')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="THU_P4" 
-                                               th:disabled="${!userAvailabilityNames.contains('THU_P4')}"
-                                               th:title="${!userAvailabilityNames.contains('THU_P4')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('THU_P4')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('FRI_P4')} ? '' : 'disabled'"
-                                        data-timeslot="FRI_P4"
-                                        th:onclick="${userAvailabilityNames.contains('FRI_P4')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="FRI_P4" 
-                                               th:disabled="${!userAvailabilityNames.contains('FRI_P4')}"
-                                               th:title="${!userAvailabilityNames.contains('FRI_P4')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('FRI_P4')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P5 (13:45-14:35)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('MON_P5')} ? '' : 'disabled'"
-                                        data-timeslot="MON_P5"
-                                        th:onclick="${userAvailabilityNames.contains('MON_P5')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="MON_P5" 
-                                               th:disabled="${!userAvailabilityNames.contains('MON_P5')}"
-                                               th:title="${!userAvailabilityNames.contains('MON_P5')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('MON_P5')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('TUE_P5')} ? '' : 'disabled'"
-                                        data-timeslot="TUE_P5"
-                                        th:onclick="${userAvailabilityNames.contains('TUE_P5')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="TUE_P5" 
-                                               th:disabled="${!userAvailabilityNames.contains('TUE_P5')}"
-                                               th:title="${!userAvailabilityNames.contains('TUE_P5')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('TUE_P5')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('WED_P5')} ? '' : 'disabled'"
-                                        data-timeslot="WED_P5"
-                                        th:onclick="${userAvailabilityNames.contains('WED_P5')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="WED_P5" 
-                                               th:disabled="${!userAvailabilityNames.contains('WED_P5')}"
-                                               th:title="${!userAvailabilityNames.contains('WED_P5')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('WED_P5')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('THU_P5')} ? '' : 'disabled'"
-                                        data-timeslot="THU_P5"
-                                        th:onclick="${userAvailabilityNames.contains('THU_P5')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="THU_P5" 
-                                               th:disabled="${!userAvailabilityNames.contains('THU_P5')}"
-                                               th:title="${!userAvailabilityNames.contains('THU_P5')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('THU_P5')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('FRI_P5')} ? '' : 'disabled'"
-                                        data-timeslot="FRI_P5"
-                                        th:onclick="${userAvailabilityNames.contains('FRI_P5')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="FRI_P5" 
-                                               th:disabled="${!userAvailabilityNames.contains('FRI_P5')}"
-                                               th:title="${!userAvailabilityNames.contains('FRI_P5')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('FRI_P5')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P6 (14:40-15:30)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('MON_P6')} ? '' : 'disabled'"
-                                        data-timeslot="MON_P6"
-                                        th:onclick="${userAvailabilityNames.contains('MON_P6')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="MON_P6" 
-                                               th:disabled="${!userAvailabilityNames.contains('MON_P6')}"
-                                               th:title="${!userAvailabilityNames.contains('MON_P6')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('MON_P6')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('TUE_P6')} ? '' : 'disabled'"
-                                        data-timeslot="TUE_P6"
-                                        th:onclick="${userAvailabilityNames.contains('TUE_P6')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="TUE_P6" 
-                                               th:disabled="${!userAvailabilityNames.contains('TUE_P6')}"
-                                               th:title="${!userAvailabilityNames.contains('TUE_P6')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('TUE_P6')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('WED_P6')} ? '' : 'disabled'"
-                                        data-timeslot="WED_P6"
-                                        th:onclick="${userAvailabilityNames.contains('WED_P6')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="WED_P6" 
-                                               th:disabled="${!userAvailabilityNames.contains('WED_P6')}"
-                                               th:title="${!userAvailabilityNames.contains('WED_P6')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('WED_P6')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('THU_P6')} ? '' : 'disabled'"
-                                        data-timeslot="THU_P6"
-                                        th:onclick="${userAvailabilityNames.contains('THU_P6')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="THU_P6" 
-                                               th:disabled="${!userAvailabilityNames.contains('THU_P6')}"
-                                               th:title="${!userAvailabilityNames.contains('THU_P6')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('THU_P6')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('FRI_P6')} ? '' : 'disabled'"
-                                        data-timeslot="FRI_P6"
-                                        th:onclick="${userAvailabilityNames.contains('FRI_P6')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="FRI_P6" 
-                                               th:disabled="${!userAvailabilityNames.contains('FRI_P6')}"
-                                               th:title="${!userAvailabilityNames.contains('FRI_P6')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('FRI_P6')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="period-label">P7 (16:00-17:15)</td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('MON_P7')} ? '' : 'disabled'"
-                                        data-timeslot="MON_P7"
-                                        th:onclick="${userAvailabilityNames.contains('MON_P7')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="MON_P7" 
-                                               th:disabled="${!userAvailabilityNames.contains('MON_P7')}"
-                                               th:title="${!userAvailabilityNames.contains('MON_P7')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('MON_P7')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('TUE_P7')} ? '' : 'disabled'"
-                                        data-timeslot="TUE_P7"
-                                        th:onclick="${userAvailabilityNames.contains('TUE_P7')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="TUE_P7" 
-                                               th:disabled="${!userAvailabilityNames.contains('TUE_P7')}"
-                                               th:title="${!userAvailabilityNames.contains('TUE_P7')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('TUE_P7')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('WED_P7')} ? '' : 'disabled'"
-                                        data-timeslot="WED_P7"
-                                        th:onclick="${userAvailabilityNames.contains('WED_P7')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="WED_P7" 
-                                               th:disabled="${!userAvailabilityNames.contains('WED_P7')}"
-                                               th:title="${!userAvailabilityNames.contains('WED_P7')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('WED_P7')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('THU_P7')} ? '' : 'disabled'"
-                                        data-timeslot="THU_P7"
-                                        th:onclick="${userAvailabilityNames.contains('THU_P7')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="THU_P7" 
-                                               th:disabled="${!userAvailabilityNames.contains('THU_P7')}"
-                                               th:title="${!userAvailabilityNames.contains('THU_P7')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('THU_P7')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                    <td class="timeslot-cell" 
-                                        th:classappend="${userAvailabilityNames.contains('FRI_P7')} ? '' : 'disabled'"
-                                        data-timeslot="FRI_P7"
-                                        th:onclick="${userAvailabilityNames.contains('FRI_P7')} ? 'toggleTimeslot(this)' : ''">
-                                        <input type="checkbox" name="timeslots" value="FRI_P7" 
-                                               th:disabled="${!userAvailabilityNames.contains('FRI_P7')}"
-                                               th:title="${!userAvailabilityNames.contains('FRI_P7')} ? 'Not in your availability. Edit profile to enable.' : ''">
-                                        <span th:if="${!userAvailabilityNames.contains('FRI_P7')}" class="tooltip-text">Not in your availability. Edit profile to enable.</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <small class="form-help">Select at least one time slot when you're available. Grayed out slots are not in your profile availability.</small>
+                        <div class="timeslot-grid-wrapper">
+                            <table class="timeslot-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>P1<br/><small>09:00-09:50</small></th>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('MON_P1')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="MON_P1" th:disabled="${!userAvailabilityNames.contains('MON_P1')}" th:title="${!userAvailabilityNames.contains('MON_P1')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('TUE_P1')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="TUE_P1" th:disabled="${!userAvailabilityNames.contains('TUE_P1')}" th:title="${!userAvailabilityNames.contains('TUE_P1')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('WED_P1')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="WED_P1" th:disabled="${!userAvailabilityNames.contains('WED_P1')}" th:title="${!userAvailabilityNames.contains('WED_P1')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('THU_P1')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="THU_P1" th:disabled="${!userAvailabilityNames.contains('THU_P1')}" th:title="${!userAvailabilityNames.contains('THU_P1')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('FRI_P1')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="FRI_P1" th:disabled="${!userAvailabilityNames.contains('FRI_P1')}" th:title="${!userAvailabilityNames.contains('FRI_P1')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P2<br/><small>09:55-10:45</small></th>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('MON_P2')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="MON_P2" th:disabled="${!userAvailabilityNames.contains('MON_P2')}" th:title="${!userAvailabilityNames.contains('MON_P2')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('TUE_P2')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="TUE_P2" th:disabled="${!userAvailabilityNames.contains('TUE_P2')}" th:title="${!userAvailabilityNames.contains('TUE_P2')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('WED_P2')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="WED_P2" th:disabled="${!userAvailabilityNames.contains('WED_P2')}" th:title="${!userAvailabilityNames.contains('WED_P2')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('THU_P2')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="THU_P2" th:disabled="${!userAvailabilityNames.contains('THU_P2')}" th:title="${!userAvailabilityNames.contains('THU_P2')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('FRI_P2')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="FRI_P2" th:disabled="${!userAvailabilityNames.contains('FRI_P2')}" th:title="${!userAvailabilityNames.contains('FRI_P2')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P3<br/><small>11:05-11:55</small></th>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('MON_P3')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="MON_P3" th:disabled="${!userAvailabilityNames.contains('MON_P3')}" th:title="${!userAvailabilityNames.contains('MON_P3')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('TUE_P3')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="TUE_P3" th:disabled="${!userAvailabilityNames.contains('TUE_P3')}" th:title="${!userAvailabilityNames.contains('TUE_P3')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('WED_P3')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="WED_P3" th:disabled="${!userAvailabilityNames.contains('WED_P3')}" th:title="${!userAvailabilityNames.contains('WED_P3')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('THU_P3')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="THU_P3" th:disabled="${!userAvailabilityNames.contains('THU_P3')}" th:title="${!userAvailabilityNames.contains('THU_P3')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('FRI_P3')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="FRI_P3" th:disabled="${!userAvailabilityNames.contains('FRI_P3')}" th:title="${!userAvailabilityNames.contains('FRI_P3')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P4<br/><small>12:00-12:50</small></th>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('MON_P4')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="MON_P4" th:disabled="${!userAvailabilityNames.contains('MON_P4')}" th:title="${!userAvailabilityNames.contains('MON_P4')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('TUE_P4')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="TUE_P4" th:disabled="${!userAvailabilityNames.contains('TUE_P4')}" th:title="${!userAvailabilityNames.contains('TUE_P4')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('WED_P4')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="WED_P4" th:disabled="${!userAvailabilityNames.contains('WED_P4')}" th:title="${!userAvailabilityNames.contains('WED_P4')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('THU_P4')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="THU_P4" th:disabled="${!userAvailabilityNames.contains('THU_P4')}" th:title="${!userAvailabilityNames.contains('THU_P4')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('FRI_P4')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="FRI_P4" th:disabled="${!userAvailabilityNames.contains('FRI_P4')}" th:title="${!userAvailabilityNames.contains('FRI_P4')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P5<br/><small>14:05-14:55</small></th>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('MON_P5')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="MON_P5" th:disabled="${!userAvailabilityNames.contains('MON_P5')}" th:title="${!userAvailabilityNames.contains('MON_P5')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('TUE_P5')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="TUE_P5" th:disabled="${!userAvailabilityNames.contains('TUE_P5')}" th:title="${!userAvailabilityNames.contains('TUE_P5')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('WED_P5')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="WED_P5" th:disabled="${!userAvailabilityNames.contains('WED_P5')}" th:title="${!userAvailabilityNames.contains('WED_P5')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('THU_P5')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="THU_P5" th:disabled="${!userAvailabilityNames.contains('THU_P5')}" th:title="${!userAvailabilityNames.contains('THU_P5')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('FRI_P5')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="FRI_P5" th:disabled="${!userAvailabilityNames.contains('FRI_P5')}" th:title="${!userAvailabilityNames.contains('FRI_P5')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P6<br/><small>15:00-15:50</small></th>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('MON_P6')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="MON_P6" th:disabled="${!userAvailabilityNames.contains('MON_P6')}" th:title="${!userAvailabilityNames.contains('MON_P6')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('TUE_P6')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="TUE_P6" th:disabled="${!userAvailabilityNames.contains('TUE_P6')}" th:title="${!userAvailabilityNames.contains('TUE_P6')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('WED_P6')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="WED_P6" th:disabled="${!userAvailabilityNames.contains('WED_P6')}" th:title="${!userAvailabilityNames.contains('WED_P6')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('THU_P6')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="THU_P6" th:disabled="${!userAvailabilityNames.contains('THU_P6')}" th:title="${!userAvailabilityNames.contains('THU_P6')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('FRI_P6')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="FRI_P6" th:disabled="${!userAvailabilityNames.contains('FRI_P6')}" th:title="${!userAvailabilityNames.contains('FRI_P6')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                    <tr>
+                                        <th>P7<br/><small>16:00-17:15</small></th>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('MON_P7')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="MON_P7" th:disabled="${!userAvailabilityNames.contains('MON_P7')}" th:title="${!userAvailabilityNames.contains('MON_P7')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('TUE_P7')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="TUE_P7" th:disabled="${!userAvailabilityNames.contains('TUE_P7')}" th:title="${!userAvailabilityNames.contains('TUE_P7')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('WED_P7')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="WED_P7" th:disabled="${!userAvailabilityNames.contains('WED_P7')}" th:title="${!userAvailabilityNames.contains('WED_P7')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('THU_P7')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="THU_P7" th:disabled="${!userAvailabilityNames.contains('THU_P7')}" th:title="${!userAvailabilityNames.contains('THU_P7')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                        <td><label class="timeslot-checkbox" th:classappend="${!userAvailabilityNames.contains('FRI_P7')} ? 'disabled' : ''"><input type="checkbox" name="timeslots" value="FRI_P7" th:disabled="${!userAvailabilityNames.contains('FRI_P7')}" th:title="${!userAvailabilityNames.contains('FRI_P7')} ? 'Not in your availability. Edit profile to enable.' : ''"/><span class="checkmark"></span></label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="form-help">Click on checkboxes to select timeslots. Grayed out slots are not in your profile availability.</small>
                     </div>
 
                     <!-- Information Box -->
@@ -462,26 +184,6 @@
             const radio = card.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
         }
-
-        // Timeslot cell toggle functionality (same as profile page)
-        function toggleTimeslot(cell) {
-            const checkbox = cell.querySelector('input[type="checkbox"]');
-            if (checkbox && !checkbox.disabled) {
-                checkbox.checked = !checkbox.checked;
-                cell.classList.toggle('selected', checkbox.checked);
-                cell.setAttribute('aria-pressed', checkbox.checked.toString());
-            }
-        }
-
-        // Initialize selected states on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.timeslot-cell').forEach(cell => {
-                const checkbox = cell.querySelector('input[type="checkbox"]');
-                if (checkbox && checkbox.checked) {
-                    cell.classList.add('selected');
-                }
-            });
-        });
 
         // Form validation
         document.querySelector('form').addEventListener('submit', function(e) {
