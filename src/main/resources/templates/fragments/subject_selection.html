@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <!-- Subject Selection Fragment - can be used in profile and request forms -->
+    <div th:fragment="subject_selection(subjectGroups, selectedSubjects, inputName, multiSelect)">
+        <div class="subject-groups">
+            <div th:each="group : ${subjectGroups}" class="subject-group" th:attr="data-exam-board=${group.value.isEmpty() ? '' : group.value.get(0).examBoard}">
+                <h3 th:if="${!group.value.isEmpty()}" th:text="${group.key}">Subject Group</h3>
+                <div class="subject-cards">
+                    <div th:each="subject : ${group.value}" 
+                         class="subject-card select-card"
+                         th:classappend="${selectedSubjects != null and selectedSubjects.contains(subject)} ? 'selected' : ''"
+                         th:attr="data-subject-id=${subject.id}, data-exam-board=${subject.examBoard}"
+                         role="button"
+                         tabindex="0"
+                         th:aria-pressed="${selectedSubjects != null and selectedSubjects.contains(subject)} ? 'true' : 'false'"
+                         th:aria-label="${'Select ' + subject.displayName + ' subject'}"
+                         th:onclick="${multiSelect ? 'toggleSubject(this)' : 'selectSingleSubject(this)'}"
+                         th:onkeydown="${multiSelect ? 'if(event.key === \'Enter\' || event.key === \' \') { event.preventDefault(); toggleSubject(this); }' : 'if(event.key === \'Enter\' || event.key === \' \') { event.preventDefault(); selectSingleSubject(this); }'}">
+                        <input th:if="${multiSelect}" 
+                               type="checkbox"
+                               th:id="${'subject_' + subject.id}"
+                               th:name="${inputName}"
+                               th:value="${subject.id}"
+                               th:checked="${selectedSubjects != null and selectedSubjects.contains(subject)}">
+                        <input th:if="${!multiSelect}" 
+                               type="radio"
+                               th:id="${'subject_' + subject.id}"
+                               th:name="${inputName}"
+                               th:value="${subject.id}"
+                               style="display: none;">
+                        <div class="subject-name" th:text="${subject.displayName}">Subject Name</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

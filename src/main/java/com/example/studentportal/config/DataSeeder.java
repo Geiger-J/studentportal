@@ -1,5 +1,6 @@
 package com.example.studentportal.config;
 
+import com.example.studentportal.model.ExamBoard;
 import com.example.studentportal.model.Subject;
 import com.example.studentportal.service.SubjectService;
 import org.slf4j.Logger;
@@ -48,32 +49,55 @@ public class DataSeeder implements CommandLineRunner {
 
         logger.info("Seeding subjects...");
 
-        // Define standard subjects with groupings per requirements:
-        // Languages: English, German, French
-        // STEM: Mathematics, Physics, Biology, Chemistry  
-        // Social Sciences: Economics, Politics, Business
+        // Define standard subjects with exam boards
+        // Years 9-11: GCSE subjects
+        // Years 12-13: A_LEVELS and IB subjects
+        // Some subjects are available in multiple exam boards (need multiple entries)
+        
         String[][] subjectData = {
-            // Languages
-            {"ENGLISH", "English"},
-            {"GERMAN", "German"},
-            {"FRENCH", "French"},
+            // GCSE subjects (Years 9-11)
+            {"GCSE_ENGLISH", "English", "GCSE"},
+            {"GCSE_GERMAN", "German", "GCSE"},
+            {"GCSE_FRENCH", "French", "GCSE"},
+            {"GCSE_MATHEMATICS", "Mathematics", "GCSE"},
+            {"GCSE_PHYSICS", "Physics", "GCSE"},
+            {"GCSE_BIOLOGY", "Biology", "GCSE"},
+            {"GCSE_CHEMISTRY", "Chemistry", "GCSE"},
+            {"GCSE_ECONOMICS", "Economics", "GCSE"},
+            {"GCSE_POLITICS", "Politics", "GCSE"},
+            {"GCSE_BUSINESS", "Business", "GCSE"},
             
-            // STEM
-            {"MATHEMATICS", "Mathematics"},
-            {"PHYSICS", "Physics"},
-            {"BIOLOGY", "Biology"},
-            {"CHEMISTRY", "Chemistry"},
+            // A-Level subjects (Years 12-13)
+            {"AL_ENGLISH", "English", "A_LEVELS"},
+            {"AL_GERMAN", "German", "A_LEVELS"},
+            {"AL_FRENCH", "French", "A_LEVELS"},
+            {"AL_MATHEMATICS", "Mathematics", "A_LEVELS"},
+            {"AL_PHYSICS", "Physics", "A_LEVELS"},
+            {"AL_BIOLOGY", "Biology", "A_LEVELS"},
+            {"AL_CHEMISTRY", "Chemistry", "A_LEVELS"},
+            {"AL_ECONOMICS", "Economics", "A_LEVELS"},
+            {"AL_POLITICS", "Politics", "A_LEVELS"},
+            {"AL_BUSINESS", "Business", "A_LEVELS"},
             
-            // Social Sciences
-            {"ECONOMICS", "Economics"},
-            {"POLITICS", "Politics"},
-            {"BUSINESS", "Business"}
+            // IB subjects (Years 12-13)
+            {"IB_ENGLISH", "English", "IB"},
+            {"IB_GERMAN", "German", "IB"},
+            {"IB_FRENCH", "French", "IB"},
+            {"IB_MATHS_AA", "Mathematics AA", "IB"},
+            {"IB_MATHS_AI", "Mathematics AI", "IB"},
+            {"IB_PHYSICS", "Physics", "IB"},
+            {"IB_BIOLOGY", "Biology", "IB"},
+            {"IB_CHEMISTRY", "Chemistry", "IB"},
+            {"IB_ECONOMICS", "Economics", "IB"},
+            {"IB_POLITICS", "Politics", "IB"},
+            {"IB_BUSINESS", "Business Management", "IB"}
         };
 
         for (String[] subjectInfo : subjectData) {
-            Subject subject = new Subject(subjectInfo[0], subjectInfo[1]);
+            ExamBoard examBoard = ExamBoard.valueOf(subjectInfo[2]);
+            Subject subject = new Subject(subjectInfo[0], subjectInfo[1], examBoard);
             subjectService.save(subject);
-            logger.debug("Seeded subject: {} - {}", subjectInfo[0], subjectInfo[1]);
+            logger.debug("Seeded subject: {} - {} ({})", subjectInfo[0], subjectInfo[1], subjectInfo[2]);
         }
 
         logger.info("Successfully seeded {} subjects", subjectData.length);
