@@ -67,11 +67,7 @@ public class User {
     private ExamBoard examBoard = ExamBoard.NONE;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_subjects",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "subject_id")
-    )
+    @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<Subject> subjects = new HashSet<>();
 
     @ElementCollection(targetClass = Timeslot.class, fetch = FetchType.EAGER)
@@ -244,7 +240,7 @@ public class User {
         if (role == Role.ADMIN) {
             return true;
         }
-        
+
         return yearGroup != null
                 && yearGroup >= 9 && yearGroup <= 13
                 && !getSubjects().isEmpty()

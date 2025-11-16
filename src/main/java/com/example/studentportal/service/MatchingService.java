@@ -136,7 +136,7 @@ public class MatchingService {
     }
 
     /**
-     * Intelligent matching algorithm using weighted bipartite matching.
+     * Matching algorithm using weighted bipartite matching.
      * 
      * @return list of Match objects representing optimal matches
      */
@@ -259,10 +259,6 @@ public class MatchingService {
             return false;
         }
 
-        // Tutor's year group must be >= tutee's year group
-        if (tutor.getYearGroup() == null || tutee.getYearGroup() == null) {
-            return false; // Both must have year groups set
-        }
         if (tutor.getYearGroup() < tutee.getYearGroup()) {
             return false;
         }
