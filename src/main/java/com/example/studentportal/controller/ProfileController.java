@@ -167,23 +167,10 @@ public class ProfileController {
      * Languages: English, German, French
      * STEM: Mathematics, Physics, Biology, Chemistry  
      * Social Sciences: Economics, Politics, Business
-     * 
-     * Filters subjects by exam board if provided
      */
     private Map<String, List<Subject>> getGroupedSubjects() {
         List<Subject> allSubjects = subjectService.getAllSubjects();
         return groupSubjectsByCategory(allSubjects);
-    }
-    
-    /**
-     * Groups subjects by category, filtering by exam board
-     */
-    private Map<String, List<Subject>> getGroupedSubjectsByExamBoard(ExamBoard examBoard) {
-        List<Subject> allSubjects = subjectService.getAllSubjects();
-        List<Subject> filteredSubjects = allSubjects.stream()
-            .filter(s -> s.getExamBoard() == examBoard)
-            .collect(Collectors.toList());
-        return groupSubjectsByCategory(filteredSubjects);
     }
     
     /**
@@ -199,7 +186,7 @@ public class ProfileController {
             .collect(Collectors.toList()));
             
         groups.put("STEM", subjects.stream()
-            .filter(s -> s.getDisplayName().startsWith("Mathematics") || 
+            .filter(s -> s.getDisplayName().equals("Mathematics") || 
                         s.getDisplayName().equals("Physics") || 
                         s.getDisplayName().equals("Biology") || 
                         s.getDisplayName().equals("Chemistry"))
@@ -208,8 +195,7 @@ public class ProfileController {
         groups.put("Social Sciences", subjects.stream()
             .filter(s -> s.getDisplayName().equals("Economics") || 
                         s.getDisplayName().equals("Politics") || 
-                        s.getDisplayName().equals("Business") ||
-                        s.getDisplayName().equals("Business Management"))
+                        s.getDisplayName().equals("Business"))
             .collect(Collectors.toList()));
             
         return groups;
