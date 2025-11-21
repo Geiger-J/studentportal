@@ -158,22 +158,4 @@ public class AdminController {
 
         return "redirect:/admin/dashboard";
     }
-
-    /**
-     * Archive old requests manually using the matching service
-     */
-    @PostMapping("/archive")
-    public String archiveOldRequests(RedirectAttributes redirectAttributes) {
-        try {
-            int archivedCount = matchingService.performArchival();
-
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Archived " + archivedCount + " old requests.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Archive process failed: " + e.getMessage());
-        }
-
-        return "redirect:/admin/dashboard";
-    }
 }

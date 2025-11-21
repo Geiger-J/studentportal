@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +39,6 @@ class MatchingServiceTest {
     private User tutor;
     private User tutee;
     private Subject mathSubject;
-    private LocalDate nextMonday;
 
     @BeforeEach
     void setUp() {
@@ -60,11 +58,6 @@ class MatchingServiceTest {
         // Create test subject
         mathSubject = new Subject("MATHS", "Mathematics");
         mathSubject = subjectRepository.save(mathSubject);
-
-        // Get current Monday (start of current week)
-        LocalDate today = LocalDate.now();
-        int dayOfWeek = today.getDayOfWeek().getValue(); // Monday = 1, Sunday = 7
-        nextMonday = today.minusDays(dayOfWeek - 1);
     }
 
     @Test
@@ -72,8 +65,8 @@ class MatchingServiceTest {
         // Given
         Set<Timeslot> overlappingSlots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
         
-        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots, nextMonday);
-        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, overlappingSlots, nextMonday);
+        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots);
+        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, overlappingSlots);
         
         requestRepository.save(tutorRequest);
         requestRepository.save(tuteeRequest);
@@ -104,8 +97,8 @@ class MatchingServiceTest {
         Set<Timeslot> tutorSlots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
         Set<Timeslot> tuteeSlots = Set.of(Timeslot.WED_P3, Timeslot.THU_P4);
         
-        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, tutorSlots, nextMonday);
-        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, tuteeSlots, nextMonday);
+        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, tutorSlots);
+        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, mathSubject, tuteeSlots);
         
         requestRepository.save(tutorRequest);
         requestRepository.save(tuteeRequest);
@@ -138,8 +131,8 @@ class MatchingServiceTest {
         
         Set<Timeslot> overlappingSlots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
         
-        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots, nextMonday);
-        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, scienceSubject, overlappingSlots, nextMonday);
+        Request tutorRequest = new Request(tutor, RequestType.TUTOR, mathSubject, overlappingSlots);
+        Request tuteeRequest = new Request(tutee, RequestType.TUTEE, scienceSubject, overlappingSlots);
         
         requestRepository.save(tutorRequest);
         requestRepository.save(tuteeRequest);
@@ -156,57 +149,5 @@ class MatchingServiceTest {
         
         assertEquals(RequestStatus.PENDING, updatedTutorRequest.getStatus());
         assertEquals(RequestStatus.PENDING, updatedTuteeRequest.getStatus());
-    }
-
-    @Test
-    void testPerformArchival() {
-        // Given - Create requests with different week start dates
-        LocalDate currentWeek = nextMonday; // This week's Monday
-        LocalDate lastWeek = currentWeek.minusWeeks(1); // Last week's Monday
-        
-        Set<Timeslot> timeslots = Set.of(Timeslot.MON_P1);
-        
-        // Old pending request (should be archived)
-        Request oldPendingRequest = new Request(tutor, RequestType.TUTOR, mathSubject, timeslots, lastWeek);
-        oldPendingRequest = requestRepository.save(oldPendingRequest);
-        
-        // Old completed request (should be archived)
-        Request oldCompletedRequest = new Request(tutee, RequestType.TUTEE, mathSubject, timeslots, lastWeek);
-        oldCompletedRequest.setStatus(RequestStatus.DONE);
-        oldCompletedRequest = requestRepository.save(oldCompletedRequest);
-        
-        // Current week request (should NOT be archived)
-        Request currentRequest = new Request(tutor, RequestType.TUTOR, mathSubject, timeslots, currentWeek);
-        currentRequest = requestRepository.save(currentRequest);
-        
-        // Already matched request from last week (should NOT be archived)
-        Request matchedRequest = new Request(tutee, RequestType.TUTEE, mathSubject, timeslots, lastWeek);
-        matchedRequest.setStatus(RequestStatus.MATCHED);
-        matchedRequest = requestRepository.save(matchedRequest);
-
-        // When
-        int archivedCount = matchingService.performArchival();
-
-        // Then
-        assertEquals(3, archivedCount);
-        
-        // Check archived requests
-        Request archivedPending = requestRepository.findById(oldPendingRequest.getId()).orElse(null);
-        Request archivedCompleted = requestRepository.findById(oldCompletedRequest.getId()).orElse(null);
-        Request archivedMatched = requestRepository.findById(matchedRequest.getId()).orElse(null);
-        
-        assertTrue(archivedPending.getArchived());
-        assertTrue(archivedCompleted.getArchived());
-        assertTrue(archivedMatched.getArchived());
-        // Original statuses should be preserved
-        assertEquals(RequestStatus.PENDING, archivedPending.getStatus());
-        assertEquals(RequestStatus.DONE, archivedCompleted.getStatus());
-        assertEquals(RequestStatus.MATCHED, archivedMatched.getStatus());
-        
-        // Check non-archived requests
-        Request stillCurrent = requestRepository.findById(currentRequest.getId()).orElse(null);
-        
-        assertFalse(stillCurrent.getArchived());
-        assertEquals(RequestStatus.PENDING, stillCurrent.getStatus());
     }
 }

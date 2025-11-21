@@ -47,7 +47,7 @@ public class Request {
     @Column(name = "chosen_timeslot")
     private Timeslot chosenTimeslot;
     
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate weekStartDate;
     
     @Enumerated(EnumType.STRING)
@@ -71,13 +71,11 @@ public class Request {
 
     public Request() {}
 
-    public Request(User user, RequestType type, Subject subject, Set<Timeslot> timeslots, 
-                   LocalDate weekStartDate) {
+    public Request(User user, RequestType type, Subject subject, Set<Timeslot> timeslots) {
         this.user = user;
         this.type = type;
         this.subject = subject;
         this.timeslots = timeslots != null ? new HashSet<>(timeslots) : new HashSet<>();
-        this.weekStartDate = weekStartDate;
         this.status = RequestStatus.PENDING;
         this.archived = false;
     }

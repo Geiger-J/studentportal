@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -236,42 +235,5 @@ public class MatchingService {
         }
 
         return true;
-    }
-
-    /**
-     * Manual archival trigger - archives old requests immediately.
-     * 
-     * @return number of requests archived
-     */
-    @Transactional
-    public int performArchival() {
-        // Archive requests older than current week using boolean flag
-        LocalDate currentWeekStart = getCurrentWeekStart();
-
-        // Find all non-archived requests from previous weeks
-        List<Request> requestsToArchive = requestRepository
-                .findByArchivedAndWeekStartDateBefore(false, currentWeekStart);
-
-        int archivedCount = 0;
-        for (Request request : requestsToArchive) {
-            request.setArchived(true);
-            requestRepository.save(request);
-            archivedCount++;
-        }
-
-        logger.info("Archived {} old requests before week starting {}", archivedCount, currentWeekStart);
-
-        return archivedCount;
-    }
-
-    /**
-     * Gets the start of the current week (Monday).
-     * 
-     * @return LocalDate representing Monday of current week
-     */
-    private LocalDate getCurrentWeekStart() {
-        LocalDate today = LocalDate.now();
-        int dayOfWeek = today.getDayOfWeek().getValue(); // Monday = 1, Sunday = 7
-        return today.minusDays(dayOfWeek - 1);
     }
 }
