@@ -79,9 +79,6 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Request> requests = new HashSet<>();
 
-    @Min(value = 0, message = "Max tutoring per week must be non-negative")
-    private Integer maxTutoringPerWeek = 0;
-
     @Column(nullable = false)
     private Boolean profileComplete = false;
 
@@ -201,14 +198,6 @@ public class User {
 
     public void setRequests(Set<Request> requests) {
         this.requests = (requests != null) ? requests : new HashSet<>();
-    }
-
-    public Integer getMaxTutoringPerWeek() {
-        return maxTutoringPerWeek;
-    }
-
-    public void setMaxTutoringPerWeek(Integer maxTutoringPerWeek) {
-        this.maxTutoringPerWeek = maxTutoringPerWeek;
     }
 
     public Boolean getProfileComplete() {

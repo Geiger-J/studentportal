@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDate;
 
 /**
  * Repository interface for Request entity operations.
@@ -73,15 +72,6 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findAllByArchivedFalse();
     
     /**
-     * Finds requests with specified statuses and week start date before given date.
-     * Used for archival processes.
-     * @param statuses list of statuses to include
-     * @param weekStartDate the cutoff date
-     * @return list of requests matching criteria
-     */
-    List<Request> findByStatusInAndWeekStartDateBefore(List<RequestStatus> statuses, LocalDate weekStartDate);
-    
-    /**
      * Deletes all requests associated with a specific user.
      * Used when deleting a user to maintain data integrity.
      * @param user the user whose requests should be deleted
@@ -96,13 +86,4 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Modifying
     @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner")
     void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner);
-    
-    /**
-     * Finds non-archived requests with week start date before given date.
-     * Used for new archival process.
-     * @param archived whether archived or not
-     * @param weekStartDate the cutoff date
-     * @return list of requests matching criteria
-     */
-    List<Request> findByArchivedAndWeekStartDateBefore(Boolean archived, LocalDate weekStartDate);
 }

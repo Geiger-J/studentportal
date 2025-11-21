@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,9 +46,6 @@ public class Request {
     @Column(name = "chosen_timeslot")
     private Timeslot chosenTimeslot;
     
-    @Column(nullable = false)
-    private LocalDate weekStartDate;
-    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RequestStatus status = RequestStatus.PENDING;
@@ -71,13 +67,11 @@ public class Request {
 
     public Request() {}
 
-    public Request(User user, RequestType type, Subject subject, Set<Timeslot> timeslots, 
-                   LocalDate weekStartDate) {
+    public Request(User user, RequestType type, Subject subject, Set<Timeslot> timeslots) {
         this.user = user;
         this.type = type;
         this.subject = subject;
         this.timeslots = timeslots != null ? new HashSet<>(timeslots) : new HashSet<>();
-        this.weekStartDate = weekStartDate;
         this.status = RequestStatus.PENDING;
         this.archived = false;
     }
@@ -129,14 +123,6 @@ public class Request {
 
     public void setChosenTimeslot(Timeslot chosenTimeslot) {
         this.chosenTimeslot = chosenTimeslot;
-    }
-
-    public LocalDate getWeekStartDate() {
-        return weekStartDate;
-    }
-
-    public void setWeekStartDate(LocalDate weekStartDate) {
-        this.weekStartDate = weekStartDate;
     }
 
     public Boolean getArchived() {
@@ -216,7 +202,6 @@ public class Request {
                 ", subject=" + (subject != null ? subject.getDisplayName() : "null") +
                 ", timeslots=" + timeslots.size() +
                 ", chosenTimeslot=" + chosenTimeslot +
-                ", weekStartDate=" + weekStartDate +
                 ", status=" + status +
                 ", archived=" + archived +
                 '}';

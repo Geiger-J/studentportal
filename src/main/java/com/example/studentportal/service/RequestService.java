@@ -2,12 +2,10 @@ package com.example.studentportal.service;
 
 import com.example.studentportal.model.*;
 import com.example.studentportal.repository.RequestRepository;
-import com.example.studentportal.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -29,7 +27,7 @@ public class RequestService {
 
     /**
      * Creates a new tutoring request with duplicate checking.
-     * Calculates week start date and validates request data.
+     * Validates request data.
      * 
      * @param user the user creating the request
      * @param type the request type (TUTOR/TUTEE)
@@ -53,11 +51,8 @@ public class RequestService {
                 " request for " + subject.getDisplayName());
         }
 
-        // Calculate week start date (next Monday)
-        LocalDate weekStartDate = DateUtil.nextMonday();
-
         // Create and save request
-        Request request = new Request(user, type, subject, timeslots, weekStartDate);
+        Request request = new Request(user, type, subject, timeslots);
         return requestRepository.save(request);
     }
 
@@ -170,8 +165,4 @@ public class RequestService {
     public List<Request> getMatchedRequests() {
         return getRequestsByStatus(RequestStatus.MATCHED);
     }
-
-    // TODO: Phase 2 - Implement matching algorithm integration
-    // TODO: Phase 2 - Add recurring request handling
-    // TODO: Phase 2 - Add maxTutoringPerWeek enforcement
 }

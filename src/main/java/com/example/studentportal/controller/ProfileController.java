@@ -85,7 +85,6 @@ public class ProfileController {
             @RequestParam(required = false) ExamBoard examBoard,
             @RequestParam(required = false) List<Long> subjectIds,
             @RequestParam(required = false) List<Timeslot> timeslots,
-            @RequestParam(defaultValue = "0") Integer maxTutoringPerWeek,
             RedirectAttributes redirectAttributes,
             Model model) {
 
@@ -125,8 +124,6 @@ public class ProfileController {
                 selectedTimeslots.addAll(timeslots);
             }
             user.setAvailability(selectedTimeslots);
-
-            user.setMaxTutoringPerWeek(maxTutoringPerWeek);
 
             userService.updateProfile(user);
 

@@ -180,17 +180,6 @@
                     </div>
                     <!-- End of academic sections for STUDENT users -->
 
-                    <section class="form-section">
-                        <h2>Tutoring Preferences</h2>
-                        <div class="form-group">
-                            <label for="maxTutoringPerWeek" class="form-label">Maximum Tutoring Sessions Per Week</label>
-                            <input type="number" id="maxTutoringPerWeek" name="maxTutoringPerWeek"
-                                   class="form-input" min="0" max="20"
-                                   th:value="${user.maxTutoringPerWeek ?: 0}">
-                            <small class="form-help">How many tutoring sessions (giving or receiving) you want per week (0 = no limit)</small>
-                        </div>
-                    </section>
-
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-large">Save Profile</button>
                     </div>

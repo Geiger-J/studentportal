@@ -73,7 +73,6 @@ class RequestServiceTest {
         assertEquals(testSubject, request.getSubject());
         assertEquals(timeslots, request.getTimeslots());
         assertEquals(RequestStatus.PENDING, request.getStatus());
-        assertNotNull(request.getWeekStartDate());
         assertFalse(request.getArchived());
     }
 
@@ -237,7 +236,7 @@ class RequestServiceTest {
             testUser, RequestType.TUTOR, testSubject, timeslots
         );
         
-        Request archivedRequest = new Request(testUser, RequestType.TUTEE, testSubject, timeslots, pendingRequest.getWeekStartDate());
+        Request archivedRequest = new Request(testUser, RequestType.TUTEE, testSubject, timeslots);
         archivedRequest.setArchived(true);
         requestRepository.save(archivedRequest);
 

@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -115,6 +114,9 @@ public class MatchingService {
                 .filter(r -> r.getType() == RequestType.TUTEE)
                 .toList();
 
+        logger.info("Found {} TUTOR requests and {} TUTEE requests for matching",
+                offerRequests.size(), seekRequests.size());
+
         // Create weighted graph
         Graph<Request, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
@@ -130,6 +132,7 @@ public class MatchingService {
         }
 
         // Add edges with weights for valid pairs
+        int edgeCount = 0;
         for (Request offer : offers) {
             for (Request seek : seeks) {
                 double weight = calculateWeight(offer, seek);
@@ -137,17 +140,25 @@ public class MatchingService {
                     DefaultWeightedEdge edge = graph.addEdge(offer, seek);
                     if (edge != null) {
                         graph.setEdgeWeight(edge, weight);
+                        edgeCount++;
+                        logger.debug("Added edge between tutor {} and tutee {} with weight {}",
+                                offer.getUser().getFullName(),
+                                seek.getUser().getFullName(),
+                                weight);
                     }
                 }
             }
         }
 
+        logger.info("Created bipartite graph with {} valid edges", edgeCount);
+
         // Run maximum weight bipartite matching
-        System.out.println("run max bipartite matching");
         MaximumWeightBipartiteMatching<Request, DefaultWeightedEdge> matching = new MaximumWeightBipartiteMatching<>(
                 graph, offers, seeks);
 
         Set<DefaultWeightedEdge> matchedEdges = matching.getMatching().getEdges();
+
+        logger.info("Matching algorithm found {} potential matches", matchedEdges.size());
 
         // Convert to Match objects
         List<Match> matches = new ArrayList<>();
@@ -171,7 +182,6 @@ public class MatchingService {
      * Returns 0 if hard constraints are not met.
      */
     private double calculateWeight(Request offer, Request seek) {
-        System.out.println("calculating weight");
         // Hard constraints
         if (!meetHardConstraints(offer, seek)) {
             return 0.0;
@@ -203,6 +213,9 @@ public class MatchingService {
             weight += 10.0; // 4 years ahead
         }
 
+        logger.debug("Match weight calculated: tutor={}, tutee={}, weight={}",
+                tutor.getFullName(), tutee.getFullName(), weight);
+
         return weight;
     }
 
@@ -214,7 +227,9 @@ public class MatchingService {
         User tutee = seek.getUser();
 
         // Subject must be identical
-        if (!offer.getSubject().equals(seek.getSubject())) {
+        if (offer.getSubject().getCode() != seek.getSubject().getCode()) {
+            logger.debug("Constraint failed: subjects don't match - {} vs {}",
+                    offer.getSubject().getDisplayName(), seek.getSubject().getDisplayName());
             return false;
         }
 
@@ -222,56 +237,27 @@ public class MatchingService {
         Set<Timeslot> tutorSlots = offer.getTimeslots();
         Set<Timeslot> tuteeSlots = seek.getTimeslots();
         if (tutorSlots.stream().noneMatch(tuteeSlots::contains)) {
-            System.out.println("timeslot dont match");
+            logger.debug("Constraint failed: no overlapping timeslots between {} and {}",
+                    tutor.getFullName(), tutee.getFullName());
             return false;
         }
-        System.out.println("timeslot do match");
+
+        // Tutor must be same year or higher year than tutee
         if (tutor.getYearGroup() < tutee.getYearGroup()) {
+            logger.debug("Constraint failed: tutor year {} < tutee year {} ({} vs {})",
+                    tutor.getYearGroup(), tutee.getYearGroup(),
+                    tutor.getFullName(), tutee.getFullName());
             return false;
         }
 
         // Different users (shouldn't match with themselves)
         if (tutor.equals(tutee)) {
+            logger.debug("Constraint failed: same user cannot match with themselves");
             return false;
         }
 
+        logger.debug("Hard constraints met for: tutor={}, tutee={}",
+                tutor.getFullName(), tutee.getFullName());
         return true;
-    }
-
-    /**
-     * Manual archival trigger - archives old requests immediately.
-     * 
-     * @return number of requests archived
-     */
-    @Transactional
-    public int performArchival() {
-        // Archive requests older than current week using boolean flag
-        LocalDate currentWeekStart = getCurrentWeekStart();
-
-        // Find all non-archived requests from previous weeks
-        List<Request> requestsToArchive = requestRepository
-                .findByArchivedAndWeekStartDateBefore(false, currentWeekStart);
-
-        int archivedCount = 0;
-        for (Request request : requestsToArchive) {
-            request.setArchived(true);
-            requestRepository.save(request);
-            archivedCount++;
-        }
-
-        logger.info("Archived {} old requests before week starting {}", archivedCount, currentWeekStart);
-
-        return archivedCount;
-    }
-
-    /**
-     * Gets the start of the current week (Monday).
-     * 
-     * @return LocalDate representing Monday of current week
-     */
-    private LocalDate getCurrentWeekStart() {
-        LocalDate today = LocalDate.now();
-        int dayOfWeek = today.getDayOfWeek().getValue(); // Monday = 1, Sunday = 7
-        return today.minusDays(dayOfWeek - 1);
     }
 }
