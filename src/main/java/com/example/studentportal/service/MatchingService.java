@@ -21,8 +21,6 @@ import java.util.Set;
 
 /**
  * Service for handling matching algorithm and scheduled operations.
- * Includes weekly matching process and Saturday archival in Europe/London
- * timezone.
  */
 @Service
 @Transactional
@@ -61,40 +59,6 @@ public class MatchingService {
 
         public double getWeight() {
             return weight;
-        }
-    }
-
-    /**
-     * Weekly matching algorithm triggered every Monday at 6:00 AM Europe/London
-     * time.
-     * Matches TUTOR and TUTEE requests based on subject and overlapping timeslots.
-     */
-    @Scheduled(cron = "0 0 6 * * MON", zone = "Europe/London")
-    public void performWeeklyMatching() {
-        logger.info("Starting weekly matching process...");
-
-        try {
-            int matchedCount = performMatching();
-            logger.info("Weekly matching completed. Matched {} requests.", matchedCount);
-        } catch (Exception e) {
-            logger.error("Error during weekly matching process", e);
-        }
-    }
-
-    /**
-     * Saturday archival process triggered every Saturday at 11:59 PM Europe/London
-     * time.
-     * Archives old pending and completed requests from previous weeks.
-     */
-    @Scheduled(cron = "0 59 23 * * SAT", zone = "Europe/London")
-    public void performWeeklyArchival() {
-        logger.info("Starting weekly archival process...");
-
-        try {
-            int archivedCount = performArchival();
-            logger.info("Weekly archival completed. Archived {} requests.", archivedCount);
-        } catch (Exception e) {
-            logger.error("Error during weekly archival process", e);
         }
     }
 
@@ -179,6 +143,7 @@ public class MatchingService {
         }
 
         // Run maximum weight bipartite matching
+        System.out.println("run max bipartite matching");
         MaximumWeightBipartiteMatching<Request, DefaultWeightedEdge> matching = new MaximumWeightBipartiteMatching<>(
                 graph, offers, seeks);
 
@@ -206,6 +171,7 @@ public class MatchingService {
      * Returns 0 if hard constraints are not met.
      */
     private double calculateWeight(Request offer, Request seek) {
+        System.out.println("calculating weight");
         // Hard constraints
         if (!meetHardConstraints(offer, seek)) {
             return 0.0;
@@ -256,20 +222,16 @@ public class MatchingService {
         Set<Timeslot> tutorSlots = offer.getTimeslots();
         Set<Timeslot> tuteeSlots = seek.getTimeslots();
         if (tutorSlots.stream().noneMatch(tuteeSlots::contains)) {
+            System.out.println("timeslot dont match");
             return false;
         }
-
+        System.out.println("timeslot do match");
         if (tutor.getYearGroup() < tutee.getYearGroup()) {
             return false;
         }
 
         // Different users (shouldn't match with themselves)
         if (tutor.equals(tutee)) {
-            return false;
-        }
-
-        // Same week
-        if (!offer.getWeekStartDate().equals(seek.getWeekStartDate())) {
             return false;
         }
 

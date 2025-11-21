@@ -17,7 +17,8 @@ import java.util.List;
 
 /**
  * Controller for admin dashboard and management functions.
- * Provides admin-only access to request management, user management, and matching triggers.
+ * Provides admin-only access to request management, user management, and
+ * matching triggers.
  */
 @Controller
 @RequestMapping("/admin")
@@ -40,14 +41,14 @@ public class AdminController {
      */
     @GetMapping("/dashboard")
     public String adminDashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-                                Model model) {
+            Model model) {
         User admin = principal.getUser();
 
         // Get all non-archived requests
         List<Request> allRequests = requestService.getAllNonArchivedRequests();
         List<Request> pendingRequests = requestService.getPendingRequests();
         List<Request> matchedRequests = requestService.getMatchedRequests();
-        
+
         // Get user statistics
         List<User> allUsers = userService.getAllUsers();
         long studentCount = allUsers.stream().filter(u -> u.getRole() == Role.STUDENT).count();
@@ -70,7 +71,7 @@ public class AdminController {
      */
     @GetMapping("/requests")
     public String viewRequests(@RequestParam(value = "status", required = false) String status,
-                              Model model) {
+            Model model) {
         List<Request> requests;
         if (status != null && !status.isEmpty()) {
             try {
@@ -96,7 +97,7 @@ public class AdminController {
     @GetMapping("/users")
     public String viewUsers(Model model) {
         List<User> users = userService.getAllUsers();
-        
+
         model.addAttribute("users", users);
 
         return "admin/users";
@@ -109,15 +110,15 @@ public class AdminController {
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUser(id);
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "User deleted successfully along with all associated data.");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "User deleted successfully along with all associated data.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", 
-                "Error deleting user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting user: " + e.getMessage());
         }
-        
+
         return "redirect:/admin/users";
     }
 
@@ -128,12 +129,12 @@ public class AdminController {
     public String triggerMatching(RedirectAttributes redirectAttributes) {
         try {
             int matchedCount = matchingService.performMatching();
-            
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Matching process completed. " + matchedCount + " requests matched.");
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Matching process completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", 
-                "Matching process failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Matching process failed: " + e.getMessage());
         }
 
         return "redirect:/admin/dashboard";
@@ -144,14 +145,15 @@ public class AdminController {
      */
     @PostMapping("/matching/run")
     public String runMatchingAlgorithm(RedirectAttributes redirectAttributes) {
+        System.out.println("action in controller");
         try {
             int matchedCount = matchingService.performMatching();
-            
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Intelligent matching completed. " + matchedCount + " requests matched.");
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Intelligent matching completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", 
-                "Matching algorithm failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Matching algorithm failed: " + e.getMessage());
         }
 
         return "redirect:/admin/dashboard";
@@ -164,12 +166,12 @@ public class AdminController {
     public String archiveOldRequests(RedirectAttributes redirectAttributes) {
         try {
             int archivedCount = matchingService.performArchival();
-            
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Archived " + archivedCount + " old requests.");
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Archived " + archivedCount + " old requests.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", 
-                "Archive process failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Archive process failed: " + e.getMessage());
         }
 
         return "redirect:/admin/dashboard";
