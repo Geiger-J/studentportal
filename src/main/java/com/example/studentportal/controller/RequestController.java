@@ -222,7 +222,7 @@ public class RequestController {
             .collect(Collectors.toList()));
             
         groups.put("STEM", subjects.stream()
-            .filter(s -> s.getDisplayName().startsWith("Mathematics") || 
+            .filter(s -> s.getDisplayName().equals("Mathematics") || 
                         s.getDisplayName().equals("Physics") || 
                         s.getDisplayName().equals("Biology") || 
                         s.getDisplayName().equals("Chemistry"))
@@ -231,8 +231,7 @@ public class RequestController {
         groups.put("Social Sciences", subjects.stream()
             .filter(s -> s.getDisplayName().equals("Economics") || 
                         s.getDisplayName().equals("Politics") || 
-                        s.getDisplayName().equals("Business") ||
-                        s.getDisplayName().equals("Business Management"))
+                        s.getDisplayName().equals("Business"))
             .collect(Collectors.toList()));
             
         return groups;

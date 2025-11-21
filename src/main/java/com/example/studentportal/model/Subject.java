@@ -23,21 +23,11 @@ public class Subject {
     @NotBlank(message = "Display name is required")
     private String displayName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
-    private ExamBoard examBoard;
-
     public Subject() {}
 
     public Subject(String code, String displayName) {
         this.code = code;
         this.displayName = displayName;
-    }
-
-    public Subject(String code, String displayName, ExamBoard examBoard) {
-        this.code = code;
-        this.displayName = displayName;
-        this.examBoard = examBoard;
     }
 
     // Getters and setters
@@ -63,14 +53,6 @@ public class Subject {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-    }
-
-    public ExamBoard getExamBoard() {
-        return examBoard;
-    }
-
-    public void setExamBoard(ExamBoard examBoard) {
-        this.examBoard = examBoard;
     }
 
     @Override
