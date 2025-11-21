@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,9 +45,6 @@ public class Request {
     @Enumerated(EnumType.STRING)
     @Column(name = "chosen_timeslot")
     private Timeslot chosenTimeslot;
-    
-    @Column(nullable = true)
-    private LocalDate weekStartDate;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -129,14 +125,6 @@ public class Request {
         this.chosenTimeslot = chosenTimeslot;
     }
 
-    public LocalDate getWeekStartDate() {
-        return weekStartDate;
-    }
-
-    public void setWeekStartDate(LocalDate weekStartDate) {
-        this.weekStartDate = weekStartDate;
-    }
-
     public Boolean getArchived() {
         return archived;
     }
@@ -214,7 +202,6 @@ public class Request {
                 ", subject=" + (subject != null ? subject.getDisplayName() : "null") +
                 ", timeslots=" + timeslots.size() +
                 ", chosenTimeslot=" + chosenTimeslot +
-                ", weekStartDate=" + weekStartDate +
                 ", status=" + status +
                 ", archived=" + archived +
                 '}';
