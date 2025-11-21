@@ -114,8 +114,8 @@ public class MatchingService {
                 .filter(r -> r.getType() == RequestType.TUTEE)
                 .toList();
 
-        logger.info("Found {} TUTOR requests and {} TUTEE requests for matching", 
-                    offerRequests.size(), seekRequests.size());
+        logger.info("Found {} TUTOR requests and {} TUTEE requests for matching",
+                offerRequests.size(), seekRequests.size());
 
         // Create weighted graph
         Graph<Request, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
@@ -141,10 +141,10 @@ public class MatchingService {
                     if (edge != null) {
                         graph.setEdgeWeight(edge, weight);
                         edgeCount++;
-                        logger.debug("Added edge between tutor {} and tutee {} with weight {}", 
-                                    offer.getUser().getFullName(), 
-                                    seek.getUser().getFullName(), 
-                                    weight);
+                        logger.debug("Added edge between tutor {} and tutee {} with weight {}",
+                                offer.getUser().getFullName(),
+                                seek.getUser().getFullName(),
+                                weight);
                     }
                 }
             }
@@ -157,7 +157,7 @@ public class MatchingService {
                 graph, offers, seeks);
 
         Set<DefaultWeightedEdge> matchedEdges = matching.getMatching().getEdges();
-        
+
         logger.info("Matching algorithm found {} potential matches", matchedEdges.size());
 
         // Convert to Match objects
@@ -213,8 +213,8 @@ public class MatchingService {
             weight += 10.0; // 4 years ahead
         }
 
-        logger.debug("Match weight calculated: tutor={}, tutee={}, weight={}", 
-                    tutor.getFullName(), tutee.getFullName(), weight);
+        logger.debug("Match weight calculated: tutor={}, tutee={}, weight={}",
+                tutor.getFullName(), tutee.getFullName(), weight);
 
         return weight;
     }
@@ -227,9 +227,9 @@ public class MatchingService {
         User tutee = seek.getUser();
 
         // Subject must be identical
-        if (!offer.getSubject().equals(seek.getSubject())) {
-            logger.debug("Constraint failed: subjects don't match - {} vs {}", 
-                        offer.getSubject().getDisplayName(), seek.getSubject().getDisplayName());
+        if (offer.getSubject().getCode() != seek.getSubject().getCode()) {
+            logger.debug("Constraint failed: subjects don't match - {} vs {}",
+                    offer.getSubject().getDisplayName(), seek.getSubject().getDisplayName());
             return false;
         }
 
@@ -237,16 +237,16 @@ public class MatchingService {
         Set<Timeslot> tutorSlots = offer.getTimeslots();
         Set<Timeslot> tuteeSlots = seek.getTimeslots();
         if (tutorSlots.stream().noneMatch(tuteeSlots::contains)) {
-            logger.debug("Constraint failed: no overlapping timeslots between {} and {}", 
-                        tutor.getFullName(), tutee.getFullName());
+            logger.debug("Constraint failed: no overlapping timeslots between {} and {}",
+                    tutor.getFullName(), tutee.getFullName());
             return false;
         }
-        
+
         // Tutor must be same year or higher year than tutee
         if (tutor.getYearGroup() < tutee.getYearGroup()) {
-            logger.debug("Constraint failed: tutor year {} < tutee year {} ({} vs {})", 
-                        tutor.getYearGroup(), tutee.getYearGroup(), 
-                        tutor.getFullName(), tutee.getFullName());
+            logger.debug("Constraint failed: tutor year {} < tutee year {} ({} vs {})",
+                    tutor.getYearGroup(), tutee.getYearGroup(),
+                    tutor.getFullName(), tutee.getFullName());
             return false;
         }
 
@@ -256,8 +256,8 @@ public class MatchingService {
             return false;
         }
 
-        logger.debug("Hard constraints met for: tutor={}, tutee={}", 
-                    tutor.getFullName(), tutee.getFullName());
+        logger.debug("Hard constraints met for: tutor={}, tutee={}",
+                tutor.getFullName(), tutee.getFullName());
         return true;
     }
 }
