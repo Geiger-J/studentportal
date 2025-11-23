@@ -85,8 +85,8 @@ class MatchingServiceRepeatedRunTest {
     }
 
     @Test
-    void testPerformMatching_MultipleSubjects_UsersCanBeMatchedOnDifferentSubjects() {
-        // Given: Same users but different subjects
+    void testPerformMatching_MultipleSubjects_UsersCannotBeMatchedAtSameTimeslot() {
+        // Given: Same users but different subjects, same timeslots
         Set<Timeslot> slots = Set.of(Timeslot.MON_P1, Timeslot.TUE_P2);
         
         // Math requests
@@ -112,23 +112,32 @@ class MatchingServiceRepeatedRunTest {
         // Run matching again
         int secondMatchCount = matchingService.performMatching();
         
-        // Question: Should the same users be matched again on a different subject?
-        // Currently, this would create a second match at a different timeslot
-        System.out.println("Second match count: " + secondMatchCount);
+        // Should create a second match (same users can match on different subjects)
+        assertEquals(2, secondMatchCount, "Should match the physics requests");
         
         // Verify the status
+        Request updatedTutorMath = requestRepository.findById(tutorMathRequest.getId()).orElse(null);
+        Request updatedTuteeMath = requestRepository.findById(tuteeMathRequest.getId()).orElse(null);
         Request updatedTutorPhysics = requestRepository.findById(tutorPhysicsRequest.getId()).orElse(null);
         Request updatedTuteePhysics = requestRepository.findById(tuteePhysicsRequest.getId()).orElse(null);
         
+        assertNotNull(updatedTutorMath);
+        assertNotNull(updatedTuteeMath);
         assertNotNull(updatedTutorPhysics);
         assertNotNull(updatedTuteePhysics);
         
-        System.out.println("Tutor physics status: " + updatedTutorPhysics.getStatus());
-        System.out.println("Tutee physics status: " + updatedTuteePhysics.getStatus());
+        assertEquals(RequestStatus.MATCHED, updatedTutorMath.getStatus());
+        assertEquals(RequestStatus.MATCHED, updatedTuteeMath.getStatus());
+        assertEquals(RequestStatus.MATCHED, updatedTutorPhysics.getStatus());
+        assertEquals(RequestStatus.MATCHED, updatedTuteePhysics.getStatus());
         
-        if (updatedTutorPhysics.getStatus() == RequestStatus.MATCHED) {
-            System.out.println("Tutor physics chosen timeslot: " + updatedTutorPhysics.getChosenTimeslot());
-            System.out.println("Tutee physics chosen timeslot: " + updatedTuteePhysics.getChosenTimeslot());
-        }
+        // Critical check: The chosen timeslots MUST be different
+        Timeslot mathSlot = updatedTutorMath.getChosenTimeslot();
+        Timeslot physicsSlot = updatedTutorPhysics.getChosenTimeslot();
+        
+        assertNotNull(mathSlot, "Math request should have a chosen timeslot");
+        assertNotNull(physicsSlot, "Physics request should have a chosen timeslot");
+        assertNotEquals(mathSlot, physicsSlot, 
+            "Users cannot be matched at the same timeslot for different subjects");
     }
 }

@@ -224,9 +224,25 @@ public class MatchingService {
         logger.info("Matching algorithm found {} potential timeslot matches", matchedEdges.size());
 
         // Convert matched edges to Match objects, ensuring each request is matched at most once
+        // and each user is matched at most once per timeslot
         List<Match> matches = new ArrayList<>();
         Set<Long> matchedOfferRequestIds = new HashSet<>();
         Set<Long> matchedSeekRequestIds = new HashSet<>();
+        
+        // Track which users are matched at which timeslots to prevent double-booking
+        // Initialize with already matched requests from previous matching runs
+        Map<Long, Set<Timeslot>> userMatchedTimeslots = new HashMap<>();
+        List<Request> alreadyMatchedRequests = requestRepository.findByStatus(RequestStatus.MATCHED);
+        for (Request matchedRequest : alreadyMatchedRequests) {
+            Timeslot chosenTimeslot = matchedRequest.getChosenTimeslot();
+            if (chosenTimeslot != null) {
+                Long userId = matchedRequest.getUser().getId();
+                userMatchedTimeslots.computeIfAbsent(userId, k -> new HashSet<>()).add(chosenTimeslot);
+            }
+        }
+        
+        logger.debug("Initialized user timeslot tracking with {} already matched requests", 
+                alreadyMatchedRequests.size());
 
         // Sort edges by weight (descending) to prioritize higher-weight matches
         List<DefaultWeightedEdge> sortedEdges = new ArrayList<>(matchedEdges);
@@ -247,22 +263,40 @@ public class MatchingService {
             Request offerRequest = offerRT.getRequest();
             Request seekRequest = seekRT.getRequest();
             Timeslot timeslot = offerRT.getTimeslot();
+            
+            Long tutorUserId = offerRequest.getUser().getId();
+            Long tuteeUserId = seekRequest.getUser().getId();
 
-            // Only add match if neither request has been matched yet
-            if (!matchedOfferRequestIds.contains(offerRequest.getId()) &&
-                !matchedSeekRequestIds.contains(seekRequest.getId())) {
-                
+            // Check if this match would create a conflict:
+            // 1. Neither request has been matched yet
+            // 2. Neither user is already matched at this timeslot
+            boolean requestsNotMatched = !matchedOfferRequestIds.contains(offerRequest.getId()) &&
+                                          !matchedSeekRequestIds.contains(seekRequest.getId());
+            boolean noTimeslotConflict = !userMatchedTimeslots.getOrDefault(tutorUserId, Collections.emptySet()).contains(timeslot) &&
+                                          !userMatchedTimeslots.getOrDefault(tuteeUserId, Collections.emptySet()).contains(timeslot);
+            
+            if (requestsNotMatched && noTimeslotConflict) {
                 double weight = graph.getEdgeWeight(edge);
                 matches.add(new Match(offerRequest, seekRequest, timeslot, weight));
                 
                 matchedOfferRequestIds.add(offerRequest.getId());
                 matchedSeekRequestIds.add(seekRequest.getId());
+                
+                // Track the timeslot for both users
+                userMatchedTimeslots.computeIfAbsent(tutorUserId, k -> new HashSet<>()).add(timeslot);
+                userMatchedTimeslots.computeIfAbsent(tuteeUserId, k -> new HashSet<>()).add(timeslot);
 
                 logger.debug("Selected match: tutor {} with tutee {} at {} (weight: {})",
                         offerRequest.getUser().getFullName(),
                         seekRequest.getUser().getFullName(),
                         timeslot,
                         weight);
+            } else if (!noTimeslotConflict) {
+                logger.debug("Skipped match due to timeslot conflict: tutor {} with tutee {} at {} (weight: {})",
+                        offerRequest.getUser().getFullName(),
+                        seekRequest.getUser().getFullName(),
+                        timeslot,
+                        graph.getEdgeWeight(edge));
             }
         }
 
