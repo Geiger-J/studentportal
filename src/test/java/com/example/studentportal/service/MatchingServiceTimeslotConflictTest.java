@@ -17,7 +17,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test to demonstrate the bug where users can be matched multiple times at the same timeslot
+ * Test to verify that users cannot be matched multiple times at the same timeslot
  */
 @SpringBootTest
 @ActiveProfiles("test")
@@ -63,7 +63,7 @@ class MatchingServiceTimeslotConflictTest {
     }
 
     @Test
-    void testBug_UsersShouldNotBeMatchedAtSameTimeslotMultipleTimes() {
+    void testUsersShouldNotBeMatchedAtSameTimeslotMultipleTimes() {
         // Given: Both users have requests for Math and Physics at the SAME SINGLE timeslot
         Set<Timeslot> slots = Set.of(Timeslot.MON_P1);
         
@@ -135,16 +135,16 @@ class MatchingServiceTimeslotConflictTest {
             }
         }
         
-        // This test documents the bug - users CAN be matched at the same timeslot multiple times
-        System.out.println("\n=== BUG DEMONSTRATION ===");
+        // This test verifies the fix - users should NOT be matched at the same timeslot multiple times
+        System.out.println("\n=== VERIFICATION ===");
         System.out.println("Matched count: " + matchedCount);
         System.out.println("Has timeslot conflict: " + hasConflict);
         if (hasConflict) {
             System.out.println("Conflict details:\n" + conflictDetails);
         }
         
-        // This assertion will FAIL, demonstrating the bug exists
+        // This assertion verifies the bug is fixed
         assertFalse(hasConflict, 
-            "BUG: Users should not be matched at the same timeslot for different subjects. " + conflictDetails);
+            "Users should not be matched at the same timeslot for different subjects. " + conflictDetails);
     }
 }
