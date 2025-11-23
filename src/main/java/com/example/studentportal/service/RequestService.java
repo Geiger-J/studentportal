@@ -113,17 +113,14 @@ public class RequestService {
         // If request is matched, also cancel the partner's request
         if (RequestStatus.MATCHED.equals(request.getStatus()) && request.getMatchedPartner() != null) {
             User partner = request.getMatchedPartner();
-            // Find the partner's matched request
-            List<Request> partnerRequests = requestRepository.findByUserOrderByCreatedAtDesc(partner);
-            for (Request partnerRequest : partnerRequests) {
-                if (RequestStatus.MATCHED.equals(partnerRequest.getStatus()) && 
-                    partnerRequest.getMatchedPartner() != null &&
-                    partnerRequest.getMatchedPartner().equals(user)) {
-                    // Cancel the partner's request
-                    partnerRequest.cancel();
-                    requestRepository.save(partnerRequest);
-                    break;
-                }
+            // Find the partner's matched request using optimized query
+            Optional<Request> partnerRequestOpt = requestRepository.findByUserAndMatchedPartnerAndStatus(
+                partner, user, RequestStatus.MATCHED);
+            
+            if (partnerRequestOpt.isPresent()) {
+                Request partnerRequest = partnerRequestOpt.get();
+                partnerRequest.cancel();
+                requestRepository.save(partnerRequest);
             }
         }
 
@@ -196,11 +193,14 @@ public class RequestService {
         
         int archivedCount = 0;
         
+        // Collect requests to archive
+        List<Request> requestsToArchive = new java.util.ArrayList<>();
+        
         // Archive DONE requests that are not already archived
         for (Request request : doneRequests) {
             if (!request.getArchived()) {
                 request.setArchived(true);
-                requestRepository.save(request);
+                requestsToArchive.add(request);
                 archivedCount++;
             }
         }
@@ -209,9 +209,14 @@ public class RequestService {
         for (Request request : cancelledRequests) {
             if (!request.getArchived()) {
                 request.setArchived(true);
-                requestRepository.save(request);
+                requestsToArchive.add(request);
                 archivedCount++;
             }
+        }
+        
+        // Batch save all archived requests
+        if (!requestsToArchive.isEmpty()) {
+            requestRepository.saveAll(requestsToArchive);
         }
         
         return archivedCount;
