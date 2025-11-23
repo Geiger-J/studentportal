@@ -70,14 +70,29 @@ public class MatchingService {
     public int performMatching() {
         List<Match> matches = runMatching();
 
+        // Track allocated timeslots per user pair to prevent double-booking
+        // Key: "userId1-userId2" (sorted order), Value: Set of allocated timeslots
+        java.util.Map<String, Set<Timeslot>> allocatedSlots = new java.util.HashMap<>();
+
         // Process the matches
         int matchedCount = 0;
         for (Match match : matches) {
             Request offerRequest = match.getOfferRequest();
             Request seekRequest = match.getSeekRequest();
 
-            // Find and select a common timeslot
-            Timeslot chosenTimeslot = selectOptimalTimeslot(offerRequest, seekRequest);
+            // Create a key for this user pair
+            String pairKey = createUserPairKey(offerRequest.getUser().getId(), 
+                                               seekRequest.getUser().getId());
+
+            // Get already allocated timeslots for this pair
+            Set<Timeslot> usedSlots = allocatedSlots.getOrDefault(pairKey, new HashSet<>());
+
+            // Find and select a common timeslot that hasn't been used for this pair
+            Timeslot chosenTimeslot = selectOptimalTimeslot(offerRequest, seekRequest, usedSlots);
+
+            // Track the allocated timeslot
+            usedSlots.add(chosenTimeslot);
+            allocatedSlots.put(pairKey, usedSlots);
 
             // Update status and matched partners
             offerRequest.setStatus(RequestStatus.MATCHED);
@@ -102,6 +117,20 @@ public class MatchingService {
         }
 
         return matchedCount;
+    }
+
+    /**
+     * Creates a consistent key for a user pair (order-independent).
+     * 
+     * @param userId1 first user ID
+     * @param userId2 second user ID
+     * @return a string key representing this pair
+     */
+    private String createUserPairKey(Long userId1, Long userId2) {
+        // Sort IDs to ensure consistent key regardless of order
+        long min = Math.min(userId1, userId2);
+        long max = Math.max(userId1, userId2);
+        return min + "-" + max;
     }
 
     /**
@@ -270,12 +299,14 @@ public class MatchingService {
     /**
      * Selects an optimal timeslot from the overlapping timeslots between two requests.
      * Priority: Earlier in the week (Monday > Friday), earlier periods (P1 > P7).
+     * Excludes timeslots that have already been allocated for this user pair.
      * 
      * @param offer the TUTOR request
      * @param seek the TUTEE request
+     * @param excludedSlots timeslots already allocated for this user pair
      * @return the selected optimal timeslot
      */
-    private Timeslot selectOptimalTimeslot(Request offer, Request seek) {
+    private Timeslot selectOptimalTimeslot(Request offer, Request seek, Set<Timeslot> excludedSlots) {
         Set<Timeslot> offerSlots = offer.getTimeslots();
         Set<Timeslot> seekSlots = seek.getTimeslots();
         
@@ -283,23 +314,50 @@ public class MatchingService {
         Set<Timeslot> overlapping = new HashSet<>(offerSlots);
         overlapping.retainAll(seekSlots);
         
+        // Remove already allocated timeslots for this user pair
+        overlapping.removeAll(excludedSlots);
+        
         if (overlapping.isEmpty()) {
-            // This shouldn't happen as hard constraints check for overlap
-            String errorMsg = String.format(
-                "No overlapping timeslots found for matched requests: " +
-                "Tutor Request ID=%d (User: %s, Subject: %s, Slots: %s) and " +
-                "Tutee Request ID=%d (User: %s, Subject: %s, Slots: %s)",
-                offer.getId(), offer.getUser().getFullName(), offer.getSubject().getDisplayName(), offerSlots,
-                seek.getId(), seek.getUser().getFullName(), seek.getSubject().getDisplayName(), seekSlots
-            );
-            logger.error(errorMsg);
-            throw new IllegalStateException(errorMsg);
+            // Check if there were any overlaps before exclusion
+            Set<Timeslot> originalOverlap = new HashSet<>(offerSlots);
+            originalOverlap.retainAll(seekSlots);
+            
+            if (originalOverlap.isEmpty()) {
+                // No overlaps at all - this shouldn't happen as hard constraints check for overlap
+                String errorMsg = String.format(
+                    "No overlapping timeslots found for matched requests: " +
+                    "Tutor Request ID=%d (User: %s, Subject: %s, Slots: %s) and " +
+                    "Tutee Request ID=%d (User: %s, Subject: %s, Slots: %s)",
+                    offer.getId(), offer.getUser().getFullName(), offer.getSubject().getDisplayName(), offerSlots,
+                    seek.getId(), seek.getUser().getFullName(), seek.getSubject().getDisplayName(), seekSlots
+                );
+                logger.error(errorMsg);
+                throw new IllegalStateException(errorMsg);
+            } else {
+                // Had overlaps but all are already allocated
+                String errorMsg = String.format(
+                    "All overlapping timeslots already allocated for user pair: " +
+                    "Tutor Request ID=%d (User: %s, Subject: %s) and " +
+                    "Tutee Request ID=%d (User: %s, Subject: %s). " +
+                    "Original overlaps: %s, Already allocated: %s",
+                    offer.getId(), offer.getUser().getFullName(), offer.getSubject().getDisplayName(),
+                    seek.getId(), seek.getUser().getFullName(), seek.getSubject().getDisplayName(),
+                    originalOverlap, excludedSlots
+                );
+                logger.error(errorMsg);
+                throw new IllegalStateException(errorMsg);
+            }
         }
         
         // Select the "best" timeslot - earliest in the week, earliest period
         // Timeslots are ordered by enum declaration order (MON_P1, MON_P2, ..., FRI_P7)
-        return overlapping.stream()
+        Timeslot selected = overlapping.stream()
                 .min(Enum::compareTo)
                 .orElseThrow(() -> new IllegalStateException("Failed to select optimal timeslot"));
+        
+        logger.debug("Selected timeslot {} for match between {} and {} (excluded: {})",
+                selected, offer.getUser().getFullName(), seek.getUser().getFullName(), excludedSlots);
+        
+        return selected;
     }
 }
