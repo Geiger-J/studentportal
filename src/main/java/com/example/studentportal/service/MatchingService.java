@@ -285,7 +285,15 @@ public class MatchingService {
         
         if (overlapping.isEmpty()) {
             // This shouldn't happen as hard constraints check for overlap
-            throw new IllegalStateException("No overlapping timeslots found for matched requests");
+            String errorMsg = String.format(
+                "No overlapping timeslots found for matched requests: " +
+                "Tutor Request ID=%d (User: %s, Subject: %s, Slots: %s) and " +
+                "Tutee Request ID=%d (User: %s, Subject: %s, Slots: %s)",
+                offer.getId(), offer.getUser().getFullName(), offer.getSubject().getDisplayName(), offerSlots,
+                seek.getId(), seek.getUser().getFullName(), seek.getSubject().getDisplayName(), seekSlots
+            );
+            logger.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
         }
         
         // Select the "best" timeslot - earliest in the week, earliest period

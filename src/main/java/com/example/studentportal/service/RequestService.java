@@ -113,18 +113,14 @@ public class RequestService {
         // If request is matched, also cancel the partner's request
         if (RequestStatus.MATCHED.equals(request.getStatus()) && request.getMatchedPartner() != null) {
             User partner = request.getMatchedPartner();
-            // Find the partner's matched request - need to match on subject too to avoid duplicates
-            List<Request> partnerRequests = requestRepository.findByUserOrderByCreatedAtDesc(partner);
-            for (Request partnerRequest : partnerRequests) {
-                if (RequestStatus.MATCHED.equals(partnerRequest.getStatus()) && 
-                    partnerRequest.getMatchedPartner() != null &&
-                    partnerRequest.getMatchedPartner().equals(user) &&
-                    partnerRequest.getSubject().equals(request.getSubject())) {
-                    // Cancel the partner's request
-                    partnerRequest.cancel();
-                    requestRepository.save(partnerRequest);
-                    break;
-                }
+            // Find the partner's matched request using optimized query with subject matching
+            Optional<Request> partnerRequestOpt = requestRepository.findByUserAndMatchedPartnerAndStatusAndSubject(
+                partner, user, RequestStatus.MATCHED, request.getSubject());
+            
+            if (partnerRequestOpt.isPresent()) {
+                Request partnerRequest = partnerRequestOpt.get();
+                partnerRequest.cancel();
+                requestRepository.save(partnerRequest);
             }
         }
 
