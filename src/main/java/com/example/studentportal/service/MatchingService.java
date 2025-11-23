@@ -1,3 +1,6 @@
+
+
+
 package com.example.studentportal.service;
 
 import com.example.studentportal.model.*;
@@ -21,19 +24,15 @@ import java.util.*;
 @Service
 @Transactional
 public class MatchingService {
-
     private static final Logger logger = LoggerFactory.getLogger(MatchingService.class);
-
     private final RequestRepository requestRepository;
 
     @Autowired
-    public MatchingService(RequestRepository requestRepository) {
-        this.requestRepository = requestRepository;
-    }
+    public MatchingService(RequestRepository requestRepository) { this.requestRepository = requestRepository; }
 
     /**
-     * RequestTimeslot pair representing a request at a specific timeslot.
-     * Used as vertices in the bipartite matching graph.
+     * RequestTimeslot pair representing a request at a specific timeslot. Used as
+     * vertices in the bipartite matching graph.
      */
     private static class RequestTimeslot {
         private final Request request;
@@ -44,32 +43,25 @@ public class MatchingService {
             this.timeslot = timeslot;
         }
 
-        public Request getRequest() {
-            return request;
-        }
+        public Request getRequest() { return request; }
 
-        public Timeslot getTimeslot() {
-            return timeslot;
-        }
+        public Timeslot getTimeslot() { return timeslot; }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             RequestTimeslot that = (RequestTimeslot) o;
-            return Objects.equals(request.getId(), that.request.getId()) &&
-                   timeslot == that.timeslot;
+            return Objects.equals(request.getId(), that.request.getId()) && timeslot == that.timeslot;
         }
 
         @Override
-        public int hashCode() {
-            return Objects.hash(request.getId(), timeslot);
-        }
+        public int hashCode() { return Objects.hash(request.getId(), timeslot); }
 
         @Override
-        public String toString() {
-            return "Request[" + request.getId() + "]@" + timeslot;
-        }
+        public String toString() { return "Request[" + request.getId() + "]@" + timeslot; }
     }
 
     /**
@@ -88,21 +80,13 @@ public class MatchingService {
             this.weight = weight;
         }
 
-        public Request getOfferRequest() {
-            return offerRequest;
-        }
+        public Request getOfferRequest() { return offerRequest; }
 
-        public Request getSeekRequest() {
-            return seekRequest;
-        }
+        public Request getSeekRequest() { return seekRequest; }
 
-        public Timeslot getTimeslot() {
-            return timeslot;
-        }
+        public Timeslot getTimeslot() { return timeslot; }
 
-        public double getWeight() {
-            return weight;
-        }
+        public double getWeight() { return weight; }
     }
 
     /**
@@ -113,63 +97,45 @@ public class MatchingService {
     @Transactional
     public int performMatching() {
         List<Match> matches = runMatching();
-
         // Process the matches
         int matchedCount = 0;
         for (Match match : matches) {
             Request offerRequest = match.getOfferRequest();
             Request seekRequest = match.getSeekRequest();
             Timeslot chosenTimeslot = match.getTimeslot();
-
             // Update status and matched partners
             offerRequest.setStatus(RequestStatus.MATCHED);
             offerRequest.setMatchedPartner(seekRequest.getUser());
             offerRequest.setChosenTimeslot(chosenTimeslot);
-
             seekRequest.setStatus(RequestStatus.MATCHED);
             seekRequest.setMatchedPartner(offerRequest.getUser());
             seekRequest.setChosenTimeslot(chosenTimeslot);
-
             requestRepository.save(offerRequest);
             requestRepository.save(seekRequest);
-
             matchedCount += 2;
-
             logger.info("Matched tutor {} with tutee {} for subject {} at timeslot {} (weight: {})",
-                    offerRequest.getUser().getFullName(),
-                    seekRequest.getUser().getFullName(),
-                    offerRequest.getSubject().getDisplayName(),
-                    chosenTimeslot,
-                    match.getWeight());
+                    offerRequest.getUser().getFullName(), seekRequest.getUser().getFullName(),
+                    offerRequest.getSubject().getDisplayName(), chosenTimeslot, match.getWeight());
         }
-
         return matchedCount;
     }
 
     /**
      * Matching algorithm using weighted bipartite matching at the timeslot level.
-     * Each (request, timeslot) pair is treated as a separate vertex.
-     * Ensures each request is matched at most once.
+     * Each (request, timeslot) pair is treated as a separate vertex. Ensures each
+     * request is matched at most once.
      * 
      * @return list of Match objects representing optimal matches
      */
     public List<Match> runMatching() {
-        List<Request> offerRequests = requestRepository.findByStatus(RequestStatus.PENDING)
-                .stream()
-                .filter(r -> r.getType() == RequestType.TUTOR)
-                .toList();
-
-        List<Request> seekRequests = requestRepository.findByStatus(RequestStatus.PENDING)
-                .stream()
-                .filter(r -> r.getType() == RequestType.TUTEE)
-                .toList();
-
-        logger.info("Found {} TUTOR requests and {} TUTEE requests for matching",
-                offerRequests.size(), seekRequests.size());
-
+        List<Request> offerRequests = requestRepository.findByStatus(RequestStatus.PENDING).stream()
+                .filter(r -> r.getType() == RequestType.TUTOR).toList();
+        List<Request> seekRequests = requestRepository.findByStatus(RequestStatus.PENDING).stream()
+                .filter(r -> r.getType() == RequestType.TUTEE).toList();
+        logger.info("Found {} TUTOR requests and {} TUTEE requests for matching", offerRequests.size(),
+                seekRequests.size());
         // Create weighted graph with RequestTimeslot vertices
         Graph<RequestTimeslot, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
-
         // Create RequestTimeslot vertices for each offer request and its timeslots
         Set<RequestTimeslot> offerVertices = new HashSet<>();
         for (Request offer : offerRequests) {
@@ -179,7 +145,6 @@ public class MatchingService {
                 offerVertices.add(rt);
             }
         }
-
         // Create RequestTimeslot vertices for each seek request and its timeslots
         Set<RequestTimeslot> seekVertices = new HashSet<>();
         for (Request seek : seekRequests) {
@@ -189,7 +154,6 @@ public class MatchingService {
                 seekVertices.add(rt);
             }
         }
-
         // Add edges between compatible RequestTimeslot pairs
         int edgeCount = 0;
         for (RequestTimeslot offerRT : offerVertices) {
@@ -197,9 +161,8 @@ public class MatchingService {
                 // Edges only exist if:
                 // 1. Same timeslot
                 // 2. Requests meet hard constraints (subject, year group, etc.)
-                if (offerRT.getTimeslot() == seekRT.getTimeslot() &&
-                    meetHardConstraints(offerRT.getRequest(), seekRT.getRequest())) {
-                    
+                if (offerRT.getTimeslot() == seekRT.getTimeslot()
+                        && meetHardConstraints(offerRT.getRequest(), seekRT.getRequest())) {
                     double weight = calculateWeight(offerRT.getRequest(), seekRT.getRequest());
                     if (weight > 0) {
                         DefaultWeightedEdge edge = graph.addEdge(offerRT, seekRT);
@@ -211,63 +174,45 @@ public class MatchingService {
                 }
             }
         }
-
         logger.info("Created bipartite graph with {} offer vertices, {} seek vertices, and {} valid edges",
                 offerVertices.size(), seekVertices.size(), edgeCount);
-
         // Run maximum weight bipartite matching
-        MaximumWeightBipartiteMatching<RequestTimeslot, DefaultWeightedEdge> matching =
-                new MaximumWeightBipartiteMatching<>(graph, offerVertices, seekVertices);
-
+        MaximumWeightBipartiteMatching<RequestTimeslot, DefaultWeightedEdge> matching = new MaximumWeightBipartiteMatching<>(
+                graph, offerVertices, seekVertices);
         Set<DefaultWeightedEdge> matchedEdges = matching.getMatching().getEdges();
-
         logger.info("Matching algorithm found {} potential timeslot matches", matchedEdges.size());
-
-        // Convert matched edges to Match objects, ensuring each request is matched at most once
+        // Convert matched edges to Match objects, ensuring each request is matched at
+        // most once
         List<Match> matches = new ArrayList<>();
         Set<Long> matchedOfferRequestIds = new HashSet<>();
         Set<Long> matchedSeekRequestIds = new HashSet<>();
-
         // Sort edges by weight (descending) to prioritize higher-weight matches
         List<DefaultWeightedEdge> sortedEdges = new ArrayList<>(matchedEdges);
-        sortedEdges.sort((e1, e2) -> Double.compare(
-                graph.getEdgeWeight(e2), graph.getEdgeWeight(e1)));
-
+        sortedEdges.sort((e1, e2) -> Double.compare(graph.getEdgeWeight(e2), graph.getEdgeWeight(e1)));
         for (DefaultWeightedEdge edge : sortedEdges) {
             RequestTimeslot offerRT = graph.getEdgeSource(edge);
             RequestTimeslot seekRT = graph.getEdgeTarget(edge);
-            
             // Ensure source is offer and target is seek
             if (offerRT.getRequest().getType() == RequestType.TUTEE) {
                 RequestTimeslot temp = offerRT;
                 offerRT = seekRT;
                 seekRT = temp;
             }
-
             Request offerRequest = offerRT.getRequest();
             Request seekRequest = seekRT.getRequest();
             Timeslot timeslot = offerRT.getTimeslot();
-
             // Only add match if neither request has been matched yet
-            if (!matchedOfferRequestIds.contains(offerRequest.getId()) &&
-                !matchedSeekRequestIds.contains(seekRequest.getId())) {
-                
+            if (!matchedOfferRequestIds.contains(offerRequest.getId())
+                    && !matchedSeekRequestIds.contains(seekRequest.getId())) {
                 double weight = graph.getEdgeWeight(edge);
                 matches.add(new Match(offerRequest, seekRequest, timeslot, weight));
-                
                 matchedOfferRequestIds.add(offerRequest.getId());
                 matchedSeekRequestIds.add(seekRequest.getId());
-
                 logger.debug("Selected match: tutor {} with tutee {} at {} (weight: {})",
-                        offerRequest.getUser().getFullName(),
-                        seekRequest.getUser().getFullName(),
-                        timeslot,
-                        weight);
+                        offerRequest.getUser().getFullName(), seekRequest.getUser().getFullName(), timeslot, weight);
             }
         }
-
         logger.info("Final match count: {} requests matched", matches.size());
-
         return matches;
     }
 
@@ -280,19 +225,14 @@ public class MatchingService {
         if (!meetHardConstraints(offer, seek)) {
             return 0.0;
         }
-
         // Base weight
         double weight = 100.0;
-
         User tutor = offer.getUser();
         User tutee = seek.getUser();
-
         // Exam Board bonus
-        if (tutor.getExamBoard() == tutee.getExamBoard() &&
-                tutor.getExamBoard() != ExamBoard.NONE) {
+        if (tutor.getExamBoard() == tutee.getExamBoard() && tutor.getExamBoard() != ExamBoard.NONE) {
             weight += 50.0; // Significant bonus for matching exam boards
         }
-
         // Year Group Difference bonus
         int yearDifference = tutor.getYearGroup() - tutee.getYearGroup();
         if (yearDifference == 1) {
@@ -306,10 +246,8 @@ public class MatchingService {
         } else if (yearDifference == 4) {
             weight += 10.0; // 4 years ahead
         }
-
-        logger.debug("Match weight calculated: tutor={}, tutee={}, weight={}",
-                tutor.getFullName(), tutee.getFullName(), weight);
-
+        logger.debug("Match weight calculated: tutor={}, tutee={}, weight={}", tutor.getFullName(), tutee.getFullName(),
+                weight);
         return weight;
     }
 
@@ -319,39 +257,32 @@ public class MatchingService {
     private boolean meetHardConstraints(Request offer, Request seek) {
         User tutor = offer.getUser();
         User tutee = seek.getUser();
-
         // Subject must be identical
         if (offer.getSubject().getCode() != seek.getSubject().getCode()) {
-            logger.debug("Constraint failed: subjects don't match - {} vs {}",
-                    offer.getSubject().getDisplayName(), seek.getSubject().getDisplayName());
+            logger.debug("Constraint failed: subjects don't match - {} vs {}", offer.getSubject().getDisplayName(),
+                    seek.getSubject().getDisplayName());
             return false;
         }
-
         // At least one overlapping timeslot
         Set<Timeslot> tutorSlots = offer.getTimeslots();
         Set<Timeslot> tuteeSlots = seek.getTimeslots();
         if (tutorSlots.stream().noneMatch(tuteeSlots::contains)) {
-            logger.debug("Constraint failed: no overlapping timeslots between {} and {}",
-                    tutor.getFullName(), tutee.getFullName());
+            logger.debug("Constraint failed: no overlapping timeslots between {} and {}", tutor.getFullName(),
+                    tutee.getFullName());
             return false;
         }
-
         // Tutor must be same year or higher year than tutee
         if (tutor.getYearGroup() < tutee.getYearGroup()) {
-            logger.debug("Constraint failed: tutor year {} < tutee year {} ({} vs {})",
-                    tutor.getYearGroup(), tutee.getYearGroup(),
-                    tutor.getFullName(), tutee.getFullName());
+            logger.debug("Constraint failed: tutor year {} < tutee year {} ({} vs {})", tutor.getYearGroup(),
+                    tutee.getYearGroup(), tutor.getFullName(), tutee.getFullName());
             return false;
         }
-
         // Different users (shouldn't match with themselves)
         if (tutor.equals(tutee)) {
             logger.debug("Constraint failed: same user cannot match with themselves");
             return false;
         }
-
-        logger.debug("Hard constraints met for: tutor={}, tutee={}",
-                tutor.getFullName(), tutee.getFullName());
+        logger.debug("Hard constraints met for: tutor={}, tutee={}", tutor.getFullName(), tutee.getFullName());
         return true;
     }
 }
