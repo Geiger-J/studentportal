@@ -76,22 +76,28 @@ public class MatchingService {
             Request offerRequest = match.getOfferRequest();
             Request seekRequest = match.getSeekRequest();
 
+            // Find and select a common timeslot
+            Timeslot chosenTimeslot = selectOptimalTimeslot(offerRequest, seekRequest);
+
             // Update status and matched partners
             offerRequest.setStatus(RequestStatus.MATCHED);
             offerRequest.setMatchedPartner(seekRequest.getUser());
+            offerRequest.setChosenTimeslot(chosenTimeslot);
 
             seekRequest.setStatus(RequestStatus.MATCHED);
             seekRequest.setMatchedPartner(offerRequest.getUser());
+            seekRequest.setChosenTimeslot(chosenTimeslot);
 
             requestRepository.save(offerRequest);
             requestRepository.save(seekRequest);
 
             matchedCount += 2;
 
-            logger.info("Matched tutor {} with tutee {} for subject {} (weight: {})",
+            logger.info("Matched tutor {} with tutee {} for subject {} at timeslot {} (weight: {})",
                     offerRequest.getUser().getFullName(),
                     seekRequest.getUser().getFullName(),
                     offerRequest.getSubject().getDisplayName(),
+                    chosenTimeslot,
                     match.getWeight());
         }
 
@@ -259,5 +265,33 @@ public class MatchingService {
         logger.debug("Hard constraints met for: tutor={}, tutee={}",
                 tutor.getFullName(), tutee.getFullName());
         return true;
+    }
+
+    /**
+     * Selects an optimal timeslot from the overlapping timeslots between two requests.
+     * Priority: Earlier in the week (Monday > Friday), earlier periods (P1 > P7).
+     * 
+     * @param offer the TUTOR request
+     * @param seek the TUTEE request
+     * @return the selected optimal timeslot
+     */
+    private Timeslot selectOptimalTimeslot(Request offer, Request seek) {
+        Set<Timeslot> offerSlots = offer.getTimeslots();
+        Set<Timeslot> seekSlots = seek.getTimeslots();
+        
+        // Find overlapping timeslots
+        Set<Timeslot> overlapping = new HashSet<>(offerSlots);
+        overlapping.retainAll(seekSlots);
+        
+        if (overlapping.isEmpty()) {
+            // This shouldn't happen as hard constraints check for overlap
+            throw new IllegalStateException("No overlapping timeslots found for matched requests");
+        }
+        
+        // Select the "best" timeslot - earliest in the week, earliest period
+        // Timeslots are ordered by enum declaration order (MON_P1, MON_P2, ..., FRI_P7)
+        return overlapping.stream()
+                .min(Enum::compareTo)
+                .orElseThrow(() -> new IllegalStateException("Failed to select optimal timeslot"));
     }
 }
