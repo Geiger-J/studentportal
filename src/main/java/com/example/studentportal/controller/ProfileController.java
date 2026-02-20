@@ -151,7 +151,7 @@ public class ProfileController {
                     "Error deleting account: " + e.getMessage());
             return "redirect:/profile";
         }
-        return "redirect:/login?accountDeleted";
+        return "redirect:/";
     }
 
     private void populateFormModel(Model model, User user, String errorMessage) {

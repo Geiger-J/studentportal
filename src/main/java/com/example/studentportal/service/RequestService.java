@@ -177,6 +177,36 @@ public class RequestService {
     }
 
     /**
+     * Cancels a request by ID on behalf of an admin.
+     * - only PENDING or MATCHED requests can be cancelled
+     * - if matched, also cancels the partner's request
+     */
+    public Request adminCancelRequest(Long id) {
+        Request request = requestRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Request not found with id: " + id));
+
+        // guard: only pending/matched can be cancelled
+        if (!request.canBeCancelled()) {
+            throw new IllegalArgumentException("Only pending or matched requests can be cancelled");
+        }
+
+        // if matched, cancel the partner's linked request too
+        if ("MATCHED".equals(request.getStatus()) && request.getMatchedPartner() != null) {
+            User partner = request.getMatchedPartner();
+            Optional<Request> partnerOpt = requestRepository.findByUserAndMatchedPartnerAndStatusAndSubject(
+                partner, request.getUser(), "MATCHED", request.getSubject());
+            if (partnerOpt.isPresent()) {
+                Request partnerRequest = partnerOpt.get();
+                partnerRequest.cancel();
+                requestRepository.save(partnerRequest);
+            }
+        }
+
+        request.cancel();
+        return requestRepository.save(request);
+    }
+
+    /**
      * Deletes a request by ID (admin use).
      */
     public void deleteRequest(Long id) {

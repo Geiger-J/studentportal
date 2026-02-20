@@ -107,13 +107,17 @@
                                 <td th:text="${request.chosenTimeslot != null ? timeslotLabels.get(request.chosenTimeslot) : '—'}">—</td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                                 <td class="actions-cell">
-                                    <form th:action="@{/admin/requests/{id}/delete(id=${request.id})}" method="post"
+                                    <!-- only pending/matched requests can be cancelled -->
+                                    <form th:if="${request.status == 'PENDING' or request.status == 'MATCHED'}"
+                                          th:action="@{/admin/requests/{id}/cancel(id=${request.id})}" method="post"
                                           style="display:inline;"
-                                          onsubmit="return confirm('Delete this request permanently?');">
+                                          onsubmit="return confirm('Cancel this request?');">
                                         <input type="hidden" name="status" th:value="${selectedStatus}">
                                         <input type="hidden" name="showArchived" value="true" th:if="${showArchived}">
-                                        <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-small">Cancel</button>
                                     </form>
+                                    <span th:unless="${request.status == 'PENDING' or request.status == 'MATCHED'}"
+                                          class="no-actions">—</span>
                                 </td>
                             </tr>
                         </tbody>

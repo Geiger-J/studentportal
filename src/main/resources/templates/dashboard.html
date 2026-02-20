@@ -78,9 +78,32 @@
                                           th:text="${statusLabels.get(request.status)}">Pending</span>
                                 </td>
                                 <td class="matched-partner-cell">
-                                    <span th:if="${request.matchedPartner != null}"
-                                          th:text="${request.matchedPartner.fullName}"
-                                          class="matched-partner-name">John Smith</span>
+                                    <!-- show partner name + an email icon that opens a pre-filled mailto -->
+                                    <span th:if="${request.matchedPartner != null}">
+                                        <span th:text="${request.matchedPartner.fullName}"
+                                              class="matched-partner-name">John Smith</span>
+                                        <!--
+                                          data attributes store raw text — JS on click builds
+                                          the mailto: URL with proper encoding so no complex
+                                          Thymeleaf escaping is needed
+                                        -->
+                                        <a href="#"
+                                           th:attr="data-email=${request.matchedPartner.email},
+                                                    data-subject=${(request.type == 'TUTOR' ? 'Your' : 'My')
+                                                        + ' tutoring session in ' + request.subject.displayName
+                                                        + ' on ' + (request.chosenTimeslot != null
+                                                            ? timeslotLabels.get(request.chosenTimeslot)
+                                                            : 'TBD')},
+                                                    data-partner=${request.matchedPartner.fullName},
+                                                    data-subject-name=${request.subject.displayName},
+                                                    data-timeslot=${request.chosenTimeslot != null
+                                                            ? timeslotLabels.get(request.chosenTimeslot)
+                                                            : 'TBD'},
+                                                    data-sender=${user.fullName}"
+                                           onclick="openMailto(this); return false;"
+                                           class="mailto-link"
+                                           title="Open email app to contact your match">✉</a>
+                                    </span>
                                     <span th:if="${request.matchedPartner == null}" class="no-partner">—</span>
                                 </td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
@@ -124,5 +147,24 @@
             </section>
         </div>
     </main>
+    <script>
+        // builds a proper mailto: URL from data-* attributes and opens it
+        // using encodeURIComponent ensures special chars in names/subjects are safe
+        function openMailto(link) {
+            var email    = link.dataset.email;
+            var subject  = link.dataset.subject;
+            var partner  = link.dataset.partner;
+            var subjectName = link.dataset.subjectName;
+            var timeslot = link.dataset.timeslot;
+            var sender   = link.dataset.sender;
+            var body = 'Dear ' + partner + ',\n\n'
+                     + 'I am writing in regards to the tutoring session in '
+                     + subjectName + ' on ' + timeslot + '.\n\n'
+                     + 'Best regards,\n' + sender;
+            window.location.href = 'mailto:' + encodeURIComponent(email)
+                + '?subject=' + encodeURIComponent(subject)
+                + '&body='    + encodeURIComponent(body);
+        }
+    </script>
 </body>
 </html>
