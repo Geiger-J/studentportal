@@ -20,6 +20,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findByUserOrderByCreatedAtDesc(User user);
 
+    List<Request> findByUserAndArchivedFalseOrderByCreatedAtDesc(User user);
+
     Optional<Request> findByUserAndSubjectAndTypeAndStatus(
         User user, Subject subject, String type, String status);
 
@@ -27,6 +29,10 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
         User user, Subject subject, String type, String status);
 
     List<Request> findByStatus(String status);
+
+    List<Request> findByStatusAndArchivedFalse(String status);
+
+    List<Request> findAllByOrderByCreatedAtDesc();
 
     List<Request> findBySubject(Subject subject);
 

@@ -36,7 +36,7 @@ public class Timeslots {
         for (int d = 0; d < DAYS.length; d++) {
             for (int p = 1; p <= PERIODS; p++) {
                 String code = DAYS[d] + "_P" + p;
-                String label = DAY_NAMES[d] + " Period " + p + " (" + PERIOD_TIMES[p - 1] + ")";
+                String label = DAY_NAMES[d] + ", P" + p;
                 codes.add(code);
                 labels.put(code, label);
             }

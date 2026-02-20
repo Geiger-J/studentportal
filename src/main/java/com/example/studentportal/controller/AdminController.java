@@ -6,9 +6,13 @@ import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.MatchingService;
 import com.example.studentportal.service.RequestService;
 import com.example.studentportal.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +44,6 @@ public class AdminController {
             Model model) {
         User admin = principal.getUser();
 
-        List<Request> allRequests = requestService.getAllNonArchivedRequests();
         List<Request> pendingRequests = requestService.getPendingRequests();
         List<Request> matchedRequests = requestService.getMatchedRequests();
 
@@ -49,44 +52,86 @@ public class AdminController {
         long adminCount = allUsers.stream().filter(u -> "ADMIN".equals(u.getRole())).count();
 
         model.addAttribute("admin", admin);
-        model.addAttribute("allRequests", allRequests);
-        model.addAttribute("pendingRequests", pendingRequests);
-        model.addAttribute("matchedRequests", matchedRequests);
-        model.addAttribute("totalRequests", allRequests.size());
-        model.addAttribute("totalUsers", allUsers.size());
+        model.addAttribute("pendingCount", pendingRequests.size());
+        model.addAttribute("matchedCount", matchedRequests.size());
         model.addAttribute("studentCount", studentCount);
         model.addAttribute("adminCount", adminCount);
+
+        // Recent requests for dashboard table (non-archived, up to 10)
+        List<Request> allRequests = requestService.getAllNonArchivedRequests();
+        model.addAttribute("allRequests", allRequests);
 
         return "admin/dashboard";
     }
 
     @GetMapping("/requests")
     public String viewRequests(@RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
             Model model) {
         List<Request> requests;
         if (status != null && !status.isEmpty()) {
-            requests = requestService.getRequestsByStatus(status.toUpperCase());
+            if (showArchived) {
+                requests = requestService.getRequestsByStatus(status.toUpperCase());
+            } else {
+                requests = requestService.getNonArchivedRequestsByStatus(status.toUpperCase());
+            }
         } else {
-            requests = requestService.getAllNonArchivedRequests();
+            if (showArchived) {
+                requests = requestService.getAllRequests();
+            } else {
+                requests = requestService.getAllNonArchivedRequests();
+            }
         }
 
         model.addAttribute("requests", requests);
         model.addAttribute("selectedStatus", status);
+        model.addAttribute("showArchived", showArchived);
 
         return "admin/requests";
     }
 
+    @PostMapping("/requests/{id}/delete")
+    public String deleteRequest(@PathVariable Long id,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
+            RedirectAttributes redirectAttributes) {
+        try {
+            requestService.deleteRequest(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Request deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting request: " + e.getMessage());
+        }
+        String redirect = "redirect:/admin/requests";
+        if (status != null && !status.isEmpty()) {
+            redirect += "?status=" + status;
+            if (showArchived) redirect += "&showArchived=true";
+        } else if (showArchived) {
+            redirect += "?showArchived=true";
+        }
+        return redirect;
+    }
+
     @GetMapping("/users")
-    public String viewUsers(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
+    public String viewUsers(@RequestParam(value = "yearGroup", required = false) Integer yearGroup,
+            Model model) {
+        List<User> users = userService.getUsersByYearGroup(yearGroup);
+        model.addAttribute("users", users);
+        model.addAttribute("selectedYearGroup", yearGroup);
         return "admin/users";
     }
 
     @PostMapping("/users/{id}/change-password")
     public String changeUserPassword(@PathVariable Long id,
             @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
             RedirectAttributes redirectAttributes) {
         try {
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Passwords do not match.");
+                return "redirect:/admin/users";
+            }
             userService.changePassword(id, newPassword);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Password changed successfully for user.");
@@ -163,8 +208,13 @@ public class AdminController {
     @PostMapping("/profile/change-password")
     public String changeAdminPassword(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
             RedirectAttributes redirectAttributes) {
         try {
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Passwords do not match.");
+                return "redirect:/admin/profile";
+            }
             userService.changePassword(principal.getUser().getId(), newPassword);
             redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully.");
         } catch (IllegalArgumentException e) {
@@ -174,5 +224,24 @@ public class AdminController {
                     "Error changing password: " + e.getMessage());
         }
         return "redirect:/admin/profile";
+    }
+
+    @PostMapping("/profile/delete-account")
+    public String deleteAdminAccount(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Long userId = principal.getUser().getId();
+            userService.deleteUser(userId);
+            new SecurityContextLogoutHandler().logout(request, response,
+                    SecurityContextHolder.getContext().getAuthentication());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting account: " + e.getMessage());
+            return "redirect:/admin/profile";
+        }
+        return "redirect:/login?accountDeleted";
     }
 }

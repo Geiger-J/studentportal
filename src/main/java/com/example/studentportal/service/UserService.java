@@ -144,6 +144,17 @@ public class UserService {
     }
 
     /**
+     * Retrieves users filtered by year group (null returns all).
+     */
+    @Transactional(readOnly = true)
+    public List<User> getUsersByYearGroup(Integer yearGroup) {
+        if (yearGroup == null) {
+            return userRepository.findAll();
+        }
+        return userRepository.findByYearGroup(yearGroup);
+    }
+
+    /**
      * Changes the password for a user identified by ID.
      *
      * @param userId the ID of the user whose password should be changed

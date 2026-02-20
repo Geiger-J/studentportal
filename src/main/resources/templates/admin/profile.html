@@ -16,7 +16,7 @@
         <div class="container">
             <div class="dashboard-header">
                 <h1>Admin Profile</h1>
-                <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
             </div>
 
             <!-- Flash Messages -->
@@ -48,24 +48,51 @@
                 <form th:action="@{/admin/profile/change-password}" method="post" class="form" id="changePasswordForm">
                     <div class="form-group">
                         <label for="newPassword" class="form-label">New Password</label>
-                        <input type="password" id="newPassword" name="newPassword" class="form-input"
-                               placeholder="Enter new password (minimum 4 characters)"
-                               required minlength="4">
+                        <div class="pw-input-group">
+                            <input type="password" id="newPassword" name="newPassword" class="form-input"
+                                   placeholder="Enter new password (minimum 4 characters)"
+                                   required minlength="4">
+                            <button type="button" class="btn-show-hide" onclick="togglePw('newPassword', this)">Show</button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" class="form-input"
-                               placeholder="Confirm new password" required minlength="4">
+                        <div class="pw-input-group">
+                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-input"
+                                   placeholder="Confirm new password" required minlength="4">
+                            <button type="button" class="btn-show-hide" onclick="togglePw('confirmPassword', this)">Show</button>
+                        </div>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Change Password</button>
                     </div>
                 </form>
             </section>
+
+            <!-- Danger Zone: Delete Account -->
+            <section class="form-section danger-zone">
+                <h2>Danger Zone</h2>
+                <p class="section-description">Permanently delete your account. This action cannot be undone.</p>
+                <form th:action="@{/admin/profile/delete-account}" method="post"
+                      onsubmit="return confirm('Are you sure you want to permanently delete your account? This cannot be undone.');">
+                    <button type="submit" class="btn btn-danger">Delete My Account</button>
+                </form>
+            </section>
         </div>
     </main>
 
     <script>
+        function togglePw(fieldId, btn) {
+            var field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+                btn.textContent = 'Hide';
+            } else {
+                field.type = 'password';
+                btn.textContent = 'Show';
+            }
+        }
+
         document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
             var pw = document.getElementById('newPassword').value;
             var confirm = document.getElementById('confirmPassword').value;

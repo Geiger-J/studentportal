@@ -7,8 +7,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -131,6 +135,25 @@ public class ProfileController {
         }
     }
 
+    @PostMapping("/profile/delete-account")
+    public String deleteAccount(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Long userId = principal.getUser().getId();
+            userService.deleteUser(userId);
+            new SecurityContextLogoutHandler().logout(request, response,
+                    SecurityContextHolder.getContext().getAuthentication());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting account: " + e.getMessage());
+            return "redirect:/profile";
+        }
+        return "redirect:/login?accountDeleted";
+    }
+
     private void populateFormModel(Model model, User user, String errorMessage) {
         model.addAttribute("error", errorMessage);
         model.addAttribute("user", user);
@@ -146,24 +169,27 @@ public class ProfileController {
     private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
 
-        groups.put("Languages", subjects.stream()
+        List<Subject> languages = subjects.stream()
             .filter(s -> s.getDisplayName().equals("English") ||
                         s.getDisplayName().equals("German") ||
                         s.getDisplayName().equals("French"))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
+        if (!languages.isEmpty()) groups.put("Languages", languages);
 
-        groups.put("STEM", subjects.stream()
+        List<Subject> stem = subjects.stream()
             .filter(s -> s.getDisplayName().equals("Mathematics") ||
                         s.getDisplayName().equals("Physics") ||
                         s.getDisplayName().equals("Biology") ||
                         s.getDisplayName().equals("Chemistry"))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
+        if (!stem.isEmpty()) groups.put("STEM", stem);
 
-        groups.put("Social Sciences", subjects.stream()
+        List<Subject> social = subjects.stream()
             .filter(s -> s.getDisplayName().equals("Economics") ||
                         s.getDisplayName().equals("Politics") ||
                         s.getDisplayName().equals("Business"))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
+        if (!social.isEmpty()) groups.put("Social Sciences", social);
 
         return groups;
     }

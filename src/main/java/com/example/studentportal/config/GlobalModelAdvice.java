@@ -30,7 +30,6 @@ public class GlobalModelAdvice {
         STATUS_LABELS = new LinkedHashMap<>();
         STATUS_LABELS.put("PENDING", "Pending");
         STATUS_LABELS.put("MATCHED", "Matched");
-        STATUS_LABELS.put("NOT_MATCHED", "Not Matched");
         STATUS_LABELS.put("DONE", "Done");
         STATUS_LABELS.put("CANCELLED", "Cancelled");
 
@@ -44,7 +43,7 @@ public class GlobalModelAdvice {
         EXAM_BOARD_LABELS.put("IB", "International Baccalaureate");
         EXAM_BOARD_LABELS.put("NONE", "None");
 
-        ALL_STATUSES = List.of("PENDING", "MATCHED", "NOT_MATCHED", "DONE", "CANCELLED");
+        ALL_STATUSES = List.of("PENDING", "MATCHED", "DONE", "CANCELLED");
     }
 
     @ModelAttribute
