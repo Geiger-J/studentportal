@@ -36,7 +36,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Role</label>
-                                <input type="text" class="form-input" th:value="${roleLabels[user.role]}" readonly>
+                                <input type="text" class="form-input" th:value="${roleLabels.get(user.role)}" readonly>
                             </div>
                         </div>
                     </section>

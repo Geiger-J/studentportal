@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,34 +16,36 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalModelAdvice {
 
-    private static final Map<String, String> TYPE_LABELS = Map.of(
-        "TUTOR", "Offering Tutoring",
-        "TUTEE", "Seeking Tutoring"
-    );
+    private static final Map<String, String> TYPE_LABELS;
+    private static final Map<String, String> STATUS_LABELS;
+    private static final Map<String, String> ROLE_LABELS;
+    private static final Map<String, String> EXAM_BOARD_LABELS;
+    private static final List<String> ALL_STATUSES;
 
-    private static final Map<String, String> STATUS_LABELS = Map.of(
-        "PENDING", "Pending",
-        "MATCHED", "Matched",
-        "NOT_MATCHED", "Not Matched",
-        "DONE", "Done",
-        "CANCELLED", "Cancelled"
-    );
+    static {
+        TYPE_LABELS = new LinkedHashMap<>();
+        TYPE_LABELS.put("TUTOR", "Offering Tutoring");
+        TYPE_LABELS.put("TUTEE", "Seeking Tutoring");
 
-    private static final Map<String, String> ROLE_LABELS = Map.of(
-        "STUDENT", "Student",
-        "ADMIN", "Administrator"
-    );
+        STATUS_LABELS = new LinkedHashMap<>();
+        STATUS_LABELS.put("PENDING", "Pending");
+        STATUS_LABELS.put("MATCHED", "Matched");
+        STATUS_LABELS.put("NOT_MATCHED", "Not Matched");
+        STATUS_LABELS.put("DONE", "Done");
+        STATUS_LABELS.put("CANCELLED", "Cancelled");
 
-    private static final Map<String, String> EXAM_BOARD_LABELS = Map.of(
-        "GCSE", "GCSE",
-        "A_LEVELS", "A Levels",
-        "IB", "International Baccalaureate",
-        "NONE", "None"
-    );
+        ROLE_LABELS = new LinkedHashMap<>();
+        ROLE_LABELS.put("STUDENT", "Student");
+        ROLE_LABELS.put("ADMIN", "Administrator");
 
-    private static final List<String> ALL_STATUSES = List.of(
-        "PENDING", "MATCHED", "NOT_MATCHED", "DONE", "CANCELLED"
-    );
+        EXAM_BOARD_LABELS = new LinkedHashMap<>();
+        EXAM_BOARD_LABELS.put("GCSE", "GCSE");
+        EXAM_BOARD_LABELS.put("A_LEVELS", "A Levels");
+        EXAM_BOARD_LABELS.put("IB", "International Baccalaureate");
+        EXAM_BOARD_LABELS.put("NONE", "None");
+
+        ALL_STATUSES = List.of("PENDING", "MATCHED", "NOT_MATCHED", "DONE", "CANCELLED");
+    }
 
     @ModelAttribute
     public void addGlobalAttributes(Model model) {
@@ -50,7 +53,7 @@ public class GlobalModelAdvice {
         model.addAttribute("statusLabels", STATUS_LABELS);
         model.addAttribute("roleLabels", ROLE_LABELS);
         model.addAttribute("examBoardLabels", EXAM_BOARD_LABELS);
-        model.addAttribute("timeslotLabels", Timeslots.LABELS);
+        model.addAttribute("timeslotLabels", new LinkedHashMap<>(Timeslots.LABELS));
         model.addAttribute("allStatuses", ALL_STATUSES);
     }
 }

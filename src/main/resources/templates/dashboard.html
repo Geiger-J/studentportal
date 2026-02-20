@@ -57,20 +57,20 @@
                                 <td>
                                     <span class="request-type"
                                           th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
-                                          th:text="${typeLabels[request.type]}">Offering Tutoring</span>
+                                          th:text="${typeLabels.get(request.type)}">Offering Tutoring</span>
                                 </td>
                                 <td>
                                     <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
                                     <div class="timeslot-details">
                                         <span th:each="timeslot, iterStat : ${request.timeslots}"
-                                              th:text="${timeslotLabels[timeslot]} + (${!iterStat.last} ? ', ' : '')"
+                                              th:text="${timeslotLabels.get(timeslot) + (!iterStat.last ? ', ' : '')}"
                                               class="timeslot-item"></span>
                                     </div>
                                 </td>
                                 <td>
                                     <span class="status-badge"
                                           th:classappend="${request.status.toLowerCase()}"
-                                          th:text="${statusLabels[request.status]}">Pending</span>
+                                          th:text="${statusLabels.get(request.status)}">Pending</span>
                                 </td>
                                 <td class="matched-partner-cell">
                                     <span th:if="${request.matchedPartner != null}"
@@ -113,7 +113,7 @@
                     </div>
                     <div class="status-item">
                         <span class="status-label">Exam Board:</span>
-                        <span th:text="${user.examBoard != null ? examBoardLabels[user.examBoard] : 'Not set'}">A Levels</span>
+                        <span th:text="${user.examBoard != null ? examBoardLabels.get(user.examBoard) : 'Not set'}">A Levels</span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Subjects:</span>

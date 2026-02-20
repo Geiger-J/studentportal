@@ -95,12 +95,12 @@
                                 <td>
                                     <span class="request-type"
                                           th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
-                                          th:text="${typeLabels[request.type]}">Offering Tutoring</span>
+                                          th:text="${typeLabels.get(request.type)}">Offering Tutoring</span>
                                 </td>
                                 <td>
                                     <span class="status-badge"
                                           th:classappend="${request.status.toLowerCase()}"
-                                          th:text="${statusLabels[request.status]}">Pending</span>
+                                          th:text="${statusLabels.get(request.status)}">Pending</span>
                                 </td>
                                 <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : 'None'}">None</td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>

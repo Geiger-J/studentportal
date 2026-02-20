@@ -82,6 +82,23 @@ public class AdminController {
         return "admin/users";
     }
 
+    @PostMapping("/users/{id}/change-password")
+    public String changeUserPassword(@PathVariable Long id,
+            @RequestParam String newPassword,
+            RedirectAttributes redirectAttributes) {
+        try {
+            userService.changePassword(id, newPassword);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Password changed successfully for user.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error changing password: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
     @PostMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -134,5 +151,28 @@ public class AdminController {
                     "Archiving failed: " + e.getMessage());
         }
         return "redirect:/admin/dashboard";
+    }
+
+    @GetMapping("/profile")
+    public String showAdminProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            Model model) {
+        model.addAttribute("admin", principal.getUser());
+        return "admin/profile";
+    }
+
+    @PostMapping("/profile/change-password")
+    public String changeAdminPassword(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            @RequestParam String newPassword,
+            RedirectAttributes redirectAttributes) {
+        try {
+            userService.changePassword(principal.getUser().getId(), newPassword);
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error changing password: " + e.getMessage());
+        }
+        return "redirect:/admin/profile";
     }
 }

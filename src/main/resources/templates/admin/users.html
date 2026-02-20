@@ -50,13 +50,26 @@
                                 <td>
                                     <span class="role-badge"
                                           th:classappend="${user.role.toLowerCase()}"
-                                          th:text="${roleLabels[user.role]}">Student</span>
+                                          th:text="${roleLabels.get(user.role)}">Student</span>
                                     <span th:if="${user.role == 'ADMIN'}" class="admin-badge">&#9819;</span>
                                 </td>
-                                <td>
+                                <td class="actions-cell">
+                                    <!-- Change Password Form -->
+                                    <details class="inline-details">
+                                        <summary class="btn btn-secondary btn-small">Change Password</summary>
+                                        <form th:action="@{/admin/users/{id}/change-password(id=${user.id})}"
+                                              method="post" class="inline-password-form">
+                                            <input type="password" name="newPassword"
+                                                   class="form-input-inline"
+                                                   placeholder="New password" required minlength="4">
+                                            <button type="submit" class="btn btn-primary btn-small">Save</button>
+                                        </form>
+                                    </details>
+                                    <!-- Delete Form -->
                                     <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
+                                          style="display:inline;"
                                           onsubmit="return confirm('Are you sure you want to permanently delete this user and all their data?');">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-small">Delete</button>
                                     </form>
                                 </td>
                             </tr>

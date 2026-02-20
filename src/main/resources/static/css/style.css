@@ -1850,3 +1850,37 @@ a:hover {
     opacity: 1;
 }
 }
+/* Inline password change form in admin users table */
+.inline-details {
+    display: inline-block;
+    margin-right: 0.5rem;
+    vertical-align: top;
+}
+
+.inline-details summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.inline-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.inline-password-form {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    margin-top: 0.4rem;
+    padding: 0.5rem;
+    background: var(--light-gray, #f8f9fa);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: var(--border-radius, 4px);
+}
+
+.form-input-inline {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: var(--border-radius, 4px);
+    width: 160px;
+}

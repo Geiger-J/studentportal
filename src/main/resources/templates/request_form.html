@@ -31,7 +31,7 @@
                             <option value="">Select request type</option>
                             <option th:each="requestType : ${requestTypes}"
                                     th:value="${requestType}"
-                                    th:text="${typeLabels[requestType]}">Offering Tutoring</option>
+                                    th:text="${typeLabels.get(requestType)}">Offering Tutoring</option>
                         </select>
                         <small>Choose whether you want to offer tutoring or seek help</small>
                     </div>

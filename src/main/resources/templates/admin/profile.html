@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Admin Profile</h1>
+                <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+            <!-- Account Info -->
+            <section class="form-section">
+                <h2>Account Information</h2>
+                <div class="status-card">
+                    <div class="status-item">
+                        <span class="status-label">Full Name:</span>
+                        <span th:text="${admin.fullName}">Admin Name</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Email:</span>
+                        <span th:text="${admin.email}">admin@example.edu</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Role:</span>
+                        <span th:text="${roleLabels.get(admin.role)}">Administrator</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Change Password -->
+            <section class="form-section">
+                <h2>Change Password</h2>
+                <form th:action="@{/admin/profile/change-password}" method="post" class="form" id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" class="form-input"
+                               placeholder="Enter new password (minimum 4 characters)"
+                               required minlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="form-input"
+                               placeholder="Confirm new password" required minlength="4">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            var pw = document.getElementById('newPassword').value;
+            var confirm = document.getElementById('confirmPassword').value;
+            if (pw !== confirm) {
+                e.preventDefault();
+                alert('Passwords do not match.');
+            }
+        });
+    </script>
+</body>
+</html>

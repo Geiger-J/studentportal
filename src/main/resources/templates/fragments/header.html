@@ -22,20 +22,29 @@
                     </li>
                 </div>
 
-                <!-- Authenticated User Menu -->
-                <div sec:authorize="isAuthenticated()">
+                <!-- Student Menu -->
+                <div sec:authorize="hasRole('STUDENT')">
                     <li class="nav-item">
                         <a href="/dashboard" class="nav-link">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a href="/profile" class="nav-link">Profile</a>
                     </li>
-                    <!-- Admin Menu -->
-                    <div sec:authorize="hasRole('ADMIN')">
-                        <li class="nav-item">
-                            <a href="/admin/dashboard" class="nav-link">Admin</a>
-                        </li>
-                    </div>
+                    <li class="nav-item">
+                        <form action="/logout" method="post" class="logout-form">
+                            <button type="submit" class="nav-link logout-btn">Logout</button>
+                        </form>
+                    </li>
+                </div>
+
+                <!-- Admin Menu -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <li class="nav-item">
+                        <a href="/admin/dashboard" class="nav-link">Admin Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/profile" class="nav-link">Profile</a>
+                    </li>
                     <li class="nav-item">
                         <form action="/logout" method="post" class="logout-form">
                             <button type="submit" class="nav-link logout-btn">Logout</button>

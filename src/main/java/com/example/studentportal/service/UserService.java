@@ -144,6 +144,27 @@ public class UserService {
     }
 
     /**
+     * Changes the password for a user identified by ID.
+     *
+     * @param userId the ID of the user whose password should be changed
+     * @param newRawPassword the new plain-text password (will be encoded)
+     * @throws IllegalArgumentException if user not found or password is blank
+     */
+    @Transactional
+    public void changePassword(Long userId, String newRawPassword) {
+        if (newRawPassword == null || newRawPassword.isBlank()) {
+            throw new IllegalArgumentException("New password must not be blank");
+        }
+        if (newRawPassword.length() < 4) {
+            throw new IllegalArgumentException("New password must be at least 4 characters");
+        }
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        user.setPasswordHash(passwordEncoder.encode(newRawPassword));
+        userRepository.save(user);
+    }
+
+    /**
      * Deletes a user and all their associated data.
      *
      * @param id the ID of the user to delete
