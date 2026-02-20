@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class DashboardController {
      */
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+                           @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
                            Model model) {
         
         User user = principal.getUser();
@@ -48,10 +50,11 @@ public class DashboardController {
         }
 
         // Get user's requests
-        List<Request> userRequests = requestService.getUserRequests(user);
+        List<Request> userRequests = requestService.getUserRequests(user, showArchived);
 
         model.addAttribute("user", user);
         model.addAttribute("requests", userRequests);
+        model.addAttribute("showArchived", showArchived);
 
         return "dashboard";
     }

@@ -16,33 +16,48 @@
         <div class="container">
             <div class="dashboard-header">
                 <h1>Manage Requests</h1>
-                <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
             </div>
+
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
             <!-- Filter Section -->
             <section class="filter-section">
-                <h2>Filter Requests</h2>
                 <form method="get" action="/admin/requests" class="filter-form">
-                    <div class="form-group">
-                        <label for="status">Status:</label>
-                        <select id="status" name="status" onchange="this.form.submit()">
-                            <option value="">All Statuses</option>
-                            <option th:each="s : ${allStatuses}"
-                                    th:value="${s}"
-                                    th:text="${statusLabels.get(s)}"
-                                    th:selected="${selectedStatus != null && selectedStatus.equalsIgnoreCase(s)}">
-                                Status
-                            </option>
-                        </select>
+                    <div class="filter-row">
+                        <div class="form-group">
+                            <label for="status" class="form-label">Status</label>
+                            <select id="status" name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Statuses</option>
+                                <option th:each="s : ${allStatuses}"
+                                        th:value="${s}"
+                                        th:text="${statusLabels.get(s)}"
+                                        th:selected="${selectedStatus != null && selectedStatus.equalsIgnoreCase(s)}">
+                                    Status
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group filter-toggle">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="showArchived" value="true"
+                                       th:checked="${showArchived}"
+                                       onchange="this.form.submit()">
+                                <span class="toggle-text">Show archived</span>
+                            </label>
+                        </div>
                     </div>
                 </form>
             </section>
 
             <!-- Requests Table -->
             <section class="requests-section">
-                <h2>All Requests
+                <h2>
+                    Requests
                     <span th:if="${selectedStatus != null and !selectedStatus.isEmpty()}"
-                          th:text="'- ' + ${statusLabels.get(selectedStatus.toUpperCase())}"></span>
+                          th:text="'— ' + ${statusLabels.get(selectedStatus.toUpperCase())}"></span>
+                    <span th:if="${showArchived}" class="badge badge-archived">including archived</span>
                 </h2>
 
                 <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
@@ -61,12 +76,14 @@
                                 <th>Timeslots</th>
                                 <th>Status</th>
                                 <th>Matched Partner</th>
-                                <th>Chosen Timeslot</th>
+                                <th>Chosen Slot</th>
                                 <th>Created</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="request : ${requests}">
+                            <tr th:each="request : ${requests}"
+                                th:classappend="${request.archived} ? 'row-archived' : ''">
                                 <td th:text="${request.id}">1</td>
                                 <td th:text="${request.user.fullName}">John Doe</td>
                                 <td th:text="${request.user.email}">john@example.edu</td>
@@ -76,22 +93,28 @@
                                           th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
                                           th:text="${typeLabels.get(request.type)}">Offering Tutoring</span>
                                 </td>
-                                <td>
-                                    <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
-                                    <div class="timeslot-details">
-                                        <span th:each="timeslot, iterStat : ${request.timeslots}"
-                                              th:text="${timeslotLabels.get(timeslot) + (!iterStat.last ? ', ' : '')}"
-                                              class="timeslot-item"></span>
-                                    </div>
+                                <td class="timeslots-cell">
+                                    <span th:each="timeslot, iterStat : ${request.timeslots}"
+                                          th:text="${timeslotLabels.get(timeslot) + (!iterStat.last ? ', ' : '')}"
+                                          class="timeslot-item"></span>
                                 </td>
                                 <td>
                                     <span class="status-badge"
                                           th:classappend="${request.status.toLowerCase()}"
                                           th:text="${statusLabels.get(request.status)}">Pending</span>
                                 </td>
-                                <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : 'None'}">None</td>
-                                <td th:text="${request.chosenTimeslot != null ? timeslotLabels.get(request.chosenTimeslot) : 'Not assigned'}">Not assigned</td>
+                                <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : '—'}">—</td>
+                                <td th:text="${request.chosenTimeslot != null ? timeslotLabels.get(request.chosenTimeslot) : '—'}">—</td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td class="actions-cell">
+                                    <form th:action="@{/admin/requests/{id}/delete(id=${request.id})}" method="post"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('Delete this request permanently?');">
+                                        <input type="hidden" name="status" th:value="${selectedStatus}">
+                                        <input type="hidden" name="showArchived" value="true" th:if="${showArchived}">
+                                        <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

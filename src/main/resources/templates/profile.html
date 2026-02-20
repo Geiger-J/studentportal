@@ -175,6 +175,16 @@
                         <button type="submit" class="btn btn-primary btn-large">Save Profile</button>
                     </div>
                 </form>
+
+                <!-- Danger Zone: Delete Account -->
+                <section class="form-section danger-zone" style="margin-top: 2rem;">
+                    <h2>Danger Zone</h2>
+                    <p class="section-description">Permanently delete your account and all your data. This cannot be undone.</p>
+                    <form th:action="@{/profile/delete-account}" method="post"
+                          onsubmit="return confirm('Are you sure you want to permanently delete your account? This cannot be undone.');">
+                        <button type="submit" class="btn btn-danger">Delete My Account</button>
+                    </form>
+                </section>
             </div>
         </div>
     </main>

@@ -22,6 +22,9 @@
                 <div th:if="${param.error}" class="alert alert-error">
                     Invalid email or password. Please try again.
                 </div>
+                <div th:if="${param.accountDeleted}" class="alert alert-info">
+                    Your account has been deleted. Goodbye!
+                </div>
 
                 <!-- Login Form -->
                 <form action="/login" method="post" class="form">
@@ -42,7 +45,7 @@
                                placeholder="Enter your password" required>
                     </div>
 
-                    <button type="submit" class="btn">Login</button>
+                    <button type="submit" class="btn btn-primary btn-full">Login</button>
                 </form>
 
                 <div class="form-footer">

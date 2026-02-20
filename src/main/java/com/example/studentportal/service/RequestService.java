@@ -76,6 +76,18 @@ public class RequestService {
     }
 
     /**
+     * Retrieves requests for a specific user, optionally including archived ones.
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getUserRequests(User user, boolean includeArchived) {
+        if (includeArchived) {
+            return requestRepository.findByUserOrderByCreatedAtDesc(user);
+        } else {
+            return requestRepository.findByUserAndArchivedFalseOrderByCreatedAtDesc(user);
+        }
+    }
+
+    /**
      * Cancels a request if it's currently pending or matched.
      * If the request is matched, also cancels the matched partner's request.
      */
@@ -146,6 +158,31 @@ public class RequestService {
     @Transactional(readOnly = true)
     public List<Request> getAllNonArchivedRequests() {
         return requestRepository.findAllByArchivedFalse();
+    }
+
+    /**
+     * Retrieves all requests (including archived).
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getAllRequests() {
+        return requestRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    /**
+     * Retrieves non-archived requests filtered by status.
+     */
+    @Transactional(readOnly = true)
+    public List<Request> getNonArchivedRequestsByStatus(String status) {
+        return requestRepository.findByStatusAndArchivedFalse(status);
+    }
+
+    /**
+     * Deletes a request by ID (admin use).
+     */
+    public void deleteRequest(Long id) {
+        Request request = requestRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Request not found with id: " + id));
+        requestRepository.delete(request);
     }
 
     /**

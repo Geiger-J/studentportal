@@ -155,24 +155,27 @@ public class RequestController {
     private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
 
-        groups.put("Languages", subjects.stream()
+        List<Subject> languages = subjects.stream()
             .filter(s -> s.getDisplayName().equals("English") ||
                         s.getDisplayName().equals("German") ||
                         s.getDisplayName().equals("French"))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
+        if (!languages.isEmpty()) groups.put("Languages", languages);
 
-        groups.put("STEM", subjects.stream()
+        List<Subject> stem = subjects.stream()
             .filter(s -> s.getDisplayName().equals("Mathematics") ||
                         s.getDisplayName().equals("Physics") ||
                         s.getDisplayName().equals("Biology") ||
                         s.getDisplayName().equals("Chemistry"))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
+        if (!stem.isEmpty()) groups.put("STEM", stem);
 
-        groups.put("Social Sciences", subjects.stream()
+        List<Subject> social = subjects.stream()
             .filter(s -> s.getDisplayName().equals("Economics") ||
                         s.getDisplayName().equals("Politics") ||
                         s.getDisplayName().equals("Business"))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
+        if (!social.isEmpty()) groups.put("Social Sciences", social);
 
         return groups;
     }

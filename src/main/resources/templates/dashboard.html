@@ -31,10 +31,17 @@
 
             <!-- Requests Section -->
             <section class="requests-section">
-                <h2>Your Requests</h2>
+                <div class="section-header">
+                    <h2>Your Requests</h2>
+                    <label class="toggle-label">
+                        <a th:if="${!showArchived}" th:href="@{/dashboard(showArchived=true)}" class="btn btn-secondary btn-small">Show Archived</a>
+                        <a th:if="${showArchived}" th:href="@{/dashboard}" class="btn btn-secondary btn-small">Hide Archived</a>
+                    </label>
+                </div>
 
                 <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
-                    <p>You haven't created any requests yet.</p>
+                    <p th:if="${!showArchived}">You haven't created any active requests yet.</p>
+                    <p th:if="${showArchived}">No requests found.</p>
                     <a href="/requests/new" class="btn btn-primary">Create Your First Request</a>
                 </div>
 
@@ -52,20 +59,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="request : ${requests}">
+                            <tr th:each="request : ${requests}"
+                                th:classappend="${request.archived} ? 'row-archived' : ''">
                                 <td th:text="${request.subject.displayName}">Mathematics</td>
                                 <td>
                                     <span class="request-type"
                                           th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
                                           th:text="${typeLabels.get(request.type)}">Offering Tutoring</span>
                                 </td>
-                                <td>
-                                    <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
-                                    <div class="timeslot-details">
-                                        <span th:each="timeslot, iterStat : ${request.timeslots}"
-                                              th:text="${timeslotLabels.get(timeslot) + (!iterStat.last ? ', ' : '')}"
-                                              class="timeslot-item"></span>
-                                    </div>
+                                <td class="timeslots-cell">
+                                    <span th:each="timeslot, iterStat : ${request.timeslots}"
+                                          th:text="${timeslotLabels.get(timeslot) + (!iterStat.last ? ', ' : '')}"
+                                          class="timeslot-item"></span>
                                 </td>
                                 <td>
                                     <span class="status-badge"
@@ -76,8 +81,7 @@
                                     <span th:if="${request.matchedPartner != null}"
                                           th:text="${request.matchedPartner.fullName}"
                                           class="matched-partner-name">John Smith</span>
-                                    <span th:if="${request.matchedPartner == null}"
-                                          class="no-partner">Not matched</span>
+                                    <span th:if="${request.matchedPartner == null}" class="no-partner">—</span>
                                 </td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                                 <td class="actions-cell">
@@ -85,12 +89,10 @@
                                           th:action="@{/requests/{id}/cancel(id=${request.id})}"
                                           method="post"
                                           class="inline-form"
-                                          onsubmit="return confirm('Are you sure you want to cancel this request?')">
+                                          onsubmit="return confirm('Cancel this request?')">
                                         <button type="submit" class="btn btn-danger btn-small">Cancel</button>
                                     </form>
-                                    <span th:unless="${request.canBeCancelled()}" class="no-actions">
-                                        No actions available
-                                    </span>
+                                    <span th:unless="${request.canBeCancelled()}" class="no-actions">—</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -102,11 +104,6 @@
             <section class="profile-status">
                 <h2>Profile Status</h2>
                 <div class="status-card">
-                    <div class="status-item">
-                        <span class="status-label">Profile Complete:</span>
-                        <span th:class="${user.profileComplete ? 'status-complete' : 'status-incomplete'}"
-                              th:text="${user.profileComplete ? 'Yes' : 'No'}">Yes</span>
-                    </div>
                     <div class="status-item">
                         <span class="status-label">Year Group:</span>
                         <span th:text="${user.yearGroup ?: 'Not set'}">12</span>
