@@ -86,4 +86,27 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Modifying
     @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner")
     void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner);
+    
+    /**
+     * Finds a matched request for a given user and matched partner.
+     * Used when cancelling matched requests to find the partner's request.
+     * @param user the user who owns the request
+     * @param matchedPartner the matched partner to look for
+     * @param status the status to filter by (typically MATCHED)
+     * @return Optional containing the matched request if found
+     */
+    Optional<Request> findByUserAndMatchedPartnerAndStatus(
+        User user, User matchedPartner, RequestStatus status);
+    
+    /**
+     * Finds a matched request for a given user, matched partner, status, and subject.
+     * Used when cancelling matched requests to find the specific partner's request.
+     * @param user the user who owns the request
+     * @param matchedPartner the matched partner to look for
+     * @param status the status to filter by (typically MATCHED)
+     * @param subject the subject to match
+     * @return Optional containing the matched request if found
+     */
+    Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(
+        User user, User matchedPartner, RequestStatus status, Subject subject);
 }

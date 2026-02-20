@@ -158,4 +158,22 @@ public class AdminController {
 
         return "redirect:/admin/dashboard";
     }
+
+    /**
+     * Archive old requests (DONE and CANCELLED)
+     */
+    @PostMapping("/archive")
+    public String archiveOldRequests(RedirectAttributes redirectAttributes) {
+        try {
+            int archivedCount = requestService.archiveOldRequests();
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Archiving completed. " + archivedCount + " requests archived.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Archiving failed: " + e.getMessage());
+        }
+
+        return "redirect:/admin/dashboard";
+    }
 }

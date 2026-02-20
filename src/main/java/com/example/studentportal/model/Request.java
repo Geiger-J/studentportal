@@ -116,12 +116,14 @@ public class Request {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     /**
-     * Checks if this request can be cancelled (i.e., is currently PENDING).
+     * Checks if this request can be cancelled (i.e., is currently PENDING or MATCHED).
      */
-    public boolean canBeCancelled() { return RequestStatus.PENDING.equals(this.status); }
+    public boolean canBeCancelled() { 
+        return RequestStatus.PENDING.equals(this.status) || RequestStatus.MATCHED.equals(this.status); 
+    }
 
     /**
-     * Cancels this request if it's currently pending.
+     * Cancels this request if it's currently pending or matched.
      */
     public void cancel() {
         if (canBeCancelled()) {

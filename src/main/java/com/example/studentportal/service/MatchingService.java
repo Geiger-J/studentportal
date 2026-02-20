@@ -13,10 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service for handling matching algorithm and scheduled operations.
@@ -35,16 +32,59 @@ public class MatchingService {
     }
 
     /**
+     * RequestTimeslot pair representing a request at a specific timeslot.
+     * Used as vertices in the bipartite matching graph.
+     */
+    private static class RequestTimeslot {
+        private final Request request;
+        private final Timeslot timeslot;
+
+        public RequestTimeslot(Request request, Timeslot timeslot) {
+            this.request = request;
+            this.timeslot = timeslot;
+        }
+
+        public Request getRequest() {
+            return request;
+        }
+
+        public Timeslot getTimeslot() {
+            return timeslot;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RequestTimeslot that = (RequestTimeslot) o;
+            return Objects.equals(request.getId(), that.request.getId()) &&
+                   timeslot == that.timeslot;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(request.getId(), timeslot);
+        }
+
+        @Override
+        public String toString() {
+            return "Request[" + request.getId() + "]@" + timeslot;
+        }
+    }
+
+    /**
      * Simple Match class to represent a matching result
      */
     public static class Match {
         private final Request offerRequest;
         private final Request seekRequest;
+        private final Timeslot timeslot;
         private final double weight;
 
-        public Match(Request offerRequest, Request seekRequest, double weight) {
+        public Match(Request offerRequest, Request seekRequest, Timeslot timeslot, double weight) {
             this.offerRequest = offerRequest;
             this.seekRequest = seekRequest;
+            this.timeslot = timeslot;
             this.weight = weight;
         }
 
@@ -54,6 +94,10 @@ public class MatchingService {
 
         public Request getSeekRequest() {
             return seekRequest;
+        }
+
+        public Timeslot getTimeslot() {
+            return timeslot;
         }
 
         public double getWeight() {
@@ -75,23 +119,27 @@ public class MatchingService {
         for (Match match : matches) {
             Request offerRequest = match.getOfferRequest();
             Request seekRequest = match.getSeekRequest();
+            Timeslot chosenTimeslot = match.getTimeslot();
 
             // Update status and matched partners
             offerRequest.setStatus(RequestStatus.MATCHED);
             offerRequest.setMatchedPartner(seekRequest.getUser());
+            offerRequest.setChosenTimeslot(chosenTimeslot);
 
             seekRequest.setStatus(RequestStatus.MATCHED);
             seekRequest.setMatchedPartner(offerRequest.getUser());
+            seekRequest.setChosenTimeslot(chosenTimeslot);
 
             requestRepository.save(offerRequest);
             requestRepository.save(seekRequest);
 
             matchedCount += 2;
 
-            logger.info("Matched tutor {} with tutee {} for subject {} (weight: {})",
+            logger.info("Matched tutor {} with tutee {} for subject {} at timeslot {} (weight: {})",
                     offerRequest.getUser().getFullName(),
                     seekRequest.getUser().getFullName(),
                     offerRequest.getSubject().getDisplayName(),
+                    chosenTimeslot,
                     match.getWeight());
         }
 
@@ -99,7 +147,9 @@ public class MatchingService {
     }
 
     /**
-     * Matching algorithm using weighted bipartite matching.
+     * Matching algorithm using weighted bipartite matching at the timeslot level.
+     * Each (request, timeslot) pair is treated as a separate vertex.
+     * Ensures each request is matched at most once.
      * 
      * @return list of Match objects representing optimal matches
      */
@@ -117,62 +167,140 @@ public class MatchingService {
         logger.info("Found {} TUTOR requests and {} TUTEE requests for matching",
                 offerRequests.size(), seekRequests.size());
 
-        // Create weighted graph
-        Graph<Request, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+        // Create weighted graph with RequestTimeslot vertices
+        Graph<RequestTimeslot, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
-        // Add all offer and seek requests as vertices
-        Set<Request> offers = new HashSet<>(offerRequests);
-        Set<Request> seeks = new HashSet<>(seekRequests);
-
-        for (Request offer : offers) {
-            graph.addVertex(offer);
+        // Create RequestTimeslot vertices for each offer request and its timeslots
+        Set<RequestTimeslot> offerVertices = new HashSet<>();
+        for (Request offer : offerRequests) {
+            for (Timeslot timeslot : offer.getTimeslots()) {
+                RequestTimeslot rt = new RequestTimeslot(offer, timeslot);
+                graph.addVertex(rt);
+                offerVertices.add(rt);
+            }
         }
-        for (Request seek : seeks) {
-            graph.addVertex(seek);
+
+        // Create RequestTimeslot vertices for each seek request and its timeslots
+        Set<RequestTimeslot> seekVertices = new HashSet<>();
+        for (Request seek : seekRequests) {
+            for (Timeslot timeslot : seek.getTimeslots()) {
+                RequestTimeslot rt = new RequestTimeslot(seek, timeslot);
+                graph.addVertex(rt);
+                seekVertices.add(rt);
+            }
         }
 
-        // Add edges with weights for valid pairs
+        // Add edges between compatible RequestTimeslot pairs
         int edgeCount = 0;
-        for (Request offer : offers) {
-            for (Request seek : seeks) {
-                double weight = calculateWeight(offer, seek);
-                if (weight > 0) {
-                    DefaultWeightedEdge edge = graph.addEdge(offer, seek);
-                    if (edge != null) {
-                        graph.setEdgeWeight(edge, weight);
-                        edgeCount++;
-                        logger.debug("Added edge between tutor {} and tutee {} with weight {}",
-                                offer.getUser().getFullName(),
-                                seek.getUser().getFullName(),
-                                weight);
+        for (RequestTimeslot offerRT : offerVertices) {
+            for (RequestTimeslot seekRT : seekVertices) {
+                // Edges only exist if:
+                // 1. Same timeslot
+                // 2. Requests meet hard constraints (subject, year group, etc.)
+                if (offerRT.getTimeslot() == seekRT.getTimeslot() &&
+                    meetHardConstraints(offerRT.getRequest(), seekRT.getRequest())) {
+                    
+                    double weight = calculateWeight(offerRT.getRequest(), seekRT.getRequest());
+                    if (weight > 0) {
+                        DefaultWeightedEdge edge = graph.addEdge(offerRT, seekRT);
+                        if (edge != null) {
+                            graph.setEdgeWeight(edge, weight);
+                            edgeCount++;
+                        }
                     }
                 }
             }
         }
 
-        logger.info("Created bipartite graph with {} valid edges", edgeCount);
+        logger.info("Created bipartite graph with {} offer vertices, {} seek vertices, and {} valid edges",
+                offerVertices.size(), seekVertices.size(), edgeCount);
 
         // Run maximum weight bipartite matching
-        MaximumWeightBipartiteMatching<Request, DefaultWeightedEdge> matching = new MaximumWeightBipartiteMatching<>(
-                graph, offers, seeks);
+        MaximumWeightBipartiteMatching<RequestTimeslot, DefaultWeightedEdge> matching =
+                new MaximumWeightBipartiteMatching<>(graph, offerVertices, seekVertices);
 
         Set<DefaultWeightedEdge> matchedEdges = matching.getMatching().getEdges();
 
-        logger.info("Matching algorithm found {} potential matches", matchedEdges.size());
+        logger.info("Matching algorithm found {} potential timeslot matches", matchedEdges.size());
 
-        // Convert to Match objects
+        // Convert matched edges to Match objects, ensuring each request is matched at most once
+        // and each user is matched at most once per timeslot
         List<Match> matches = new ArrayList<>();
-        for (DefaultWeightedEdge edge : matchedEdges) {
-            Request source = graph.getEdgeSource(edge);
-            Request target = graph.getEdgeTarget(edge);
-            double weight = graph.getEdgeWeight(edge);
-
-            // Ensure source is offer and target is seek
-            Request offerRequest = source.getType() == RequestType.TUTOR ? source : target;
-            Request seekRequest = source.getType() == RequestType.TUTEE ? source : target;
-
-            matches.add(new Match(offerRequest, seekRequest, weight));
+        Set<Long> matchedOfferRequestIds = new HashSet<>();
+        Set<Long> matchedSeekRequestIds = new HashSet<>();
+        
+        // Track which users are matched at which timeslots to prevent double-booking
+        // Initialize with already matched requests from previous matching runs
+        Map<Long, Set<Timeslot>> userMatchedTimeslots = new HashMap<>();
+        List<Request> alreadyMatchedRequests = requestRepository.findByStatus(RequestStatus.MATCHED);
+        for (Request matchedRequest : alreadyMatchedRequests) {
+            Timeslot chosenTimeslot = matchedRequest.getChosenTimeslot();
+            if (chosenTimeslot != null) {
+                Long userId = matchedRequest.getUser().getId();
+                userMatchedTimeslots.computeIfAbsent(userId, k -> new HashSet<>()).add(chosenTimeslot);
+            }
         }
+        
+        logger.debug("Initialized user timeslot tracking with {} already matched requests", 
+                alreadyMatchedRequests.size());
+
+        // Sort edges by weight (descending) to prioritize higher-weight matches
+        List<DefaultWeightedEdge> sortedEdges = new ArrayList<>(matchedEdges);
+        sortedEdges.sort((e1, e2) -> Double.compare(
+                graph.getEdgeWeight(e2), graph.getEdgeWeight(e1)));
+
+        for (DefaultWeightedEdge edge : sortedEdges) {
+            RequestTimeslot offerRT = graph.getEdgeSource(edge);
+            RequestTimeslot seekRT = graph.getEdgeTarget(edge);
+            
+            // Ensure source is offer and target is seek
+            if (offerRT.getRequest().getType() == RequestType.TUTEE) {
+                RequestTimeslot temp = offerRT;
+                offerRT = seekRT;
+                seekRT = temp;
+            }
+
+            Request offerRequest = offerRT.getRequest();
+            Request seekRequest = seekRT.getRequest();
+            Timeslot timeslot = offerRT.getTimeslot();
+            
+            Long tutorUserId = offerRequest.getUser().getId();
+            Long tuteeUserId = seekRequest.getUser().getId();
+
+            // Check if this match would create a conflict:
+            // 1. Neither request has been matched yet
+            // 2. Neither user is already matched at this timeslot
+            boolean requestsNotMatched = !matchedOfferRequestIds.contains(offerRequest.getId()) &&
+                                          !matchedSeekRequestIds.contains(seekRequest.getId());
+            boolean noTimeslotConflict = !userMatchedTimeslots.getOrDefault(tutorUserId, Collections.emptySet()).contains(timeslot) &&
+                                          !userMatchedTimeslots.getOrDefault(tuteeUserId, Collections.emptySet()).contains(timeslot);
+            
+            if (requestsNotMatched && noTimeslotConflict) {
+                double weight = graph.getEdgeWeight(edge);
+                matches.add(new Match(offerRequest, seekRequest, timeslot, weight));
+                
+                matchedOfferRequestIds.add(offerRequest.getId());
+                matchedSeekRequestIds.add(seekRequest.getId());
+                
+                // Track the timeslot for both users
+                userMatchedTimeslots.computeIfAbsent(tutorUserId, k -> new HashSet<>()).add(timeslot);
+                userMatchedTimeslots.computeIfAbsent(tuteeUserId, k -> new HashSet<>()).add(timeslot);
+
+                logger.debug("Selected match: tutor {} with tutee {} at {} (weight: {})",
+                        offerRequest.getUser().getFullName(),
+                        seekRequest.getUser().getFullName(),
+                        timeslot,
+                        weight);
+            } else if (!noTimeslotConflict) {
+                logger.debug("Skipped match due to timeslot conflict: tutor {} with tutee {} at {} (weight: {})",
+                        offerRequest.getUser().getFullName(),
+                        seekRequest.getUser().getFullName(),
+                        timeslot,
+                        graph.getEdgeWeight(edge));
+            }
+        }
+
+        logger.info("Final match count: {} requests matched", matches.size());
 
         return matches;
     }

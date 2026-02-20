@@ -83,7 +83,8 @@ public class RequestService {
     }
 
     /**
-     * Cancels a request if it's currently pending.
+     * Cancels a request if it's currently pending or matched.
+     * If the request is matched, also cancels the matched partner's request.
      * 
      * @param requestId the ID of the request to cancel
      * @param user the user attempting to cancel (for authorization)
@@ -109,7 +110,21 @@ public class RequestService {
             throw new IllegalArgumentException("This request cannot be cancelled");
         }
 
-        // Cancel and save
+        // If request is matched, also cancel the partner's request
+        if (RequestStatus.MATCHED.equals(request.getStatus()) && request.getMatchedPartner() != null) {
+            User partner = request.getMatchedPartner();
+            // Find the partner's matched request using optimized query with subject matching
+            Optional<Request> partnerRequestOpt = requestRepository.findByUserAndMatchedPartnerAndStatusAndSubject(
+                partner, user, RequestStatus.MATCHED, request.getSubject());
+            
+            if (partnerRequestOpt.isPresent()) {
+                Request partnerRequest = partnerRequestOpt.get();
+                partnerRequest.cancel();
+                requestRepository.save(partnerRequest);
+            }
+        }
+
+        // Cancel and save the original request
         request.cancel();
         return requestRepository.save(request);
     }
@@ -164,5 +179,46 @@ public class RequestService {
     @Transactional(readOnly = true)
     public List<Request> getMatchedRequests() {
         return getRequestsByStatus(RequestStatus.MATCHED);
+    }
+
+    /**
+     * Archives old DONE and CANCELLED requests.
+     * Marks requests as archived without deleting them.
+     * 
+     * @return number of requests archived
+     */
+    public int archiveOldRequests() {
+        List<Request> doneRequests = getRequestsByStatus(RequestStatus.DONE);
+        List<Request> cancelledRequests = getRequestsByStatus(RequestStatus.CANCELLED);
+        
+        int archivedCount = 0;
+        
+        // Collect requests to archive
+        List<Request> requestsToArchive = new java.util.ArrayList<>();
+        
+        // Archive DONE requests that are not already archived
+        for (Request request : doneRequests) {
+            if (!request.getArchived()) {
+                request.setArchived(true);
+                requestsToArchive.add(request);
+                archivedCount++;
+            }
+        }
+        
+        // Archive CANCELLED requests that are not already archived
+        for (Request request : cancelledRequests) {
+            if (!request.getArchived()) {
+                request.setArchived(true);
+                requestsToArchive.add(request);
+                archivedCount++;
+            }
+        }
+        
+        // Batch save all archived requests
+        if (!requestsToArchive.isEmpty()) {
+            requestRepository.saveAll(requestsToArchive);
+        }
+        
+        return archivedCount;
     }
 }
