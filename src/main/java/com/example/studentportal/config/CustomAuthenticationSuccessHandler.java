@@ -1,6 +1,5 @@
 package com.example.studentportal.config;
 
-import com.example.studentportal.model.Role;
 import com.example.studentportal.service.CustomUserDetailsService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +30,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 (CustomUserDetailsService.CustomUserPrincipal) principal;
             
             // ADMIN users go to admin dashboard
-            if (userPrincipal.getUser().getRole() == Role.ADMIN) {
+            if ("ADMIN".equals(userPrincipal.getUser().getRole())) {
                 response.sendRedirect("/admin/dashboard");
             }
             // STUDENT users: check if profile is complete

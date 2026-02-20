@@ -1,6 +1,5 @@
 package com.example.studentportal.service;
 
-import com.example.studentportal.model.Role;
 import com.example.studentportal.model.User;
 import com.example.studentportal.repository.RequestRepository;
 import com.example.studentportal.repository.UserRepository;
@@ -34,17 +33,17 @@ public class UserService {
     /**
      * Registers a new user with the given details.
      * Determines role based on email pattern and encodes password.
-     * 
+     *
      * @param fullName the user's full name
-     * @param email the user's email (must end with @bromsgrove-school.co.uk)
+     * @param email the user's email (must end with @example.edu)
      * @param rawPassword the user's raw password
      * @return the saved user
      * @throws IllegalArgumentException if email is invalid or already exists
      */
     public User registerUser(String fullName, String email, String rawPassword) {
         // Validate email domain
-        if (!email.endsWith("@bromsgrove-school.co.uk")) {
-            throw new IllegalArgumentException("Email must end with @bromsgrove-school.co.uk");
+        if (!email.endsWith("@example.edu")) {
+            throw new IllegalArgumentException("Email must end with @example.edu");
         }
 
         // Check if email already exists
@@ -53,35 +52,35 @@ public class UserService {
         }
 
         // Determine role based on email pattern
-        Role role = determineRoleFromEmail(email);
+        String role = determineRoleFromEmail(email);
 
         // Create and save user
         String hashedPassword = passwordEncoder.encode(rawPassword);
         User user = new User(fullName, email, hashedPassword, role);
-        
+
         return userRepository.save(user);
     }
 
     /**
      * Determines user role based on email pattern.
      * If first character of local part (before @) is a digit -> STUDENT, else ADMIN.
-     * 
+     *
      * @param email the user's email
-     * @return the determined role
+     * @return "STUDENT" or "ADMIN"
      */
-    public Role determineRoleFromEmail(String email) {
+    public String determineRoleFromEmail(String email) {
         String localPart = email.substring(0, email.indexOf('@'));
-        
+
         if (!localPart.isEmpty() && Character.isDigit(localPart.charAt(0))) {
-            return Role.STUDENT;
+            return "STUDENT";
         } else {
-            return Role.ADMIN;
+            return "ADMIN";
         }
     }
 
     /**
      * Finds a user by email address.
-     * 
+     *
      * @param email the email to search for
      * @return Optional containing the user if found
      */
@@ -92,7 +91,7 @@ public class UserService {
 
     /**
      * Updates user profile information and recalculates profile completeness.
-     * 
+     *
      * @param user the user to update
      * @return the updated user
      */
@@ -104,9 +103,7 @@ public class UserService {
 
     /**
      * Checks if a user's profile is complete.
-     * Profile is complete when yearGroup is set (9-13), at least one subject
-     * is selected, and at least one availability slot is selected.
-     * 
+     *
      * @param user the user to check
      * @return true if profile is complete, false otherwise
      */
@@ -117,7 +114,7 @@ public class UserService {
 
     /**
      * Finds a user by ID.
-     * 
+     *
      * @param id the user ID
      * @return Optional containing the user if found
      */
@@ -128,7 +125,7 @@ public class UserService {
 
     /**
      * Saves or updates a user.
-     * 
+     *
      * @param user the user to save
      * @return the saved user
      */
@@ -138,7 +135,7 @@ public class UserService {
 
     /**
      * Retrieves all users in the system.
-     * 
+     *
      * @return list of all users
      */
     @Transactional(readOnly = true)
@@ -147,9 +144,29 @@ public class UserService {
     }
 
     /**
+     * Changes the password for a user identified by ID.
+     *
+     * @param userId the ID of the user whose password should be changed
+     * @param newRawPassword the new plain-text password (will be encoded)
+     * @throws IllegalArgumentException if user not found or password is blank
+     */
+    @Transactional
+    public void changePassword(Long userId, String newRawPassword) {
+        if (newRawPassword == null || newRawPassword.isBlank()) {
+            throw new IllegalArgumentException("New password must not be blank");
+        }
+        if (newRawPassword.length() < 4) {
+            throw new IllegalArgumentException("New password must be at least 4 characters");
+        }
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        user.setPasswordHash(passwordEncoder.encode(newRawPassword));
+        userRepository.save(user);
+    }
+
+    /**
      * Deletes a user and all their associated data.
-     * This method is transactional to ensure all-or-nothing operation.
-     * 
+     *
      * @param id the ID of the user to delete
      * @throws IllegalArgumentException if user not found
      */
@@ -157,13 +174,13 @@ public class UserService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
-        
+
         // Clear any references to this user as a matched partner in other requests
         requestRepository.clearMatchedPartnerReferences(user);
-        
+
         // Delete all tutoring requests associated with this user
         requestRepository.deleteByUser(user);
-        
+
         // Finally, delete the user (this will cascade to user_subjects and user_availability tables)
         userRepository.delete(user);
     }

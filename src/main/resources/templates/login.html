@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Bromsgrove Student Portal</title>
+    <title>Login - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -28,17 +28,17 @@
                     <div class="form-group">
                         <label for="email-prefix" class="form-label">Email Address</label>
                         <div class="email-input-container">
-                            <input type="text" id="email-prefix" class="form-input email-prefix" 
+                            <input type="text" id="email-prefix" class="form-input email-prefix"
                                    placeholder="your.email" required>
-                            <span class="email-domain">@bromsgrove-school.co.uk</span>
+                            <span class="email-domain">@example.edu</span>
                         </div>
                         <input type="hidden" id="username" name="username">
-                        <small class="form-help">Enter only the part before @bromsgrove-school.co.uk</small>
+                        <small class="form-help">Enter only the part before @example.edu</small>
                     </div>
 
                     <div class="form-group">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" id="password" name="password" class="form-input" 
+                        <input type="password" id="password" name="password" class="form-input"
                                placeholder="Enter your password" required>
                     </div>
 
@@ -52,36 +52,24 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
-    
     <script>
-        // Email composition logic
         const emailPrefix = document.getElementById('email-prefix');
         const hiddenUsername = document.getElementById('username');
-        const domain = '@bromsgrove-school.co.uk';
-        
+        const domain = '@example.edu';
+
         function updateEmail() {
             let prefix = emailPrefix.value.toLowerCase().trim();
-            
-            // Remove any domain if user pasted full email
             if (prefix.includes('@')) {
                 prefix = prefix.split('@')[0];
                 emailPrefix.value = prefix;
             }
-            
-            // Only allow alphanumeric, dots, and hyphens
             prefix = prefix.replace(/[^a-z0-9.-]/g, '');
             emailPrefix.value = prefix;
-            
-            // Update hidden field with full email
             hiddenUsername.value = prefix + domain;
         }
-        
+
         emailPrefix.addEventListener('input', updateEmail);
         emailPrefix.addEventListener('blur', updateEmail);
-        
-        // Initialize on page load
         updateEmail();
     </script>
 </body>

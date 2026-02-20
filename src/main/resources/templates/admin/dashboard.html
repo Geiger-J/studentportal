@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Bromsgrove Student Portal</title>
+    <title>Admin Dashboard - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -69,7 +69,7 @@
             <!-- Recent Requests -->
             <section class="recent-requests-section">
                 <h2>Recent Requests</h2>
-                
+
                 <div th:if="${#lists.isEmpty(allRequests)}" class="empty-state">
                     <p>No active requests in the system.</p>
                 </div>
@@ -93,21 +93,21 @@
                                 <td th:text="${request.user.fullName}">John Doe</td>
                                 <td th:text="${request.subject.displayName}">Mathematics</td>
                                 <td>
-                                    <span class="request-type" 
-                                          th:classappend="${request.type.name() == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
-                                          th:text="${request.type.displayName}">Offering Tutoring</span>
+                                    <span class="request-type"
+                                          th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
+                                          th:text="${typeLabels.get(request.type)}">Offering Tutoring</span>
                                 </td>
                                 <td>
-                                    <span class="status-badge" 
-                                          th:classappend="${request.status.name().toLowerCase()}"
-                                          th:text="${request.status.displayName}">Pending</span>
+                                    <span class="status-badge"
+                                          th:classappend="${request.status.toLowerCase()}"
+                                          th:text="${statusLabels.get(request.status)}">Pending</span>
                                 </td>
                                 <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : 'None'}">None</td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                             </tr>
                         </tbody>
                     </table>
-                    
+
                     <div th:if="${#lists.size(allRequests) > 10}" class="show-more">
                         <a href="/admin/requests" class="btn btn-link">View All Requests</a>
                     </div>
@@ -115,8 +115,5 @@
             </section>
         </div>
     </main>
-
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

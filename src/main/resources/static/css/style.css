@@ -124,26 +124,7 @@ a:hover {
     text-decoration: none;
 }
 
-/* Footer */
-.footer {
-    border-top: 1px solid #000;
-    padding: 1rem;
-    margin-top: auto;
-}
-
-.footer-container,
-.footer-content {
-    margin: 0;
-    padding: 0;
-}
-
-.footer-links {
-    margin: 0.5rem 0;
-}
-
-.footer-link {
-    color: #000;
-}
+/* Footer styles removed */
 
 /* Forms */
 .form {
@@ -300,6 +281,30 @@ th {
     padding: 1rem;
 }
 
+/* Subject list (simple checkbox list) */
+.subject-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.subject-list-item {
+    margin-bottom: 0.4rem;
+}
+
+.subject-list-item label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.subject-list-item input[type="checkbox"],
+.subject-list-item input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
 /* Checkbox items */
 .checkbox-item {
     display: flex;
@@ -362,7 +367,6 @@ th {
 /* Print styles */
 @media print {
     .site-header,
-    .footer,
     .nav-menu,
     .form-actions {
         display: none;
@@ -494,42 +498,7 @@ a:hover {
     background-color: var(--primary-dark);
 }
 
-/* Footer Styles */
-.footer {
-    background-color: var(--secondary-color);
-    color: var(--white);
-    padding: 2rem 0;
-    margin-top: auto;
-}
-
-.footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    text-align: center;
-}
-
-.footer-description {
-    margin-bottom: 1rem;
-}
-
-.footer-links {
-    margin-bottom: 1rem;
-}
-
-.footer-link {
-    color: var(--white);
-    margin: 0 0.5rem;
-}
-
-.footer-link:hover {
-    color: var(--primary-light);
-}
-
-.footer-copyright {
-    color: var(--medium-gray);
-    font-size: 0.9rem;
-}
+/* Footer Styles removed */
 
 /* Button Styles */
 .btn {
@@ -1218,7 +1187,6 @@ a:hover {
 /* Print Styles */
 @media print {
     .header,
-    .footer,
     .btn,
     .form-actions {
         display: none;
@@ -1881,4 +1849,38 @@ a:hover {
     visibility: visible;
     opacity: 1;
 }
+}
+/* Inline password change form in admin users table */
+.inline-details {
+    display: inline-block;
+    margin-right: 0.5rem;
+    vertical-align: top;
+}
+
+.inline-details summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.inline-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.inline-password-form {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    margin-top: 0.4rem;
+    padding: 0.5rem;
+    background: var(--light-gray, #f8f9fa);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: var(--border-radius, 4px);
+}
+
+.form-input-inline {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: var(--border-radius, 4px);
+    width: 160px;
 }

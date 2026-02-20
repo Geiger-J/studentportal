@@ -1,12 +1,9 @@
 package com.example.studentportal.controller;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,17 +16,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.studentportal.model.ExamBoard;
 import com.example.studentportal.model.Subject;
-import com.example.studentportal.model.Timeslot;
 import com.example.studentportal.model.User;
 import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.SubjectService;
 import com.example.studentportal.service.UserService;
+import com.example.studentportal.util.Timeslots;
 
 /**
- * Controller for user profile management. Handles profile completion and
- * updates.
+ * Controller for user profile management. Handles profile completion and updates.
  */
 @Controller
 public class ProfileController {
@@ -48,13 +43,11 @@ public class ProfileController {
             Model model) {
 
         if (principal == null) {
-            // Fallback (should not normally happen if security is configured correctly)
             return "redirect:/login";
         }
 
         User user = principal.getUser();
 
-        // Ensure defensive non-null collections (in case of legacy data)
         if (user.getSubjects() == null) {
             user.setSubjects(new HashSet<>());
         }
@@ -62,19 +55,10 @@ public class ProfileController {
             user.setAvailability(new HashSet<>());
         }
 
-        // Convert availability Set<Timeslot> to Set<String> for template usage
-        Set<String> availabilityNames = user.getAvailability() == null ? 
-            new HashSet<>() : 
-            user.getAvailability().stream()
-                .map(Enum::name)
-                .collect(Collectors.toSet());
-
         model.addAttribute("user", user);
         model.addAttribute("subjects", subjectService.getAllSubjects());
         model.addAttribute("subjectGroups", getGroupedSubjects());
-        model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
-        model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
-        model.addAttribute("availabilityNames", availabilityNames);
+        model.addAttribute("availabilityNames", user.getAvailability());
 
         return "profile";
     }
@@ -82,9 +66,9 @@ public class ProfileController {
     @PostMapping("/profile")
     public String updateProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             @RequestParam Integer yearGroup,
-            @RequestParam(required = false) ExamBoard examBoard,
+            @RequestParam(required = false) String examBoard,
             @RequestParam(required = false) List<Long> subjectIds,
-            @RequestParam(required = false) List<Timeslot> timeslots,
+            @RequestParam(required = false) List<String> timeslots,
             RedirectAttributes redirectAttributes,
             Model model) {
 
@@ -103,7 +87,7 @@ public class ProfileController {
             user.setYearGroup(yearGroup);
 
             if (yearGroup >= 12 && yearGroup <= 13) {
-                if (examBoard != null && (examBoard == ExamBoard.A_LEVELS || examBoard == ExamBoard.IB)) {
+                if (examBoard != null && ("A_LEVELS".equals(examBoard) || "IB".equals(examBoard))) {
                     user.setExamBoard(examBoard);
                 } else {
                     populateFormModel(model, user, "Please select an exam board (A Levels or IB) for years 12-13");
@@ -119,9 +103,14 @@ public class ProfileController {
             }
             user.setSubjects(selectedSubjects);
 
-            Set<Timeslot> selectedTimeslots = new HashSet<>();
+            Set<String> selectedTimeslots = new HashSet<>();
             if (timeslots != null) {
-                selectedTimeslots.addAll(timeslots);
+                // Validate slot codes
+                for (String slot : timeslots) {
+                    if (Timeslots.ALL_CODES_SET.contains(slot)) {
+                        selectedTimeslots.add(slot);
+                    }
+                }
             }
             user.setAvailability(selectedTimeslots);
 
@@ -147,54 +136,35 @@ public class ProfileController {
         model.addAttribute("user", user);
         model.addAttribute("subjects", subjectService.getAllSubjects());
         model.addAttribute("subjectGroups", getGroupedSubjects());
-        model.addAttribute("timeslots", Arrays.asList(Timeslot.values()));
-        model.addAttribute("examBoards", Arrays.asList(ExamBoard.values()));
-        
-        // Convert availability Set<Timeslot> to Set<String> for template usage
-        Set<String> availabilityNames = user.getAvailability() == null ? 
-            new HashSet<>() : 
-            user.getAvailability().stream()
-                .map(Enum::name)
-                .collect(Collectors.toSet());
-        model.addAttribute("availabilityNames", availabilityNames);
+        model.addAttribute("availabilityNames", user.getAvailability() != null ? user.getAvailability() : new HashSet<>());
     }
 
-    /**
-     * Groups subjects according to requirements:
-     * Languages: English, German, French
-     * STEM: Mathematics, Physics, Biology, Chemistry  
-     * Social Sciences: Economics, Politics, Business
-     */
     private Map<String, List<Subject>> getGroupedSubjects() {
-        List<Subject> allSubjects = subjectService.getAllSubjects();
-        return groupSubjectsByCategory(allSubjects);
+        return groupSubjectsByCategory(subjectService.getAllSubjects());
     }
-    
-    /**
-     * Helper method to group subjects by category
-     */
+
     private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
-        
+
         groups.put("Languages", subjects.stream()
-            .filter(s -> s.getDisplayName().equals("English") || 
-                        s.getDisplayName().equals("German") || 
+            .filter(s -> s.getDisplayName().equals("English") ||
+                        s.getDisplayName().equals("German") ||
                         s.getDisplayName().equals("French"))
             .collect(Collectors.toList()));
-            
+
         groups.put("STEM", subjects.stream()
-            .filter(s -> s.getDisplayName().equals("Mathematics") || 
-                        s.getDisplayName().equals("Physics") || 
-                        s.getDisplayName().equals("Biology") || 
+            .filter(s -> s.getDisplayName().equals("Mathematics") ||
+                        s.getDisplayName().equals("Physics") ||
+                        s.getDisplayName().equals("Biology") ||
                         s.getDisplayName().equals("Chemistry"))
             .collect(Collectors.toList()));
-            
+
         groups.put("Social Sciences", subjects.stream()
-            .filter(s -> s.getDisplayName().equals("Economics") || 
-                        s.getDisplayName().equals("Politics") || 
+            .filter(s -> s.getDisplayName().equals("Economics") ||
+                        s.getDisplayName().equals("Politics") ||
                         s.getDisplayName().equals("Business"))
             .collect(Collectors.toList()));
-            
+
         return groups;
     }
 }
