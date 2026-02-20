@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users - Admin - Bromsgrove Student Portal</title>
+    <title>Manage Users - Admin - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -26,7 +26,7 @@
             <!-- Users Table -->
             <section class="users-section">
                 <h2>All Users</h2>
-                
+
                 <div th:if="${#lists.isEmpty(users)}" class="empty-state">
                     <p>No users found in the system.</p>
                 </div>
@@ -45,16 +45,16 @@
                         <tbody>
                             <tr th:each="user : ${users}">
                                 <td th:text="${user.fullName}">John Doe</td>
-                                <td th:text="${user.email}">john@bromsgrove-school.co.uk</td>
+                                <td th:text="${user.email}">john@example.edu</td>
                                 <td th:text="${user.yearGroup != null ? user.yearGroup : 'N/A'}">12</td>
                                 <td>
-                                    <span class="role-badge" 
-                                          th:classappend="${user.role.name().toLowerCase()}"
-                                          th:text="${user.role.getDisplayName()}">Student</span>
-                                    <span th:if="${user.role.name() == 'ADMIN'}" class="admin-badge">👑</span>
+                                    <span class="role-badge"
+                                          th:classappend="${user.role.toLowerCase()}"
+                                          th:text="${roleLabels[user.role]}">Student</span>
+                                    <span th:if="${user.role == 'ADMIN'}" class="admin-badge">&#9819;</span>
                                 </td>
                                 <td>
-                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" 
+                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
                                           onsubmit="return confirm('Are you sure you want to permanently delete this user and all their data?');">
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
@@ -66,8 +66,5 @@
             </section>
         </div>
     </main>
-
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

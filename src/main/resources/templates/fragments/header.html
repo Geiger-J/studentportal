@@ -2,12 +2,11 @@
 <header th:fragment="header" class="site-header">
     <nav class="nav-bar">
         <div class="nav-container">
-            <!-- Logo and Brand -->
+            <!-- Brand -->
             <div class="nav-brand">
-                <img src="/images/bromsgrove-logo.svg" alt="Bromsgrove School" class="logo">
                 <a href="/">Student Portal</a>
             </div>
-            
+
             <!-- Navigation Links -->
             <ul class="nav-menu">
                 <!-- Guest User Menu -->
@@ -16,21 +15,15 @@
                         <a href="/" class="nav-link">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/about" class="nav-link">About</a>
-                    </li>
-                    <li class="nav-item">
                         <a href="/login" class="nav-link">Login</a>
                     </li>
                     <li class="nav-item">
                         <a href="/register" class="nav-link">Register</a>
                     </li>
                 </div>
-                
+
                 <!-- Authenticated User Menu -->
                 <div sec:authorize="isAuthenticated()">
-                    <li class="nav-item">
-                        <a href="/about" class="nav-link">About</a>
-                    </li>
                     <li class="nav-item">
                         <a href="/dashboard" class="nav-link">Dashboard</a>
                     </li>

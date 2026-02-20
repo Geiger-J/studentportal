@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Requests - Admin - Bromsgrove Student Portal</title>
+    <title>Manage Requests - Admin - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -27,10 +27,10 @@
                         <label for="status">Status:</label>
                         <select id="status" name="status" onchange="this.form.submit()">
                             <option value="">All Statuses</option>
-                            <option th:each="status : ${allStatuses}" 
-                                    th:value="${status.name()}"
-                                    th:text="${status.displayName}"
-                                    th:selected="${selectedStatus != null && selectedStatus.equalsIgnoreCase(status.name())}">
+                            <option th:each="s : ${allStatuses}"
+                                    th:value="${s}"
+                                    th:text="${statusLabels[s]}"
+                                    th:selected="${selectedStatus != null && selectedStatus.equalsIgnoreCase(s)}">
                                 Status
                             </option>
                         </select>
@@ -40,11 +40,11 @@
 
             <!-- Requests Table -->
             <section class="requests-section">
-                <h2>All Requests 
-                    <span th:if="${selectedStatus != null and !selectedStatus.isEmpty()}" 
-                          th:text="'- ' + ${selectedStatus}"></span>
+                <h2>All Requests
+                    <span th:if="${selectedStatus != null and !selectedStatus.isEmpty()}"
+                          th:text="'- ' + ${statusLabels[selectedStatus.toUpperCase()]}"></span>
                 </h2>
-                
+
                 <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
                     <p>No requests found matching the current filter.</p>
                 </div>
@@ -69,28 +69,28 @@
                             <tr th:each="request : ${requests}">
                                 <td th:text="${request.id}">1</td>
                                 <td th:text="${request.user.fullName}">John Doe</td>
-                                <td th:text="${request.user.email}">john@bromsgrove-school.co.uk</td>
+                                <td th:text="${request.user.email}">john@example.edu</td>
                                 <td th:text="${request.subject.displayName}">Mathematics</td>
                                 <td>
-                                    <span class="request-type" 
-                                          th:classappend="${request.type.name() == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
-                                          th:text="${request.type.displayName}">Offering Tutoring</span>
+                                    <span class="request-type"
+                                          th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
+                                          th:text="${typeLabels[request.type]}">Offering Tutoring</span>
                                 </td>
                                 <td>
                                     <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
                                     <div class="timeslot-details">
-                                        <span th:each="timeslot, iterStat : ${request.timeslots}" 
-                                              th:text="${timeslot.label()} + (${!iterStat.last} ? ', ' : '')"
+                                        <span th:each="timeslot, iterStat : ${request.timeslots}"
+                                              th:text="${timeslotLabels[timeslot]} + (${!iterStat.last} ? ', ' : '')"
                                               class="timeslot-item"></span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-badge" 
-                                          th:classappend="${request.status.name().toLowerCase()}"
-                                          th:text="${request.status.displayName}">Pending</span>
+                                    <span class="status-badge"
+                                          th:classappend="${request.status.toLowerCase()}"
+                                          th:text="${statusLabels[request.status]}">Pending</span>
                                 </td>
                                 <td th:text="${request.matchedPartner != null ? request.matchedPartner.fullName : 'None'}">None</td>
-                                <td th:text="${request.chosenTimeslot != null ? request.chosenTimeslot.label() : 'Not assigned'}">Not assigned</td>
+                                <td th:text="${request.chosenTimeslot != null ? timeslotLabels[request.chosenTimeslot] : 'Not assigned'}">Not assigned</td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                             </tr>
                         </tbody>
@@ -99,8 +99,5 @@
             </section>
         </div>
     </main>
-
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

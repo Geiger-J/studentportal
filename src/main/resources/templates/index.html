@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome - Bromsgrove Student Portal</title>
+    <title>Welcome - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -18,12 +18,12 @@
             <section>
                 <h1>Welcome to the Student Portal</h1>
                 <p>Connect with fellow students for tutoring and academic support</p>
-                
+
                 <div sec:authorize="!isAuthenticated()">
                     <a href="/register" class="btn">Get Started</a>
                     <a href="/login" class="btn">Login</a>
                 </div>
-                
+
                 <div sec:authorize="isAuthenticated()">
                     <a href="/dashboard" class="btn">Go to Dashboard</a>
                 </div>
@@ -35,7 +35,7 @@
                 <div>
                     <div>
                         <h3>Register</h3>
-                        <p>Create your account with your Bromsgrove School email and complete your academic profile.</p>
+                        <p>Create your account with your institutional email and complete your academic profile.</p>
                     </div>
                     <div>
                         <h3>Create Requests</h3>
@@ -49,8 +49,5 @@
             </section>
         </div>
     </main>
-
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

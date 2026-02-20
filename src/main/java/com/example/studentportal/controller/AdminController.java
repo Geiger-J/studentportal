@@ -1,6 +1,7 @@
 package com.example.studentportal.controller;
 
-import com.example.studentportal.model.*;
+import com.example.studentportal.model.Request;
+import com.example.studentportal.model.User;
 import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.MatchingService;
 import com.example.studentportal.service.RequestService;
@@ -17,8 +18,6 @@ import java.util.List;
 
 /**
  * Controller for admin dashboard and management functions.
- * Provides admin-only access to request management, user management, and
- * matching triggers.
  */
 @Controller
 @RequestMapping("/admin")
@@ -36,23 +35,18 @@ public class AdminController {
         this.matchingService = matchingService;
     }
 
-    /**
-     * Admin dashboard showing system overview
-     */
     @GetMapping("/dashboard")
     public String adminDashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             Model model) {
         User admin = principal.getUser();
 
-        // Get all non-archived requests
         List<Request> allRequests = requestService.getAllNonArchivedRequests();
         List<Request> pendingRequests = requestService.getPendingRequests();
         List<Request> matchedRequests = requestService.getMatchedRequests();
 
-        // Get user statistics
         List<User> allUsers = userService.getAllUsers();
-        long studentCount = allUsers.stream().filter(u -> u.getRole() == Role.STUDENT).count();
-        long adminCount = allUsers.stream().filter(u -> u.getRole() == Role.ADMIN).count();
+        long studentCount = allUsers.stream().filter(u -> "STUDENT".equals(u.getRole())).count();
+        long adminCount = allUsers.stream().filter(u -> "ADMIN".equals(u.getRole())).count();
 
         model.addAttribute("admin", admin);
         model.addAttribute("allRequests", allRequests);
@@ -66,46 +60,28 @@ public class AdminController {
         return "admin/dashboard";
     }
 
-    /**
-     * View all requests with filtering options
-     */
     @GetMapping("/requests")
     public String viewRequests(@RequestParam(value = "status", required = false) String status,
             Model model) {
         List<Request> requests;
         if (status != null && !status.isEmpty()) {
-            try {
-                RequestStatus requestStatus = RequestStatus.valueOf(status.toUpperCase());
-                requests = requestService.getRequestsByStatus(requestStatus);
-            } catch (IllegalArgumentException e) {
-                requests = requestService.getAllNonArchivedRequests();
-            }
+            requests = requestService.getRequestsByStatus(status.toUpperCase());
         } else {
             requests = requestService.getAllNonArchivedRequests();
         }
 
         model.addAttribute("requests", requests);
         model.addAttribute("selectedStatus", status);
-        model.addAttribute("allStatuses", RequestStatus.values());
 
         return "admin/requests";
     }
 
-    /**
-     * View all users
-     */
     @GetMapping("/users")
     public String viewUsers(Model model) {
-        List<User> users = userService.getAllUsers();
-
-        model.addAttribute("users", users);
-
+        model.addAttribute("users", userService.getAllUsers());
         return "admin/users";
     }
 
-    /**
-     * Delete a user and all their associated data
-     */
     @PostMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -118,62 +94,45 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Error deleting user: " + e.getMessage());
         }
-
         return "redirect:/admin/users";
     }
 
-    /**
-     * Manual matching trigger - uses the matching service
-     */
     @PostMapping("/match")
     public String triggerMatching(RedirectAttributes redirectAttributes) {
         try {
             int matchedCount = matchingService.performMatching();
-
             redirectAttributes.addFlashAttribute("successMessage",
                     "Matching process completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Matching process failed: " + e.getMessage());
         }
-
         return "redirect:/admin/dashboard";
     }
 
-    /**
-     * Run intelligent matching algorithm
-     */
     @PostMapping("/matching/run")
     public String runMatchingAlgorithm(RedirectAttributes redirectAttributes) {
-        System.out.println("action in controller");
         try {
             int matchedCount = matchingService.performMatching();
-
             redirectAttributes.addFlashAttribute("successMessage",
                     "Intelligent matching completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Matching algorithm failed: " + e.getMessage());
         }
-
         return "redirect:/admin/dashboard";
     }
 
-    /**
-     * Archive old requests (DONE and CANCELLED)
-     */
     @PostMapping("/archive")
     public String archiveOldRequests(RedirectAttributes redirectAttributes) {
         try {
             int archivedCount = requestService.archiveOldRequests();
-
             redirectAttributes.addFlashAttribute("successMessage",
                     "Archiving completed. " + archivedCount + " requests archived.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Archiving failed: " + e.getMessage());
         }
-
         return "redirect:/admin/dashboard";
     }
 }

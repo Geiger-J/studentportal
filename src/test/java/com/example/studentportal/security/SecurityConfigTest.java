@@ -23,11 +23,7 @@ class SecurityConfigTest {
 
     @Test
     void testPublicPagesAccessible() throws Exception {
-        // Test that public pages are accessible without authentication
         mockMvc.perform(get("/"))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/about"))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/login"))
@@ -39,7 +35,6 @@ class SecurityConfigTest {
 
     @Test
     void testProtectedPagesRedirectToLogin() throws Exception {
-        // Test that protected pages redirect to login when not authenticated
         mockMvc.perform(get("/dashboard"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("**/login"));
@@ -55,7 +50,6 @@ class SecurityConfigTest {
 
     @Test
     void testStaticResourcesAccessible() throws Exception {
-        // Test that CSS and images are accessible
         mockMvc.perform(get("/css/style.css"))
                 .andExpect(status().isOk());
     }

@@ -11,8 +11,6 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,7 +45,7 @@ public class User {
 
     @Column(unique = true, nullable = false)
     @Email(message = "Valid email is required")
-    @Pattern(regexp = ".*@bromsgrove-school\\.co\\.uk$", message = "Email must end with @bromsgrove-school.co.uk")
+    @Pattern(regexp = ".*@example\\.edu$", message = "Email must end with @example.edu")
     private String email;
 
     @Column(nullable = false)
@@ -55,26 +53,24 @@ public class User {
     @Size(min = 4, message = "Password must be at least 4 characters")
     private String passwordHash;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private String role;
 
     @Min(value = 9, message = "Year group must be between 9 and 13")
     @Max(value = 13, message = "Year group must be between 9 and 13")
     private Integer yearGroup;
 
-    @Enumerated(EnumType.STRING)
-    private ExamBoard examBoard = ExamBoard.NONE;
+    @Column
+    private String examBoard = "NONE";
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<Subject> subjects = new HashSet<>();
 
-    @ElementCollection(targetClass = Timeslot.class, fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_availability", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "timeslot")
-    private Set<Timeslot> availability = new HashSet<>();
+    private Set<String> availability = new HashSet<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Request> requests = new HashSet<>();
@@ -93,7 +89,7 @@ public class User {
     public User() {
     }
 
-    public User(String fullName, String email, String passwordHash, Role role) {
+    public User(String fullName, String email, String passwordHash, String role) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -132,11 +128,11 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -148,22 +144,22 @@ public class User {
         this.yearGroup = yearGroup;
         if (yearGroup != null) {
             if (yearGroup >= 9 && yearGroup <= 11) {
-                this.examBoard = ExamBoard.GCSE;
+                this.examBoard = "GCSE";
             } else if (yearGroup >= 12 && yearGroup <= 13) {
-                if (this.examBoard == ExamBoard.GCSE || this.examBoard == ExamBoard.NONE) {
-                    this.examBoard = ExamBoard.NONE; // must choose A_LEVELS or IB
+                if ("GCSE".equals(this.examBoard) || "NONE".equals(this.examBoard)) {
+                    this.examBoard = "NONE"; // must choose A_LEVELS or IB
                 }
             } else {
-                this.examBoard = ExamBoard.NONE;
+                this.examBoard = "NONE";
             }
         }
     }
 
-    public ExamBoard getExamBoard() {
+    public String getExamBoard() {
         return examBoard;
     }
 
-    public void setExamBoard(ExamBoard examBoard) {
+    public void setExamBoard(String examBoard) {
         this.examBoard = examBoard;
     }
 
@@ -178,14 +174,14 @@ public class User {
         this.subjects = (subjects != null) ? subjects : new HashSet<>();
     }
 
-    public Set<Timeslot> getAvailability() {
+    public Set<String> getAvailability() {
         if (availability == null) {
             availability = new HashSet<>();
         }
         return availability;
     }
 
-    public void setAvailability(Set<Timeslot> availability) {
+    public void setAvailability(Set<String> availability) {
         this.availability = (availability != null) ? availability : new HashSet<>();
     }
 
@@ -226,7 +222,7 @@ public class User {
 
     public boolean isProfileComplete() {
         // Admin users don't need academic profile completion
-        if (role == Role.ADMIN) {
+        if ("ADMIN".equals(role)) {
             return true;
         }
 

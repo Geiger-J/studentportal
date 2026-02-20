@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Bromsgrove Student Portal</title>
+    <title>Dashboard - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -32,7 +32,7 @@
             <!-- Requests Section -->
             <section class="requests-section">
                 <h2>Your Requests</h2>
-                
+
                 <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
                     <p>You haven't created any requests yet.</p>
                     <a href="/requests/new" class="btn btn-primary">Create Your First Request</a>
@@ -47,7 +47,6 @@
                                 <th>Timeslots</th>
                                 <th>Status</th>
                                 <th>Matched Partner</th>
-                                <!-- TODO: Add recurring functionality in future iteration -->
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
@@ -56,36 +55,35 @@
                             <tr th:each="request : ${requests}">
                                 <td th:text="${request.subject.displayName}">Mathematics</td>
                                 <td>
-                                    <span class="request-type" 
-                                          th:classappend="${request.type.name() == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
-                                          th:text="${request.type.displayName}">Offering Tutoring</span>
+                                    <span class="request-type"
+                                          th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
+                                          th:text="${typeLabels[request.type]}">Offering Tutoring</span>
                                 </td>
                                 <td>
                                     <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
                                     <div class="timeslot-details">
-                                        <span th:each="timeslot, iterStat : ${request.timeslots}" 
-                                              th:text="${timeslot.label()} + (${!iterStat.last} ? ', ' : '')"
+                                        <span th:each="timeslot, iterStat : ${request.timeslots}"
+                                              th:text="${timeslotLabels[timeslot]} + (${!iterStat.last} ? ', ' : '')"
                                               class="timeslot-item"></span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-badge" 
-                                          th:classappend="${request.status.name().toLowerCase()}"
-                                          th:text="${request.status.displayName}">Pending</span>
+                                    <span class="status-badge"
+                                          th:classappend="${request.status.toLowerCase()}"
+                                          th:text="${statusLabels[request.status]}">Pending</span>
                                 </td>
                                 <td class="matched-partner-cell">
-                                    <span th:if="${request.matchedPartner != null}" 
+                                    <span th:if="${request.matchedPartner != null}"
                                           th:text="${request.matchedPartner.fullName}"
                                           class="matched-partner-name">John Smith</span>
-                                    <span th:if="${request.matchedPartner == null}" 
+                                    <span th:if="${request.matchedPartner == null}"
                                           class="no-partner">Not matched</span>
                                 </td>
-                                <!-- TODO: Implement recurring functionality - for now omitting this column -->
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                                 <td class="actions-cell">
-                                    <form th:if="${request.canBeCancelled()}" 
-                                          th:action="@{/requests/{id}/cancel(id=${request.id})}" 
-                                          method="post" 
+                                    <form th:if="${request.canBeCancelled()}"
+                                          th:action="@{/requests/{id}/cancel(id=${request.id})}"
+                                          method="post"
                                           class="inline-form"
                                           onsubmit="return confirm('Are you sure you want to cancel this request?')">
                                         <button type="submit" class="btn btn-danger btn-small">Cancel</button>
@@ -115,7 +113,7 @@
                     </div>
                     <div class="status-item">
                         <span class="status-label">Exam Board:</span>
-                        <span th:text="${user.examBoard?.displayName ?: 'Not set'}">A Levels</span>
+                        <span th:text="${user.examBoard != null ? examBoardLabels[user.examBoard] : 'Not set'}">A Levels</span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Subjects:</span>
@@ -129,8 +127,5 @@
             </section>
         </div>
     </main>
-
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

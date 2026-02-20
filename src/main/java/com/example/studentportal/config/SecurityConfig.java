@@ -36,7 +36,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authz -> authz
                 // Public
-                .requestMatchers("/", "/login", "/register", "/about",
+                .requestMatchers("/", "/login", "/register",
                         "/css/**", "/images/**", "/js/**").permitAll()
                 // Admin-only area
                 .requestMatchers("/admin/**").hasRole("ADMIN")

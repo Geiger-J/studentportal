@@ -1,6 +1,5 @@
 package com.example.studentportal.config;
 
-import com.example.studentportal.model.ExamBoard;
 import com.example.studentportal.model.Subject;
 import com.example.studentportal.service.SubjectService;
 import org.slf4j.Logger;
