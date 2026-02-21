@@ -3,7 +3,6 @@ package com.example.studentportal.service;
 import com.example.studentportal.model.Request;
 import com.example.studentportal.model.User;
 import com.example.studentportal.repository.RequestRepository;
-import com.example.studentportal.service.TimeService;
 import com.example.studentportal.util.DateUtil;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.matching.MaximumWeightBipartiteMatching;
@@ -177,6 +176,7 @@ public class MatchingService {
         Set<RequestTimeslot> offerVertices = new HashSet<>();
         for (Request offer : offerRequests) {
             for (String timeslot : offer.getTimeslots()) {
+                // - one vertex per request-timeslot pair
                 RequestTimeslot rt = new RequestTimeslot(offer, timeslot);
                 graph.addVertex(rt);
                 offerVertices.add(rt);
@@ -195,10 +195,13 @@ public class MatchingService {
         int edgeCount = 0;
         for (RequestTimeslot offerRT : offerVertices) {
             for (RequestTimeslot seekRT : seekVertices) {
+                // - edge only when same timeslot
+                // - edge only when hard constraints pass
                 if (Objects.equals(offerRT.getTimeslot(), seekRT.getTimeslot()) &&
                     meetHardConstraints(offerRT.getRequest(), seekRT.getRequest())) {
 
                     double weight = calculateWeight(offerRT.getRequest(), seekRT.getRequest());
+                    // - positive weight means candidate is usable
                     if (weight > 0) {
                         DefaultWeightedEdge edge = graph.addEdge(offerRT, seekRT);
                         if (edge != null) {
@@ -238,6 +241,7 @@ public class MatchingService {
                 alreadyMatchedRequests.size());
 
         List<DefaultWeightedEdge> sortedEdges = new ArrayList<>(matchedEdges);
+        // - greedy pass from highest weight to lowest
         sortedEdges.sort((e1, e2) -> Double.compare(
                 graph.getEdgeWeight(e2), graph.getEdgeWeight(e1)));
 
@@ -260,10 +264,12 @@ public class MatchingService {
             Long tuteeUserId = seekRequest.getUser().getId();
 
             boolean requestsNotMatched = !matchedOfferRequestIds.contains(offerRequest.getId()) &&
-                                          !matchedSeekRequestIds.contains(seekRequest.getId());
+                                           !matchedSeekRequestIds.contains(seekRequest.getId());
             boolean noTimeslotConflict = !userMatchedTimeslots.getOrDefault(tutorUserId, Collections.emptySet()).contains(timeslot) &&
-                                          !userMatchedTimeslots.getOrDefault(tuteeUserId, Collections.emptySet()).contains(timeslot);
+                                           !userMatchedTimeslots.getOrDefault(tuteeUserId, Collections.emptySet()).contains(timeslot);
 
+            // - keep each request used once
+            // - prevent same user having two sessions in same slot
             if (requestsNotMatched && noTimeslotConflict) {
                 double weight = graph.getEdgeWeight(edge);
                 matches.add(new Match(offerRequest, seekRequest, timeslot, weight));
