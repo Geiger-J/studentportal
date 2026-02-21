@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Bromsgrove Student Portal</title>
+    <title>Dashboard - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -31,10 +31,17 @@
 
             <!-- Requests Section -->
             <section class="requests-section">
-                <h2>Your Requests</h2>
-                
+                <div class="section-header">
+                    <h2>Your Requests</h2>
+                    <label class="toggle-label">
+                        <a th:if="${!showArchived}" th:href="@{/dashboard(showArchived=true)}" class="btn btn-secondary btn-small">Show Archived</a>
+                        <a th:if="${showArchived}" th:href="@{/dashboard}" class="btn btn-secondary btn-small">Hide Archived</a>
+                    </label>
+                </div>
+
                 <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
-                    <p>You haven't created any requests yet.</p>
+                    <p th:if="${!showArchived}">You haven't created any active requests yet.</p>
+                    <p th:if="${showArchived}">No requests found.</p>
                     <a href="/requests/new" class="btn btn-primary">Create Your First Request</a>
                 </div>
 
@@ -47,52 +54,68 @@
                                 <th>Timeslots</th>
                                 <th>Status</th>
                                 <th>Matched Partner</th>
-                                <!-- TODO: Add recurring functionality in future iteration -->
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="request : ${requests}">
+                            <tr th:each="request : ${requests}"
+                                th:classappend="${request.archived} ? 'row-archived' : ''">
                                 <td th:text="${request.subject.displayName}">Mathematics</td>
                                 <td>
-                                    <span class="request-type" 
-                                          th:classappend="${request.type.name() == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
-                                          th:text="${request.type.displayName}">Offering Tutoring</span>
+                                    <span class="request-type"
+                                          th:classappend="${request.type == 'TUTOR'} ? 'type-tutor' : 'type-tutee'"
+                                          th:text="${typeLabels.get(request.type)}">Offering Tutoring</span>
+                                </td>
+                                <td class="timeslots-cell">
+                                    <span th:each="timeslot, iterStat : ${request.timeslots}"
+                                          th:text="${timeslotLabels.get(timeslot) + (!iterStat.last ? ', ' : '')}"
+                                          class="timeslot-item"></span>
                                 </td>
                                 <td>
-                                    <span class="timeslot-count" th:text="${#lists.size(request.timeslots)} + ' slots'">3 slots</span>
-                                    <div class="timeslot-details">
-                                        <span th:each="timeslot, iterStat : ${request.timeslots}" 
-                                              th:text="${timeslot.label()} + (${!iterStat.last} ? ', ' : '')"
-                                              class="timeslot-item"></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" 
-                                          th:classappend="${request.status.name().toLowerCase()}"
-                                          th:text="${request.status.displayName}">Pending</span>
+                                    <span class="status-badge"
+                                          th:classappend="${request.status.toLowerCase()}"
+                                          th:text="${statusLabels.get(request.status)}">Pending</span>
                                 </td>
                                 <td class="matched-partner-cell">
-                                    <span th:if="${request.matchedPartner != null}" 
-                                          th:text="${request.matchedPartner.fullName}"
-                                          class="matched-partner-name">John Smith</span>
-                                    <span th:if="${request.matchedPartner == null}" 
-                                          class="no-partner">Not matched</span>
+                                    <!-- show partner name + an email icon that opens a pre-filled mailto -->
+                                    <span th:if="${request.matchedPartner != null}">
+                                        <span th:text="${request.matchedPartner.fullName}"
+                                              class="matched-partner-name">John Smith</span>
+                                        <!--
+                                          data attributes store raw text — JS on click builds
+                                          the mailto: URL with proper encoding so no complex
+                                          Thymeleaf escaping is needed
+                                        -->
+                                        <a href="#"
+                                           th:attr="data-email=${request.matchedPartner.email},
+                                                    data-subject=${(request.type == 'TUTOR' ? 'Your' : 'My')
+                                                        + ' tutoring session in ' + request.subject.displayName
+                                                        + ' on ' + (request.chosenTimeslot != null
+                                                            ? timeslotLabels.get(request.chosenTimeslot)
+                                                            : 'TBD')},
+                                                    data-partner=${request.matchedPartner.fullName},
+                                                    data-subject-name=${request.subject.displayName},
+                                                    data-timeslot=${request.chosenTimeslot != null
+                                                            ? timeslotLabels.get(request.chosenTimeslot)
+                                                            : 'TBD'},
+                                                    data-sender=${user.fullName}"
+                                           onclick="openMailto(this); return false;"
+                                           class="mailto-link"
+                                           title="Open email app to contact your match">✉</a>
+                                    </span>
+                                    <span th:if="${request.matchedPartner == null}" class="no-partner">—</span>
                                 </td>
-                                <!-- TODO: Implement recurring functionality - for now omitting this column -->
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                                 <td class="actions-cell">
-                                    <form th:if="${request.canBeCancelled()}" 
-                                          th:action="@{/requests/{id}/cancel(id=${request.id})}" 
-                                          method="post" 
+                                    <form th:if="${request.canBeCancelled()}"
+                                          th:action="@{/requests/{id}/cancel(id=${request.id})}"
+                                          method="post"
                                           class="inline-form"
-                                          onsubmit="return confirm('Are you sure you want to cancel this request?')">
+                                          onsubmit="return confirm('Cancel this request?')">
                                         <button type="submit" class="btn btn-danger btn-small">Cancel</button>
                                     </form>
-                                    <span th:unless="${request.canBeCancelled()}" class="no-actions">
-                                        No actions available
-                                    </span>
+                                    <span th:unless="${request.canBeCancelled()}" class="no-actions">—</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -105,17 +128,12 @@
                 <h2>Profile Status</h2>
                 <div class="status-card">
                     <div class="status-item">
-                        <span class="status-label">Profile Complete:</span>
-                        <span th:class="${user.profileComplete ? 'status-complete' : 'status-incomplete'}"
-                              th:text="${user.profileComplete ? 'Yes' : 'No'}">Yes</span>
-                    </div>
-                    <div class="status-item">
                         <span class="status-label">Year Group:</span>
                         <span th:text="${user.yearGroup ?: 'Not set'}">12</span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Exam Board:</span>
-                        <span th:text="${user.examBoard?.displayName ?: 'Not set'}">A Levels</span>
+                        <span th:text="${user.examBoard != null ? examBoardLabels.get(user.examBoard) : 'Not set'}">A Levels</span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">Subjects:</span>
@@ -129,8 +147,24 @@
             </section>
         </div>
     </main>
-
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script>
+        // builds a proper mailto: URL from data-* attributes and opens it
+        // using encodeURIComponent ensures special chars in names/subjects are safe
+        function openMailto(link) {
+            var email    = link.dataset.email;
+            var subject  = link.dataset.subject;
+            var partner  = link.dataset.partner;
+            var subjectName = link.dataset.subjectName;
+            var timeslot = link.dataset.timeslot;
+            var sender   = link.dataset.sender;
+            var body = 'Dear ' + partner + ',\n\n'
+                     + 'I am writing in regards to the tutoring session in '
+                     + subjectName + ' on ' + timeslot + '.\n\n'
+                     + 'Best regards,\n' + sender;
+            window.location.href = 'mailto:' + encodeURIComponent(email)
+                + '?subject=' + encodeURIComponent(subject)
+                + '&body='    + encodeURIComponent(body);
+        }
+    </script>
 </body>
 </html>

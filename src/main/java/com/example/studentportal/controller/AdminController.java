@@ -1,13 +1,18 @@
 package com.example.studentportal.controller;
 
-import com.example.studentportal.model.*;
+import com.example.studentportal.model.Request;
+import com.example.studentportal.model.User;
 import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.MatchingService;
 import com.example.studentportal.service.RequestService;
 import com.example.studentportal.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +22,6 @@ import java.util.List;
 
 /**
  * Controller for admin dashboard and management functions.
- * Provides admin-only access to request management, user management, and
- * matching triggers.
  */
 @Controller
 @RequestMapping("/admin")
@@ -36,80 +39,132 @@ public class AdminController {
         this.matchingService = matchingService;
     }
 
-    /**
-     * Admin dashboard showing system overview
-     */
     @GetMapping("/dashboard")
     public String adminDashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             Model model) {
         User admin = principal.getUser();
 
-        // Get all non-archived requests
-        List<Request> allRequests = requestService.getAllNonArchivedRequests();
         List<Request> pendingRequests = requestService.getPendingRequests();
         List<Request> matchedRequests = requestService.getMatchedRequests();
 
-        // Get user statistics
         List<User> allUsers = userService.getAllUsers();
-        long studentCount = allUsers.stream().filter(u -> u.getRole() == Role.STUDENT).count();
-        long adminCount = allUsers.stream().filter(u -> u.getRole() == Role.ADMIN).count();
+        long studentCount = allUsers.stream().filter(u -> "STUDENT".equals(u.getRole())).count();
+        long adminCount = allUsers.stream().filter(u -> "ADMIN".equals(u.getRole())).count();
 
         model.addAttribute("admin", admin);
-        model.addAttribute("allRequests", allRequests);
-        model.addAttribute("pendingRequests", pendingRequests);
-        model.addAttribute("matchedRequests", matchedRequests);
-        model.addAttribute("totalRequests", allRequests.size());
-        model.addAttribute("totalUsers", allUsers.size());
+        model.addAttribute("pendingCount", pendingRequests.size());
+        model.addAttribute("matchedCount", matchedRequests.size());
         model.addAttribute("studentCount", studentCount);
         model.addAttribute("adminCount", adminCount);
+
+        // Recent requests for dashboard table (non-archived, up to 10)
+        List<Request> allRequests = requestService.getAllNonArchivedRequests();
+        model.addAttribute("allRequests", allRequests);
 
         return "admin/dashboard";
     }
 
-    /**
-     * View all requests with filtering options
-     */
     @GetMapping("/requests")
     public String viewRequests(@RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
             Model model) {
         List<Request> requests;
         if (status != null && !status.isEmpty()) {
-            try {
-                RequestStatus requestStatus = RequestStatus.valueOf(status.toUpperCase());
-                requests = requestService.getRequestsByStatus(requestStatus);
-            } catch (IllegalArgumentException e) {
-                requests = requestService.getAllNonArchivedRequests();
+            if (showArchived) {
+                requests = requestService.getRequestsByStatus(status.toUpperCase());
+            } else {
+                requests = requestService.getNonArchivedRequestsByStatus(status.toUpperCase());
             }
         } else {
-            requests = requestService.getAllNonArchivedRequests();
+            if (showArchived) {
+                requests = requestService.getAllRequests();
+            } else {
+                requests = requestService.getAllNonArchivedRequests();
+            }
         }
 
         model.addAttribute("requests", requests);
         model.addAttribute("selectedStatus", status);
-        model.addAttribute("allStatuses", RequestStatus.values());
+        model.addAttribute("showArchived", showArchived);
 
         return "admin/requests";
     }
 
-    /**
-     * View all users
-     */
+    // cancel a pending/matched request — admins can only cancel, not permanently delete
+    @PostMapping("/requests/{id}/cancel")
+    public String cancelRequest(@PathVariable Long id,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
+            RedirectAttributes redirectAttributes) {
+        try {
+            requestService.adminCancelRequest(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Request cancelled successfully.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error cancelling request: " + e.getMessage());
+        }
+        // preserve filter state on redirect
+        String redirect = "redirect:/admin/requests";
+        if (status != null && !status.isEmpty()) {
+            redirect += "?status=" + status;
+            if (showArchived) redirect += "&showArchived=true";
+        } else if (showArchived) {
+            redirect += "?showArchived=true";
+        }
+        return redirect;
+    }
+
     @GetMapping("/users")
-    public String viewUsers(Model model) {
-        List<User> users = userService.getAllUsers();
-
+    public String viewUsers(@RequestParam(value = "yearGroup", required = false) Integer yearGroup,
+            Model model) {
+        List<User> users = userService.getUsersByYearGroup(yearGroup);
         model.addAttribute("users", users);
-
+        model.addAttribute("selectedYearGroup", yearGroup);
         return "admin/users";
     }
 
-    /**
-     * Delete a user and all their associated data
-     */
-    @PostMapping("/users/delete/{id}")
-    public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    @PostMapping("/users/{id}/change-password")
+    public String changeUserPassword(@PathVariable Long id,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            RedirectAttributes redirectAttributes) {
         try {
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Passwords do not match.");
+                return "redirect:/admin/users";
+            }
+            userService.changePassword(id, newPassword);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Password changed successfully for user.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error changing password: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    // delete a user — if admin deletes themselves, log out and go to home page
+    @PostMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes) {
+        try {
+            // check whether the admin is deleting their own account (null-safe)
+            boolean deletingSelf = principal != null
+                    && principal.getUser() != null
+                    && principal.getUser().getId().equals(id);
             userService.deleteUser(id);
+            if (deletingSelf) {
+                // log out the current session since we just removed ourselves
+                new SecurityContextLogoutHandler().logout(request, response,
+                        SecurityContextHolder.getContext().getAuthentication());
+                return "redirect:/";
+            }
             redirectAttributes.addFlashAttribute("successMessage",
                     "User deleted successfully along with all associated data.");
         } catch (IllegalArgumentException e) {
@@ -118,62 +173,92 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Error deleting user: " + e.getMessage());
         }
-
         return "redirect:/admin/users";
     }
 
-    /**
-     * Manual matching trigger - uses the matching service
-     */
     @PostMapping("/match")
     public String triggerMatching(RedirectAttributes redirectAttributes) {
         try {
             int matchedCount = matchingService.performMatching();
-
             redirectAttributes.addFlashAttribute("successMessage",
                     "Matching process completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Matching process failed: " + e.getMessage());
         }
-
         return "redirect:/admin/dashboard";
     }
 
-    /**
-     * Run intelligent matching algorithm
-     */
     @PostMapping("/matching/run")
     public String runMatchingAlgorithm(RedirectAttributes redirectAttributes) {
-        System.out.println("action in controller");
         try {
             int matchedCount = matchingService.performMatching();
-
             redirectAttributes.addFlashAttribute("successMessage",
                     "Intelligent matching completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Matching algorithm failed: " + e.getMessage());
         }
-
         return "redirect:/admin/dashboard";
     }
 
-    /**
-     * Archive old requests (DONE and CANCELLED)
-     */
     @PostMapping("/archive")
     public String archiveOldRequests(RedirectAttributes redirectAttributes) {
         try {
             int archivedCount = requestService.archiveOldRequests();
-
             redirectAttributes.addFlashAttribute("successMessage",
                     "Archiving completed. " + archivedCount + " requests archived.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "Archiving failed: " + e.getMessage());
         }
-
         return "redirect:/admin/dashboard";
+    }
+
+    @GetMapping("/profile")
+    public String showAdminProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            Model model) {
+        model.addAttribute("admin", principal.getUser());
+        return "admin/profile";
+    }
+
+    @PostMapping("/profile/change-password")
+    public String changeAdminPassword(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Passwords do not match.");
+                return "redirect:/admin/profile";
+            }
+            userService.changePassword(principal.getUser().getId(), newPassword);
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error changing password: " + e.getMessage());
+        }
+        return "redirect:/admin/profile";
+    }
+
+    @PostMapping("/profile/delete-account")
+    public String deleteAdminAccount(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Long userId = principal.getUser().getId();
+            userService.deleteUser(userId);
+            new SecurityContextLogoutHandler().logout(request, response,
+                    SecurityContextHolder.getContext().getAuthentication());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting account: " + e.getMessage());
+            return "redirect:/admin/profile";
+        }
+        return "redirect:/";
     }
 }

@@ -1,13 +1,10 @@
-
-
-
 package com.example.studentportal.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,25 +23,24 @@ public class Request {
     @JoinColumn(name = "user_id", nullable = false)
     @NotNull(message = "User is required")
     private User user;
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull(message = "Request type is required")
-    private RequestType type;
+    private String type;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
     @NotNull(message = "Subject is required")
     private Subject subject;
-    @ElementCollection(targetClass = Timeslot.class)
-    @Enumerated(EnumType.STRING)
+    @ElementCollection
     @CollectionTable(name = "request_timeslots", joinColumns = @JoinColumn(name = "request_id"))
     @Column(name = "timeslot")
-    private Set<Timeslot> timeslots = new HashSet<>();
-    @Enumerated(EnumType.STRING)
+    private Set<String> timeslots = new HashSet<>();
     @Column(name = "chosen_timeslot")
-    private Timeslot chosenTimeslot;
-    @Enumerated(EnumType.STRING)
+    private String chosenTimeslot;
+    // Monday of the week this session belongs to — set when the match is made
+    @Column(name = "week_start_date")
+    private LocalDate weekStartDate;
     @Column(nullable = false)
-    private RequestStatus status = RequestStatus.PENDING;
+    private String status = "PENDING";
     @Column(nullable = false)
     private Boolean archived = false;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,18 +49,15 @@ public class Request {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 
     public Request() {}
 
-    public Request(User user, RequestType type, Subject subject, Set<Timeslot> timeslots) {
+    public Request(User user, String type, Subject subject, Set<String> timeslots) {
         this.user = user;
         this.type = type;
         this.subject = subject;
         this.timeslots = timeslots != null ? new HashSet<>(timeslots) : new HashSet<>();
-        this.status = RequestStatus.PENDING;
+        this.status = "PENDING";
         this.archived = false;
     }
 
@@ -77,31 +70,35 @@ public class Request {
 
     public void setUser(User user) { this.user = user; }
 
-    public RequestType getType() { return type; }
+    public String getType() { return type; }
 
-    public void setType(RequestType type) { this.type = type; }
+    public void setType(String type) { this.type = type; }
 
     public Subject getSubject() { return subject; }
 
     public void setSubject(Subject subject) { this.subject = subject; }
 
-    public Set<Timeslot> getTimeslots() { return timeslots; }
+    public Set<String> getTimeslots() { return timeslots; }
 
-    public void setTimeslots(Set<Timeslot> timeslots) {
+    public void setTimeslots(Set<String> timeslots) {
         this.timeslots = timeslots != null ? timeslots : new HashSet<>();
     }
 
-    public Timeslot getChosenTimeslot() { return chosenTimeslot; }
+    public String getChosenTimeslot() { return chosenTimeslot; }
 
-    public void setChosenTimeslot(Timeslot chosenTimeslot) { this.chosenTimeslot = chosenTimeslot; }
+    public void setChosenTimeslot(String chosenTimeslot) { this.chosenTimeslot = chosenTimeslot; }
+
+    public LocalDate getWeekStartDate() { return weekStartDate; }
+
+    public void setWeekStartDate(LocalDate weekStartDate) { this.weekStartDate = weekStartDate; }
 
     public Boolean getArchived() { return archived; }
 
     public void setArchived(Boolean archived) { this.archived = archived != null ? archived : false; }
 
-    public RequestStatus getStatus() { return status; }
+    public String getStatus() { return status; }
 
-    public void setStatus(RequestStatus status) { this.status = status; }
+    public void setStatus(String status) { this.status = status; }
 
     public User getMatchedPartner() { return matchedPartner; }
 
@@ -111,15 +108,11 @@ public class Request {
 
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
     /**
      * Checks if this request can be cancelled (i.e., is currently PENDING or MATCHED).
      */
-    public boolean canBeCancelled() { 
-        return RequestStatus.PENDING.equals(this.status) || RequestStatus.MATCHED.equals(this.status); 
+    public boolean canBeCancelled() {
+        return "PENDING".equals(this.status) || "MATCHED".equals(this.status);
     }
 
     /**
@@ -127,7 +120,7 @@ public class Request {
      */
     public void cancel() {
         if (canBeCancelled()) {
-            this.status = RequestStatus.CANCELLED;
+            this.status = "CANCELLED";
         }
     }
 

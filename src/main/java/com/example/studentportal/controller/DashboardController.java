@@ -1,7 +1,6 @@
 package com.example.studentportal.controller;
 
 import com.example.studentportal.model.Request;
-import com.example.studentportal.model.Role;
 import com.example.studentportal.model.User;
 import com.example.studentportal.service.CustomUserDetailsService;
 import com.example.studentportal.service.RequestService;
@@ -10,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -34,12 +34,13 @@ public class DashboardController {
      */
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+                           @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
                            Model model) {
         
         User user = principal.getUser();
 
         // Redirect ADMIN users to admin dashboard
-        if (user.getRole() == Role.ADMIN) {
+        if ("ADMIN".equals(user.getRole())) {
             return "redirect:/admin/dashboard";
         }
 
@@ -49,10 +50,11 @@ public class DashboardController {
         }
 
         // Get user's requests
-        List<Request> userRequests = requestService.getUserRequests(user);
+        List<Request> userRequests = requestService.getUserRequests(user, showArchived);
 
         model.addAttribute("user", user);
         model.addAttribute("requests", userRequests);
+        model.addAttribute("showArchived", showArchived);
 
         return "dashboard";
     }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users - Admin - Bromsgrove Student Portal</title>
+    <title>Manage Users - Admin - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -16,19 +16,38 @@
         <div class="container">
             <div class="dashboard-header">
                 <h1>Manage Users</h1>
-                <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
             </div>
 
             <!-- Flash Messages -->
             <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
             <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
+            <!-- Year Group Filter -->
+            <section class="filter-section">
+                <form method="get" action="/admin/users" class="filter-form">
+                    <div class="filter-row">
+                        <div class="form-group">
+                            <label for="yearGroup" class="form-label">Filter by Year Group</label>
+                            <select id="yearGroup" name="yearGroup" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Year Groups</option>
+                                <option value="9"  th:selected="${selectedYearGroup == 9}">Year 9</option>
+                                <option value="10" th:selected="${selectedYearGroup == 10}">Year 10</option>
+                                <option value="11" th:selected="${selectedYearGroup == 11}">Year 11</option>
+                                <option value="12" th:selected="${selectedYearGroup == 12}">Year 12</option>
+                                <option value="13" th:selected="${selectedYearGroup == 13}">Year 13</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
             <!-- Users Table -->
             <section class="users-section">
-                <h2>All Users</h2>
-                
+                <h2>Users <span th:if="${selectedYearGroup != null}" th:text="'— Year ' + ${selectedYearGroup}"></span></h2>
+
                 <div th:if="${#lists.isEmpty(users)}" class="empty-state">
-                    <p>No users found in the system.</p>
+                    <p>No users found.</p>
                 </div>
 
                 <div th:if="${!#lists.isEmpty(users)}" class="users-table-container">
@@ -45,18 +64,48 @@
                         <tbody>
                             <tr th:each="user : ${users}">
                                 <td th:text="${user.fullName}">John Doe</td>
-                                <td th:text="${user.email}">john@bromsgrove-school.co.uk</td>
-                                <td th:text="${user.yearGroup != null ? user.yearGroup : 'N/A'}">12</td>
+                                <td th:text="${user.email}">john@example.edu</td>
+                                <td th:text="${user.yearGroup != null ? user.yearGroup : '—'}">12</td>
                                 <td>
-                                    <span class="role-badge" 
-                                          th:classappend="${user.role.name().toLowerCase()}"
-                                          th:text="${user.role.getDisplayName()}">Student</span>
-                                    <span th:if="${user.role.name() == 'ADMIN'}" class="admin-badge">👑</span>
+                                    <span class="role-badge"
+                                          th:classappend="${user.role.toLowerCase()}"
+                                          th:text="${roleLabels.get(user.role)}">Student</span>
                                 </td>
-                                <td>
-                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" 
-                                          onsubmit="return confirm('Are you sure you want to permanently delete this user and all their data?');">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                <td class="actions-cell">
+                                    <!-- Change Password — opens a small form that floats above the table -->
+                                    <details class="inline-details">
+                                        <summary class="btn btn-secondary btn-small">Change Password</summary>
+                                        <form th:action="@{/admin/users/{id}/change-password(id=${user.id})}"
+                                              method="post" class="inline-password-form inline-password-form--above"
+                                              th:id="'pwForm_' + ${user.id}"
+                                              onsubmit="return validatePasswordForm(this);">
+                                            <!-- single toggle button controls visibility of both fields -->
+                                            <div class="pw-input-group">
+                                                <input type="password"
+                                                       th:id="'newPw_' + ${user.id}"
+                                                       name="newPassword"
+                                                       class="form-input-inline"
+                                                       placeholder="New password" required minlength="4">
+                                            </div>
+                                            <div class="pw-input-group">
+                                                <input type="password"
+                                                       th:id="'confirmPw_' + ${user.id}"
+                                                       name="confirmPassword"
+                                                       class="form-input-inline"
+                                                       placeholder="Confirm password" required minlength="4">
+                                            </div>
+                                            <div class="pw-form-actions">
+                                                <button type="button" class="btn btn-secondary btn-small"
+                                                        th:onclick="|toggleBothPw('newPw_${user.id}', 'confirmPw_${user.id}', this)|">Show</button>
+                                                <button type="submit" class="btn btn-primary btn-small">Save</button>
+                                            </div>
+                                        </form>
+                                    </details>
+                                    <!-- Delete user button -->
+                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('Permanently delete this user and all their data?');">
+                                        <button type="submit" class="btn btn-danger btn-small">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -67,7 +116,25 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script>
+        // toggles visibility of both password fields at once with a single button
+        function toggleBothPw(id1, id2, btn) {
+            var f1 = document.getElementById(id1);
+            var f2 = document.getElementById(id2);
+            var show = f1.type === 'password';
+            f1.type = show ? 'text' : 'password';
+            f2.type = show ? 'text' : 'password';
+            btn.textContent = show ? 'Hide' : 'Show';
+        }
+        // checks that the two password fields match before submitting
+        function validatePasswordForm(form) {
+            var inputs = form.querySelectorAll('input[name="newPassword"], input[name="confirmPassword"]');
+            if (inputs[0].value !== inputs[1].value) {
+                alert('Passwords do not match.');
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>

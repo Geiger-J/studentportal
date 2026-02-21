@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Bromsgrove Student Portal</title>
+    <title>Profile - Student Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -36,162 +36,160 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Role</label>
-                                <input type="text" class="form-input" th:value="${user.role.displayName}" readonly>
+                                <input type="text" class="form-input" th:value="${roleLabels.get(user.role)}" readonly>
                             </div>
                         </div>
                     </section>
 
                     <!-- Academic sections (only for STUDENT users) -->
-                    <div th:if="${user.role.name() == 'STUDENT'}">
+                    <div th:if="${user.role == 'STUDENT'}">
                         <section class="form-section">
                             <h2>Academic Information</h2>
 
-                        <div class="form-group">
-                            <label for="yearGroup" class="form-label">Year Group *</label>
-                            <select id="yearGroup" name="yearGroup" class="form-select" required>
-                                <option value="">Select your year group</option>
-                                <option value="9" th:selected="${user.yearGroup == 9}">Year 9</option>
-                                <option value="10" th:selected="${user.yearGroup == 10}">Year 10</option>
-                                <option value="11" th:selected="${user.yearGroup == 11}">Year 11</option>
-                                <option value="12" th:selected="${user.yearGroup == 12}">Year 12</option>
-                                <option value="13" th:selected="${user.yearGroup == 13}">Year 13</option>
-                            </select>
-                            <small class="form-help">Required for profile completion</small>
-                        </div>
+                            <div class="form-group">
+                                <label for="yearGroup" class="form-label">Year Group *</label>
+                                <select id="yearGroup" name="yearGroup" class="form-select" required>
+                                    <option value="">Select your year group</option>
+                                    <option value="9" th:selected="${user.yearGroup == 9}">Year 9</option>
+                                    <option value="10" th:selected="${user.yearGroup == 10}">Year 10</option>
+                                    <option value="11" th:selected="${user.yearGroup == 11}">Year 11</option>
+                                    <option value="12" th:selected="${user.yearGroup == 12}">Year 12</option>
+                                    <option value="13" th:selected="${user.yearGroup == 13}">Year 13</option>
+                                </select>
+                                <small class="form-help">Required for profile completion</small>
+                            </div>
 
-                        <div class="form-group" id="examBoardGroup">
-                            <label for="examBoard" class="form-label">Exam Board</label>
-                            <select id="examBoard" name="examBoard" class="form-select">
-                                <option value="">Select exam board</option>
-                                <option value="GCSE" th:selected="${user.examBoard?.name() == 'GCSE'}">GCSE</option>
-                                <option value="A_LEVELS" th:selected="${user.examBoard?.name() == 'A_LEVELS'}">A Levels</option>
-                                <option value="IB" th:selected="${user.examBoard?.name() == 'IB'}">International Baccalaureate</option>
-                            </select>
-                            <small class="form-help">Automatically set for Years 9-11 (GCSE). Choose for Years 12-13.</small>
-                        </div>
-                    </section>
+                            <div class="form-group" id="examBoardGroup">
+                                <label for="examBoard" class="form-label">Exam Board</label>
+                                <select id="examBoard" name="examBoard" class="form-select">
+                                    <option value="">Select exam board</option>
+                                    <option value="GCSE" th:selected="${user.examBoard == 'GCSE'}">GCSE</option>
+                                    <option value="A_LEVELS" th:selected="${user.examBoard == 'A_LEVELS'}">A Levels</option>
+                                    <option value="IB" th:selected="${user.examBoard == 'IB'}">International Baccalaureate</option>
+                                </select>
+                                <small class="form-help">Automatically set for Years 9-11 (GCSE). Choose for Years 12-13.</small>
+                            </div>
+                        </section>
 
-                    <section class="form-section">
-                        <h2>Subjects *</h2>
-                        <p class="section-description">Select the subjects you're studying or can help with:</p>
-                        <div class="subject-groups">
+                        <section class="form-section">
+                            <h2>Subjects *</h2>
+                            <p class="section-description">Select the subjects you're studying or can help with:</p>
                             <div th:each="group : ${subjectGroups}" class="subject-group">
                                 <h3 th:text="${group.key}">Subject Group</h3>
-                                <div class="subject-cards">
-                                    <div th:each="subject : ${group.value}" 
-                                         class="subject-card select-card"
-                                         th:classappend="${user.subjects != null and user.subjects.contains(subject)} ? 'selected' : ''"
-                                         role="button"
-                                         tabindex="0"
-                                         th:aria-pressed="${user.subjects != null and user.subjects.contains(subject)} ? 'true' : 'false'"
-                                         th:aria-label="${'Select ' + subject.displayName + ' subject'}"
-                                         onclick="toggleSubject(this)"
-                                         onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSubject(this); }">
-                                        <input type="checkbox"
-                                               th:id="${'subject_' + subject.id}"
-                                               name="subjectIds"
-                                               th:value="${subject.id}"
-                                               th:checked="${user.subjects != null and user.subjects.contains(subject)}">
-                                        <div class="subject-name" th:text="${subject.displayName}">Subject Name</div>
-                                    </div>
-                                </div>
+                                <ul class="subject-list">
+                                    <li th:each="subject : ${group.value}" class="subject-list-item">
+                                        <label>
+                                            <input type="checkbox"
+                                                   th:id="${'subject_' + subject.id}"
+                                                   name="subjectIds"
+                                                   th:value="${subject.id}"
+                                                   th:checked="${user.subjects != null and user.subjects.contains(subject)}">
+                                            <span th:text="${subject.displayName}">Subject Name</span>
+                                        </label>
+                                    </li>
+                                </ul>
                             </div>
-                        </div>
-                        <small class="form-help">Select at least one subject to complete your profile</small>
-                    </section>
+                            <small class="form-help">Select at least one subject to complete your profile</small>
+                        </section>
 
-                    <section class="form-section">
-                        <h2>Availability *</h2>
-                        <p class="section-description">Select when you're available for tutoring sessions:</p>
-                        <div class="timeslot-grid-wrapper">
-                            <table class="timeslot-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Monday</th>
-                                        <th>Tuesday</th>
-                                        <th>Wednesday</th>
-                                        <th>Thursday</th>
-                                        <th>Friday</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th>P1<br/><small>09:00-09:50</small></th>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P1" th:checked="${availabilityNames.contains('MON_P1')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P1" th:checked="${availabilityNames.contains('TUE_P1')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P1" th:checked="${availabilityNames.contains('WED_P1')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P1" th:checked="${availabilityNames.contains('THU_P1')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P1" th:checked="${availabilityNames.contains('FRI_P1')}"/><span class="checkmark"></span></label></td>
-                                    </tr>
-                                    <tr>
-                                        <th>P2<br/><small>09:55-10:45</small></th>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P2" th:checked="${availabilityNames.contains('MON_P2')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P2" th:checked="${availabilityNames.contains('TUE_P2')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P2" th:checked="${availabilityNames.contains('WED_P2')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P2" th:checked="${availabilityNames.contains('THU_P2')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P2" th:checked="${availabilityNames.contains('FRI_P2')}"/><span class="checkmark"></span></label></td>
-                                    </tr>
-                                    <tr>
-                                        <th>P3<br/><small>11:05-11:55</small></th>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P3" th:checked="${availabilityNames.contains('MON_P3')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P3" th:checked="${availabilityNames.contains('TUE_P3')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P3" th:checked="${availabilityNames.contains('WED_P3')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P3" th:checked="${availabilityNames.contains('THU_P3')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P3" th:checked="${availabilityNames.contains('FRI_P3')}"/><span class="checkmark"></span></label></td>
-                                    </tr>
-                                    <tr>
-                                        <th>P4<br/><small>12:00-12:50</small></th>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P4" th:checked="${availabilityNames.contains('MON_P4')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P4" th:checked="${availabilityNames.contains('TUE_P4')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P4" th:checked="${availabilityNames.contains('WED_P4')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P4" th:checked="${availabilityNames.contains('THU_P4')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P4" th:checked="${availabilityNames.contains('FRI_P4')}"/><span class="checkmark"></span></label></td>
-                                    </tr>
-                                    <tr>
-                                        <th>P5<br/><small>14:05-14:55</small></th>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P5" th:checked="${availabilityNames.contains('MON_P5')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P5" th:checked="${availabilityNames.contains('TUE_P5')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P5" th:checked="${availabilityNames.contains('WED_P5')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P5" th:checked="${availabilityNames.contains('THU_P5')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P5" th:checked="${availabilityNames.contains('FRI_P5')}"/><span class="checkmark"></span></label></td>
-                                    </tr>
-                                    <tr>
-                                        <th>P6<br/><small>15:00-15:50</small></th>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P6" th:checked="${availabilityNames.contains('MON_P6')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P6" th:checked="${availabilityNames.contains('TUE_P6')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P6" th:checked="${availabilityNames.contains('WED_P6')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P6" th:checked="${availabilityNames.contains('THU_P6')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P6" th:checked="${availabilityNames.contains('FRI_P6')}"/><span class="checkmark"></span></label></td>
-                                    </tr>
-                                    <tr>
-                                        <th>P7<br/><small>16:00-17:15</small></th>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P7" th:checked="${availabilityNames.contains('MON_P7')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P7" th:checked="${availabilityNames.contains('TUE_P7')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P7" th:checked="${availabilityNames.contains('WED_P7')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P7" th:checked="${availabilityNames.contains('THU_P7')}"/><span class="checkmark"></span></label></td>
-                                        <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P7" th:checked="${availabilityNames.contains('FRI_P7')}"/><span class="checkmark"></span></label></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <small class="form-help">Click on checkboxes to select your available timeslots</small>
-                    </section>
+                        <section class="form-section">
+                            <h2>Availability *</h2>
+                            <p class="section-description">Select when you're available for tutoring sessions:</p>
+                            <div class="timeslot-grid-wrapper">
+                                <table class="timeslot-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Monday</th>
+                                            <th>Tuesday</th>
+                                            <th>Wednesday</th>
+                                            <th>Thursday</th>
+                                            <th>Friday</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>P1<br/><small>09:00-09:50</small></th>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P1" th:checked="${availabilityNames.contains('MON_P1')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P1" th:checked="${availabilityNames.contains('TUE_P1')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P1" th:checked="${availabilityNames.contains('WED_P1')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P1" th:checked="${availabilityNames.contains('THU_P1')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P1" th:checked="${availabilityNames.contains('FRI_P1')}"/><span class="checkmark"></span></label></td>
+                                        </tr>
+                                        <tr>
+                                            <th>P2<br/><small>09:55-10:45</small></th>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P2" th:checked="${availabilityNames.contains('MON_P2')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P2" th:checked="${availabilityNames.contains('TUE_P2')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P2" th:checked="${availabilityNames.contains('WED_P2')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P2" th:checked="${availabilityNames.contains('THU_P2')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P2" th:checked="${availabilityNames.contains('FRI_P2')}"/><span class="checkmark"></span></label></td>
+                                        </tr>
+                                        <tr>
+                                            <th>P3<br/><small>11:05-11:55</small></th>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P3" th:checked="${availabilityNames.contains('MON_P3')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P3" th:checked="${availabilityNames.contains('TUE_P3')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P3" th:checked="${availabilityNames.contains('WED_P3')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P3" th:checked="${availabilityNames.contains('THU_P3')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P3" th:checked="${availabilityNames.contains('FRI_P3')}"/><span class="checkmark"></span></label></td>
+                                        </tr>
+                                        <tr>
+                                            <th>P4<br/><small>12:00-12:50</small></th>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P4" th:checked="${availabilityNames.contains('MON_P4')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P4" th:checked="${availabilityNames.contains('TUE_P4')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P4" th:checked="${availabilityNames.contains('WED_P4')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P4" th:checked="${availabilityNames.contains('THU_P4')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P4" th:checked="${availabilityNames.contains('FRI_P4')}"/><span class="checkmark"></span></label></td>
+                                        </tr>
+                                        <tr>
+                                            <th>P5<br/><small>14:05-14:55</small></th>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P5" th:checked="${availabilityNames.contains('MON_P5')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P5" th:checked="${availabilityNames.contains('TUE_P5')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P5" th:checked="${availabilityNames.contains('WED_P5')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P5" th:checked="${availabilityNames.contains('THU_P5')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P5" th:checked="${availabilityNames.contains('FRI_P5')}"/><span class="checkmark"></span></label></td>
+                                        </tr>
+                                        <tr>
+                                            <th>P6<br/><small>15:00-15:50</small></th>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P6" th:checked="${availabilityNames.contains('MON_P6')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P6" th:checked="${availabilityNames.contains('TUE_P6')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P6" th:checked="${availabilityNames.contains('WED_P6')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P6" th:checked="${availabilityNames.contains('THU_P6')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P6" th:checked="${availabilityNames.contains('FRI_P6')}"/><span class="checkmark"></span></label></td>
+                                        </tr>
+                                        <tr>
+                                            <th>P7<br/><small>16:00-17:15</small></th>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="MON_P7" th:checked="${availabilityNames.contains('MON_P7')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="TUE_P7" th:checked="${availabilityNames.contains('TUE_P7')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="WED_P7" th:checked="${availabilityNames.contains('WED_P7')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="THU_P7" th:checked="${availabilityNames.contains('THU_P7')}"/><span class="checkmark"></span></label></td>
+                                            <td><label class="timeslot-checkbox"><input type="checkbox" name="timeslots" value="FRI_P7" th:checked="${availabilityNames.contains('FRI_P7')}"/><span class="checkmark"></span></label></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <small class="form-help">Click on checkboxes to select your available timeslots</small>
+                        </section>
                     </div>
-                    <!-- End of academic sections for STUDENT users -->
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-large">Save Profile</button>
                     </div>
                 </form>
+
+                <!-- Danger Zone: Delete Account -->
+                <section class="form-section danger-zone" style="margin-top: 2rem;">
+                    <h2>Danger Zone</h2>
+                    <p class="section-description">Permanently delete your account and all your data. This cannot be undone.</p>
+                    <form th:action="@{/profile/delete-account}" method="post"
+                          onsubmit="return confirm('Are you sure you want to permanently delete your account? This cannot be undone.');">
+                        <button type="submit" class="btn btn-danger">Delete My Account</button>
+                    </form>
+                </section>
             </div>
         </div>
     </main>
 
-    <div th:replace="~{fragments/footer :: footer}"></div>
-
     <script>
-        // Year group change handler
         document.getElementById('yearGroup').addEventListener('change', function() {
             const yearGroup = parseInt(this.value);
             const examBoardSelect = document.getElementById('examBoard');
@@ -209,25 +207,6 @@
                 examBoardSelect.disabled = true;
                 examBoardGroup.querySelector('.form-help').textContent = 'Select a valid year group';
             }
-        });
-
-        // Subject card toggle functionality
-        function toggleSubject(card) {
-            const checkbox = card.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            card.classList.toggle('selected', checkbox.checked);
-            card.setAttribute('aria-pressed', checkbox.checked.toString());
-        }
-
-        // Initialize selected states on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set initial state for subject cards
-            document.querySelectorAll('.subject-card').forEach(card => {
-                const checkbox = card.querySelector('input[type="checkbox"]');
-                if (checkbox && checkbox.checked) {
-                    card.classList.add('selected');
-                }
-            });
         });
     </script>
 </body>
