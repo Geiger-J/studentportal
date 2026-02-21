@@ -3,6 +3,8 @@ package com.example.studentportal.service;
 import com.example.studentportal.model.Request;
 import com.example.studentportal.model.User;
 import com.example.studentportal.repository.RequestRepository;
+import com.example.studentportal.service.TimeService;
+import com.example.studentportal.util.DateUtil;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.matching.MaximumWeightBipartiteMatching;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -25,10 +27,12 @@ public class MatchingService {
     private static final Logger logger = LoggerFactory.getLogger(MatchingService.class);
 
     private final RequestRepository requestRepository;
+    private final TimeService timeService;
 
     @Autowired
-    public MatchingService(RequestRepository requestRepository) {
+    public MatchingService(RequestRepository requestRepository, TimeService timeService) {
         this.requestRepository = requestRepository;
+        this.timeService = timeService;
     }
 
     /**
@@ -120,13 +124,18 @@ public class MatchingService {
             Request seekRequest = match.getSeekRequest();
             String chosenTimeslot = match.getTimeslot();
 
+            // weekStartDate = Monday of the current week (sessions happen in the same week matching runs)
+            java.time.LocalDate weekStart = DateUtil.getMondayOfWeek(timeService.today());
+
             offerRequest.setStatus("MATCHED");
             offerRequest.setMatchedPartner(seekRequest.getUser());
             offerRequest.setChosenTimeslot(chosenTimeslot);
+            offerRequest.setWeekStartDate(weekStart);
 
             seekRequest.setStatus("MATCHED");
             seekRequest.setMatchedPartner(offerRequest.getUser());
             seekRequest.setChosenTimeslot(chosenTimeslot);
+            seekRequest.setWeekStartDate(weekStart);
 
             requestRepository.save(offerRequest);
             requestRepository.save(seekRequest);

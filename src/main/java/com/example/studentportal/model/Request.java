@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,9 @@ public class Request {
     private Set<String> timeslots = new HashSet<>();
     @Column(name = "chosen_timeslot")
     private String chosenTimeslot;
+    // Monday of the week this session belongs to — set when the match is made
+    @Column(name = "week_start_date")
+    private LocalDate weekStartDate;
     @Column(nullable = false)
     private String status = "PENDING";
     @Column(nullable = false)
@@ -83,6 +87,10 @@ public class Request {
     public String getChosenTimeslot() { return chosenTimeslot; }
 
     public void setChosenTimeslot(String chosenTimeslot) { this.chosenTimeslot = chosenTimeslot; }
+
+    public LocalDate getWeekStartDate() { return weekStartDate; }
+
+    public void setWeekStartDate(LocalDate weekStartDate) { this.weekStartDate = weekStartDate; }
 
     public Boolean getArchived() { return archived; }
 

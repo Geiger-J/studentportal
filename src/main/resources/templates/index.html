@@ -15,35 +15,64 @@
     <main class="main-content">
         <div class="container">
             <!-- Hero Section -->
-            <section>
+            <section class="hero">
                 <h1>Welcome to the Student Portal</h1>
                 <p>Connect with fellow students for tutoring and academic support</p>
 
-                <div sec:authorize="!isAuthenticated()">
-                    <a href="/register" class="btn">Get Started</a>
-                    <a href="/login" class="btn">Login</a>
+                <div class="hero-actions" sec:authorize="!isAuthenticated()">
+                    <a href="/register" class="btn btn-primary">Get Started</a>
+                    <a href="/login" class="btn btn-secondary">Login</a>
                 </div>
 
-                <div sec:authorize="isAuthenticated()">
-                    <a href="/dashboard" class="btn">Go to Dashboard</a>
+                <div class="hero-actions" sec:authorize="isAuthenticated()">
+                    <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
                 </div>
             </section>
 
-            <!-- Features Section -->
+            <!-- How It Works -->
             <section>
                 <h2>How It Works</h2>
-                <div>
-                    <div>
-                        <h3>Register</h3>
-                        <p>Create your account with your institutional email and complete your academic profile.</p>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>1. Register</h3>
+                        <p>Create your account with your school email and fill in your academic profile (year group, subjects, availability).</p>
                     </div>
-                    <div>
-                        <h3>Create Requests</h3>
-                        <p>Post requests to offer tutoring or seek help in specific subjects and timeslots.</p>
+                    <div class="feature-card">
+                        <h3>2. Create Requests</h3>
+                        <p>Post requests to offer tutoring or to seek help in specific subjects and timeslots that fit your schedule.</p>
                     </div>
-                    <div>
-                        <h3>Connect</h3>
-                        <p>Get matched with other students and start your peer tutoring sessions.</p>
+                    <div class="feature-card">
+                        <h3>3. Get Matched</h3>
+                        <p>An admin runs the matching algorithm — you'll see your matched partner on the dashboard and can contact them directly.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact / Info Section -->
+            <section>
+                <h2>Contact &amp; Information</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>General Enquiries</h3>
+                        <p>
+                            Have a question about the portal?<br>
+                            Email: <a href="mailto:portal@example.edu">portal@example.edu</a>
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Technical Support</h3>
+                        <p>
+                            Problems logging in or using the site?<br>
+                            Email: <a href="mailto:support@example.edu">support@example.edu</a>
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Tutoring Coordinator</h3>
+                        <p>
+                            Questions about a specific match or session?<br>
+                            Email: <a href="mailto:tutoring@example.edu">tutoring@example.edu</a><br>
+                            Room: A205 (Mon–Fri, 08:00–16:00)
+                        </p>
                     </div>
                 </div>
             </section>

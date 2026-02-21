@@ -463,7 +463,7 @@ input[type="radio"] {
     text-align: center;
 }
 
-/* timeslot checkbox cell */
+/* timeslot checkbox cell — centered tick */
 .timeslot-checkbox {
     display: flex;
     align-items: center;
@@ -484,6 +484,10 @@ input[type="radio"] {
     background: var(--surface);
     position: relative;
     transition: border-color .15s, background .15s;
+    /* ensure the pseudo-element tick is centred inside the box */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .timeslot-checkbox:not(.disabled):hover .checkmark {
     border-color: var(--primary-light);
@@ -849,10 +853,24 @@ input[type="radio"] {
     border-radius: var(--radius);
     padding: 0.75rem;
     box-shadow: var(--shadow-md);
-    min-width: 340px;
+    min-width: 280px;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+}
+
+/* variant that opens upward — avoids scroll when table is short */
+.inline-password-form--above {
+    top: auto;
+    bottom: calc(100% + 0.35rem);
+}
+
+/* row of actions inside the password popup */
+.pw-form-actions {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: flex-end;
+    margin-top: 0.2rem;
 }
 
 .form-input-inline {
@@ -950,6 +968,16 @@ input[type="radio"] {
 }
 
 .matched-partner-name { font-weight: 500; }
+
+/* small envelope icon link next to the matched partner name */
+.mailto-link {
+    margin-left: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--primary);
+    text-decoration: none;
+    vertical-align: middle;
+}
+.mailto-link:hover { color: var(--primary-dark); }
 
 /* ── Print ──────────────────────────────────────────────────── */
 @media print {

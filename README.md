@@ -1,322 +1,269 @@
-# Student Portal — Comprehensive Project Prompt
+# Student Portal — User Guide
 
-This document describes the project in precise, implementation-level detail to guide development, testing, and review.
+A peer-tutoring coordination portal for schools.
+Students can offer or seek tutoring in specific subjects and timeslots;
+an admin runs the matching algorithm to pair them up.
 
-## 1. Purpose and Scope
+---
 
-- A school tutoring coordination portal where students:
-  - Register and log in.
-  - Complete their profile (year group, subjects, availability).
-  - Create tutoring requests either to offer tutoring (TUTOR) or to seek tutoring (TUTEE).
-  - See request status and optionally cancel pending requests.
+## Table of Contents
 
-- Staff/Admin roles to oversee students activity.
+1. [Prerequisites](#1-prerequisites)
+2. [Database setup (PostgreSQL on macOS)](#2-database-setup-postgresql-on-macos)
+3. [Configuration files](#3-configuration-files)
+4. [Starting the application](#4-starting-the-application)
+5. [Using the portal](#5-using-the-portal)
+6. [Simulation time (local testing)](#6-simulation-time-local-testing)
+7. [Running the test suite](#7-running-the-test-suite)
+8. [Troubleshooting](#8-troubleshooting)
 
-## 2. Tech Stack
+---
 
-Runtime and libraries:
-- Language: Java (JDK 17+)
-- Spring Boot 3.x
-- Spring Security
-- Thymeleaf HTML templates
-- Persistence:
-  - Current development profile: JPA/Hibernate with ddl-auto=update for convenience
-  - Database: PostgreSQL
-- Front-end:
-  - Thymeleaf templates under src/main/resources/templates
-  - CSS under src/main/resources/static/css/style.css
-  - Light JavaScript for interactive selections (timeslots, subject card selection)
-- Architecture:
-  - config/ (Security, data seeding, etc.)
-  - controller/ (web controllers)
-  - model/ (entities, enums)
-  - repository/ (Spring Data repositories)
-  - service/ (business logic)
-  - util/ (date/time helpers, etc.)
+## 1. Prerequisites
 
-Development environment (hardware/software):
-- Local development in VS Code on macOS (per user environment).
-- Java extension for VS Code, local JDK.
-- Docker in planning, unfortunately not supported for my hardware (MacOS 12.x)
+| Tool | Minimum version | Check |
+|------|----------------|-------|
+| Java JDK | 17 | `java -version` |
+| Maven | 3.6 (or use `./mvnw`) | `mvn -version` |
+| PostgreSQL | 12 (local profile) | `psql --version` |
 
-Build tooling:
-- Standart Maven Spring Boot application.
+Clone the repository:
 
-## 3. Core Domain Model
+```bash
+git clone https://github.com/Geiger-J/studentportal.git
+cd studentportal
+```
 
-Entities and key fields:
-- User
-  - id
-  - fullName
-  - email
-  - passwordHash
-  - role (VARCHAR(20) in DB; roles include student and admin)
-  - yearGroup
-  - examBoard
-  - maxTutoringPerWeek (to be implemented)
-  - profileComplete (boolean)
-  - createdAt, updatedAt
-  - Availability (collection of Timeslot enum values, held in memory and persisted per implementation)
-  - Subject preferences (curated, grouped into fields of study, eg Languages)
+---
 
-- Subject
-  - id
-  - code
-  - displayName
-  - Group/category (Languages, STEM, Social Sciences) used for nice presentation
+## 2. Database setup (PostgreSQL on macOS)
 
-- Request
-  - id
-  - user (owner who created it)
-  - type (RequestType enum: TUTOR or TUTEE)
-  - subject (Subject)
-  - timeslots (collection of enum values like MON_P1, TUE_P2, etc.)
-  - weekStartDate (the Monday of the week the request targets)
-  - status (RequestStatus enum)
-  - matchedPartner (User; set after matching)
-  - createdAt, updatedAt
-  - archived (boolean)
-  - Note: A recurring boolean appears in the draft DB schema but is not yet part of the current working entity/UI logic.
+### Install PostgreSQL via Homebrew
 
-Enums:
-- RequestType
-  - TUTOR ("Offering Tutoring")
-  - TUTEE ("Seeking Tutoring")
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+```
 
-- RequestStatus (lifecycle; see section 6)
-  - PENDING
-  - MATCHED
-  - NOT_MATCHED
-  - DONE
-  - CANCELLED
-  - ARCHIVED: is handled by a separate boolean field.
+Add the CLI tools to your PATH if needed (add to `~/.zshrc` or `~/.bash_profile`):
 
-- Timeslot (naming pattern as used in views and forms)
-  - Values like MON_P1, TUE_P1, WED_P1, THU_P1, FRI_P1, repeated across P1–P7 periods.
-  - Saturday timeslots to be considered.
+```bash
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+```
 
-## 4. Curated Subjects and Grouping
+### Create the database and user
 
-Curated subjects, grouped for UI selection:
+```bash
+# open a postgres prompt as the system superuser
+psql postgres
+```
 
-- Languages:
-  - English
-  - German
-  - French
+Inside the psql prompt:
 
-- STEM:
-  - Mathematics
-  - Physics
-  - Biology
-  - Chemistry
+```sql
+CREATE DATABASE studentportal_db;
+CREATE USER studentportal_user WITH PASSWORD 'studentportal_pw';
+GRANT ALL PRIVILEGES ON DATABASE studentportal_db TO studentportal_user;
+-- also needed on Postgres 15+:
+\c studentportal_db
+GRANT ALL ON SCHEMA public TO studentportal_user;
+\q
+```
 
-- Social Sciences:
-  - Economics
-  - Politics
-  - Business
+### Verify the connection
 
-These groups are used in:
-- Profile completion: selecting subjects of interest/competency.
-- Request creation: selecting a single subject for the new request using the same curated grouping UI.
+```bash
+psql -U studentportal_user -d studentportal_db -c "SELECT 1;"
+```
 
-This list is to be extended. A consideration might be to add IB, A-Level or GCSE exclusive Subjects. The necessity is not given though.
+### Stop / start PostgreSQL
 
-## 5. Key Pages and UX Flows
+```bash
+brew services stop postgresql@16
+brew services start postgresql@16
+brew services restart postgresql@16
 
-(A) Registration and Login
-- Users can register with name, email, and password.
-- If the email starts with a number, the role STUDENT is assigned. If not, the role ADMIN is.
-- On first login, STUDENTS ONLY are prompted to complete their profile.
+# if you do not want it to run automatically on login:
+pg_ctl -D /opt/homebrew/var/postgresql@16 start
+pg_ctl -D /opt/homebrew/var/postgresql@16 stop
+```
 
-(B) Profile Completion (/profile)
-- Year group selection and other academic details.
-- Availability selection using a table-based UI:
-  - Columns: Monday to Friday
-  - Rows: Periods P1 - P7
-  - Each cell corresponds to a Timeslot enum (e.g. MON_P2).
-  - Clicking a cell toggles selection, visually indicated by CSS (.timeslot-cell.selected).
-- Curated subject selection:
-  - Grouped by Languages/STEM/Social Sciences.
-  - Card-based UI; selecting a subject toggles a selected visual state and stores the value in the form submission.
+---
 
-(C) Create Request (/requests/new)
-- Choose RequestType (TUTOR or TUTEE).
-- Choose Subject via the same curated grouped UI used in profile.
-- Timeslot selection:
-  - Same table-based UI.
-  - Cells not present in the user’s availability are disabled and display a tooltip suggesting editing the profile to enable those timeslots.
-- Week Start Date is shown (defaults to the next Monday).
-- Submit creates the request and redirects to the dashboard.
+## 3. Configuration files
 
-(D) Dashboard (/dashboard)
-- Lists the user’s requests in a table with the following columns:
-  - Subject (request.subject.displayName)
-  - Type (RequestType display name, CSS tagged type-tutor or type-tutee)
-  - Timeslots (count + inline labels for each selected timeslot)
-  - Status (RequestStatus with a CSS badge using the lowercase status as a class suffix)
-  - Matched Partner (matched partner’s full name if present; “Not matched” otherwise)
-  - Created (createdAt)
-  - Week Start (weekStartDate)
-  - Actions (e.g., Cancel when allowed)
-- Cancel action:
-  - POST to /requests/{id}/cancel
-  - Confirm dialog in UI
-  - Backend validation ensures only the owner can cancel and only when cancellable.
+| File | Purpose |
+|------|---------|
+| `src/main/resources/application.properties` | Default config — uses H2 in-memory DB (no setup needed, good for CI) |
+| `src/main/resources/application-local.properties` | Local development overrides — uses PostgreSQL and enables debug logging |
+| `src/test/resources/application-test.properties` | Test profile — H2 in-memory, no seeding, no scheduled jobs |
 
-## 6. Request Lifecycle (Statuses and Transitions)
+The `local` profile activates the PostgreSQL connection defined in `application-local.properties`.
+You can change the password there if you chose a different one when creating the DB.
 
-Statuses (from RequestStatus enum) define the lifecycle:
+---
 
-- PENDING
-  - Initial status upon request creation.
-  - Request is visible on the dashboard; cancel action may be available.
-- MATCHED
-  - Set when a tutoring match is established (future matching algorithm; currently planned).
-  - Shows matched partner on the dashboard.
-- NOT_MATCHED
-  - Indicates that no match could be found during a matching cycle.
-  - Still visible for user action or reprocessing.
-- DONE
-  - Indicates the tutoring session/arrangement was completed successfully.
-- CANCELLED
-  - User-initiated or system-initiated cancellation.
-  - Requests can only be cancelled if Request.canBeCancelled() returns true (business logic enforced in the entity/service).
+## 4. Starting the application
 
-Archiving:
-- ARCHIVED is not a status; repository/service expose queries using archived=false to list active/non-archived requests.
-- Archiving may be used to hide historical/completed requests from primary views.
+### Default mode (H2 in-memory, no external DB needed)
 
-Notes:
-- Matching algorithm, automated transitions, and recurring handling are planned enhancements.
-- The service layer exposes methods such as:
-  - hasActiveRequest(user, subject, type): prevent duplicates while pending.
-  - getUserRequests(user): fetch user’s requests ordered by createdAt desc.
-  - cancelRequest(id, user): authorization and transition to CANCELLED when allowed.
+```bash
+./mvnw spring-boot:run
+```
 
-## 7. Security and Roles
+Open http://localhost:8080
 
-- Spring Security guards routes based on authentication and role (role stored in users.role).
-- Roles:
-  - The database schema includes a role column (VARCHAR(20)); typical roles are Student and Admin/Staff.
-  - Role-specific capabilities:
-    - Student: registration, profile management, create/cancel their own requests, view their dashboard.
-    - Admin/Staff (planned UI): oversight of requests, matching, system management dashboards.
-- Login Emails by Role:
-  - The application supports distinct roles; specific seeded or test email accounts (if any) depend on the repository’s data seeding configuration. Use the configured seed data or create accounts reflecting:
-    - Student role (e.g., student@example.edu)
-    - Admin/Staff role (e.g., admin@example.edu)
-  - Exact addresses and credentials should be taken from the environment-specific seeding or test fixtures in your deployment.
+### Local mode (PostgreSQL)
 
-## 8. Styling and UI Conventions
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
 
-- CSS classes for request type chips:
-  - .type-tutor (Offering Tutoring) and .type-tutee (Seeking Tutoring)
-- Status badge styles:
-  - status-badge with class suffix matching lowercase status name (e.g., .status-badge.pending)
-- Timeslot table:
-  - .timeslot-table for grid styling
-  - .timeslot-cell toggles .selected
-  - Disabled cells use .timeslot-cell.disabled and show a tooltip
-- Subject cards:
-  - Group headings and a responsive card grid for each category
-  - Selected subject highlights and binds to a hidden form input (or radio) for server submission
+Make sure PostgreSQL is running before you start.
 
-## 9. Data Persistence and Database
+### Passing the simulation time on the command line (local mode)
 
-- Current dev approach:
-  - Hibernate auto DDL (spring.jpa.hibernate.ddl-auto=update) for convenience during iteration (not recommended for production).
-- Target database: PostgreSQL
-  - Example configuration (see repository’s README_DB):
-    - spring.datasource.url=jdbc:postgresql://localhost:5432/studentportal_db
-    - spring.datasource.username=studentportal_user
-    - spring.datasource.password=…
-    - spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-- Schema (from README_DB) illustrates the intended shape:
-  - users(id, full_name, email, password_hash, role, year_group, exam_board, max_tutoring_per_week, profile_complete, created_at, updated_at)
-  - requests(id, user_id, type, subject_id, recurring, week_start_date, status, matched_partner_id, created_at, updated_at)
-  - subjects(id, code, display_name)
-- Migrations:
-  - Planned adoption of Flyway for schema versioning before production.
-  - For test and local development, H2 and/or PostgreSQL can be used per profile.
+```bash
+./mvnw spring-boot:run \
+  -Dspring-boot.run.profiles=local \
+  -Dspring-boot.run.jvmArguments="-Dapp.simulation.datetime=2025-01-20T09:51:00"
+```
 
-## 10) Endpoints and Routing (Representative)
+See Section 6 for details.
 
-- GET /dashboard
-  - Requires login; shows user’s requests.
-- GET /profile
-  - Render profile with availability and subject selections.
-- POST /profile
-  - Save profile changes.
-- GET /requests/new
-  - Render request creation form (type, subject, timeslots).
-- POST /requests
-  - Create new request; server-side checks prevent duplicates (pending, same subject/type).
-- POST /requests/{id}/cancel
-  - Cancel the request if authorized and cancellable.
+### Build a JAR and run it
 
-Note: Route names reflect template usage and typical Spring MVC patterns evident in the codebase.
+```bash
+./mvnw clean package -DskipTests
+java -jar target/studentportal-0.0.1-SNAPSHOT.jar
+# with the local profile:
+java -jar target/studentportal-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
+```
 
-## 11) Business Rules (Highlights)
+---
 
-- Users can only cancel their own requests.
-- Requests can only be cancelled when cancellable per business logic (e.g., likely while PENDING).
-- Duplicate pending requests for same subject and type are prevented.
-- Timeslots in the request form are limited to those selected in profile availability.
-- Week start date aligns to the next Monday to provide scheduling runway.
+## 5. Using the portal
 
-## 12) Known and Planned Features
+### Accounts and roles
 
-- Planned (from repository roadmap notes):
-  - Matching algorithm (e.g., Hopcroft–Karp) for optimal pairing.
-  - Automated scheduling runs, status transitions.
-  - Recurring requests support.
-  - Max tutoring per week enforcement.
-  - Admin dashboard for staff.
-  - Email notifications and reminders.
-  - Enhanced security hardening and CSRF configuration.
-  - Flyway migrations and CI/CD pipeline.
+| Email pattern | Role |
+|--------------|------|
+| Starts with a digit (e.g. `12345@example.edu`) | **Student** |
+| Starts with a letter (e.g. `teacher@example.edu`) | **Admin** |
 
-## 13) Development Workflow
+All emails must end with `@example.edu`.
 
-- Local development:
-  - VS Code with Java support, JDK 17+, and Spring Boot tooling.
-  - Run application via your build tool’s Spring Boot run task.
-  - For database:
-    - Initial iteration with JPA auto DDL.
-    - Transition to PostgreSQL locally (Docker or native install) as needed.
-- Testing:
-  - Unit and integration tests per standard Spring testing setup (repositories/services/controllers).
-  - H2/Hikari configuration per test profile.
+The application seeds 10 standard subjects on first start
+(Mathematics, Physics, Chemistry, Biology, English, German, French, Economics, Politics, Business).
 
-## 14) Acceptance Criteria Summary
+### Student workflow
 
-- Students can:
-  - Register, log in, and complete a profile with year group, subjects (curated groups), and availability.
-  - Create tutoring requests by choosing type, subject, and allowed timeslots.
-  - View their requests in a sortable/readable dashboard table with status badges and matched partner (when set).
-  - Cancel pending requests when permitted.
+1. Register at `/register` with a student email.
+2. Complete your profile: year group, exam board, subjects, weekly availability.
+3. Create a tutoring request (`/requests/new`): choose TUTOR (offering) or TUTEE (seeking), pick a subject and timeslots.
+4. Wait for an admin to run the matching algorithm.
+5. Check your dashboard for a matched partner — click the envelope icon to email them directly.
+6. The request status automatically changes to **Done** once the chosen timeslot has passed.
 
-- Roles and security:
-  - Role stored on user; route protection via Spring Security.
-  - Admin/staff oversight functions: planned.
+### Admin workflow
 
-- Data:
-  - Request lifecycle adheres to PENDING → MATCHED/NOT_MATCHED → DONE or CANCELLED.
-  - Archiving supported via boolean field (non-archived shown by default queries).
-  - Subject and timeslot selections persist and round-trip through UI.
+1. Register with an admin email (letter-first, e.g. `staff@example.edu`).
+2. Go to `/admin/dashboard`.
+3. Click **Run Matching** to pair pending tutors with tutees.
+4. Use **Manage Users** to view, change passwords, or delete accounts.
+5. Use **Manage Requests** to cancel any pending or matched requests.
+6. Click **Archive Old Requests** to hide done/cancelled requests from the active view.
 
-## 15) Glossary
+### Request lifecycle
 
-- Timeslot: A discrete scheduling unit, identified by day and period (e.g., MON_P2). Presented in a Monday–Friday by P1–Pn table.
-- Request: A student’s offer to tutor or ask for tutoring, bound to a subject and timeslot set for a given week.
-- Matched Partner: The counterpart user paired for a request when matched.
-- Week Start Date: The Monday that anchors the scheduling week for a request.
-- Curated Subjects: A school-defined list grouped into Languages, STEM, and Social Sciences.
+```
+PENDING --> MATCHED --> DONE   (automatic at end of scheduled timeslot)
+   |            |
+   +------------+--> CANCELLED  (user or admin action)
+```
 
-## 16) Notes on Exactness and Source
+---
 
-- Status and type enums are taken directly from repository code.
-- Curated subject lists and grouping are taken from repository documentation.
-- UI behavior is described from the current Thymeleaf templates and CSS.
-- Role information is drawn from schema; concrete seeded logins should be verified against the environment's seeding configuration.
-- Library versions are sourced from runtime stack traces.
+## 6. Simulation time (local testing)
+
+The scheduler marks matched requests as **Done** when their timeslot end-time passes.
+To test this without waiting for a real Monday morning, set a simulated "current time".
+
+**Option A - via `application-local.properties`:**
+
+```properties
+# in src/main/resources/application-local.properties
+app.simulation.datetime=2025-01-20T09:51:00
+```
+
+Leave blank (`app.simulation.datetime=`) to use real time.
+
+**Option B - command-line property (one-off):**
+
+```bash
+./mvnw spring-boot:run \
+  -Dspring-boot.run.profiles=local \
+  -Dspring-boot.run.jvmArguments="-Dapp.simulation.datetime=2025-01-20T09:51:00"
+```
+
+`2025-01-20` was a Monday. `09:51` is just after period P1 ends (P1 = 09:00-09:50),
+so any MATCHED request with `chosenTimeslot=MON_P1` on week starting `2025-01-20`
+will be marked Done within one minute of startup.
+
+---
+
+## 7. Running the test suite
+
+```bash
+# all tests (uses H2 in-memory, no Postgres needed)
+./mvnw test
+
+# specific test class
+./mvnw test -Dtest=RequestStatusSchedulerTest
+
+# skip tests during packaging
+./mvnw clean package -DskipTests
+```
+
+Tests run against an H2 in-memory database and complete in under 30 seconds.
+The background scheduler is disabled in the test profile (@Profile("!test")).
+
+---
+
+## 8. Troubleshooting
+
+### Port 8080 already in use
+
+```bash
+lsof -i :8080          # find the PID
+# terminate the process, then retry
+# or change the port:
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=8081"
+```
+
+### PostgreSQL connection refused
+
+```bash
+brew services list | grep postgresql   # check it is running
+psql -U studentportal_user -d studentportal_db  # test credentials
+```
+
+If you need to reset the password:
+```sql
+ALTER USER studentportal_user WITH PASSWORD 'newpassword';
+```
+Then update `spring.datasource.password` in `application-local.properties` accordingly.
+
+### H2 console (default/test mode)
+
+Navigate to http://localhost:8080/h2-console
+JDBC URL: `jdbc:h2:mem:studentportal`
+Username: `sa` / Password: (blank)
+
+### Build fails with Java version mismatch
+
+```bash
+java -version          # must be 17+
+/usr/libexec/java_home -V   # macOS: list all installed JDKs
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+```

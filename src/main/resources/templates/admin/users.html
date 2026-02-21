@@ -72,21 +72,20 @@
                                           th:text="${roleLabels.get(user.role)}">Student</span>
                                 </td>
                                 <td class="actions-cell">
-                                    <!-- Change Password Form -->
+                                    <!-- Change Password — opens a small form that floats above the table -->
                                     <details class="inline-details">
                                         <summary class="btn btn-secondary btn-small">Change Password</summary>
                                         <form th:action="@{/admin/users/{id}/change-password(id=${user.id})}"
-                                              method="post" class="inline-password-form"
+                                              method="post" class="inline-password-form inline-password-form--above"
                                               th:id="'pwForm_' + ${user.id}"
                                               onsubmit="return validatePasswordForm(this);">
+                                            <!-- single toggle button controls visibility of both fields -->
                                             <div class="pw-input-group">
                                                 <input type="password"
                                                        th:id="'newPw_' + ${user.id}"
                                                        name="newPassword"
                                                        class="form-input-inline"
                                                        placeholder="New password" required minlength="4">
-                                                <button type="button" class="btn-show-hide"
-                                                        th:onclick="|togglePw('newPw_${user.id}', this)|">Show</button>
                                             </div>
                                             <div class="pw-input-group">
                                                 <input type="password"
@@ -94,13 +93,15 @@
                                                        name="confirmPassword"
                                                        class="form-input-inline"
                                                        placeholder="Confirm password" required minlength="4">
-                                                <button type="button" class="btn-show-hide"
-                                                        th:onclick="|togglePw('confirmPw_${user.id}', this)|">Show</button>
                                             </div>
-                                            <button type="submit" class="btn btn-primary btn-small">Save</button>
+                                            <div class="pw-form-actions">
+                                                <button type="button" class="btn btn-secondary btn-small"
+                                                        th:onclick="|toggleBothPw('newPw_${user.id}', 'confirmPw_${user.id}', this)|">Show</button>
+                                                <button type="submit" class="btn btn-primary btn-small">Save</button>
+                                            </div>
                                         </form>
                                     </details>
-                                    <!-- Delete Form -->
+                                    <!-- Delete user button -->
                                     <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
                                           style="display:inline;"
                                           onsubmit="return confirm('Permanently delete this user and all their data?');">
@@ -116,16 +117,16 @@
     </main>
 
     <script>
-        function togglePw(fieldId, btn) {
-            var field = document.getElementById(fieldId);
-            if (field.type === 'password') {
-                field.type = 'text';
-                btn.textContent = 'Hide';
-            } else {
-                field.type = 'password';
-                btn.textContent = 'Show';
-            }
+        // toggles visibility of both password fields at once with a single button
+        function toggleBothPw(id1, id2, btn) {
+            var f1 = document.getElementById(id1);
+            var f2 = document.getElementById(id2);
+            var show = f1.type === 'password';
+            f1.type = show ? 'text' : 'password';
+            f2.type = show ? 'text' : 'password';
+            btn.textContent = show ? 'Hide' : 'Show';
         }
+        // checks that the two password fields match before submitting
         function validatePasswordForm(form) {
             var inputs = form.querySelectorAll('input[name="newPassword"], input[name="confirmPassword"]');
             if (inputs[0].value !== inputs[1].value) {

@@ -90,19 +90,21 @@ public class AdminController {
         return "admin/requests";
     }
 
-    @PostMapping("/requests/{id}/delete")
-    public String deleteRequest(@PathVariable Long id,
+    // cancel a pending/matched request — admins can only cancel, not permanently delete
+    @PostMapping("/requests/{id}/cancel")
+    public String cancelRequest(@PathVariable Long id,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
             RedirectAttributes redirectAttributes) {
         try {
-            requestService.deleteRequest(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Request deleted successfully.");
+            requestService.adminCancelRequest(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Request cancelled successfully.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting request: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error cancelling request: " + e.getMessage());
         }
+        // preserve filter state on redirect
         String redirect = "redirect:/admin/requests";
         if (status != null && !status.isEmpty()) {
             redirect += "?status=" + status;
@@ -144,10 +146,25 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    // delete a user — if admin deletes themselves, log out and go to home page
     @PostMapping("/users/delete/{id}")
-    public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteUser(@PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            HttpServletRequest request,
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes) {
         try {
+            // check whether the admin is deleting their own account (null-safe)
+            boolean deletingSelf = principal != null
+                    && principal.getUser() != null
+                    && principal.getUser().getId().equals(id);
             userService.deleteUser(id);
+            if (deletingSelf) {
+                // log out the current session since we just removed ourselves
+                new SecurityContextLogoutHandler().logout(request, response,
+                        SecurityContextHolder.getContext().getAuthentication());
+                return "redirect:/";
+            }
             redirectAttributes.addFlashAttribute("successMessage",
                     "User deleted successfully along with all associated data.");
         } catch (IllegalArgumentException e) {
@@ -242,6 +259,6 @@ public class AdminController {
                     "Error deleting account: " + e.getMessage());
             return "redirect:/admin/profile";
         }
-        return "redirect:/login?accountDeleted";
+        return "redirect:/";
     }
 }
