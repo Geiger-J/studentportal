@@ -2,6 +2,8 @@ package com.example.studentportal.util;
 
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -24,10 +26,14 @@ public class Timeslots {
     private static final String[] DAYS = {"MON", "TUE", "WED", "THU", "FRI"};
     private static final String[] DAY_NAMES = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
     private static final int PERIODS = 7;
+    // end time for each period (index 0 = P1, 1 = P2, …)
     private static final String[] PERIOD_TIMES = {
         "09:00-09:50", "09:55-10:45", "11:05-11:55",
         "12:00-12:50", "14:05-14:55", "15:00-15:50", "16:00-17:15"
     };
+
+    // separator between day code and period number in slot codes (e.g. "MON_P1")
+    private static final String TIMESLOT_SEPARATOR = "_P";
 
     static {
         List<String> codes = new ArrayList<>();
@@ -77,5 +83,46 @@ public class Timeslots {
             if (isValid(code)) valid.add(code);
         }
         return valid;
+    }
+
+    /**
+     * Calculates the exact end date-time for a given timeslot within a specific week.
+     *
+     * - weekStart must be the Monday of the week (use DateUtil.getMondayOfWeek).
+     * - code is like "MON_P1", "FRI_P7", etc.
+     * - Returns null if the code or weekStart is invalid.
+     *
+     * Example: weekStart=2025-01-20 (Mon), code="TUE_P2" → 2025-01-21 10:45
+     */
+    public static LocalDateTime getTimeslotEndTime(LocalDate weekStart, String code) {
+        if (weekStart == null || code == null) return null;
+
+        // split "TUE_P3" into ["TUE", "3"] using the separator constant
+        String[] parts = code.split(TIMESLOT_SEPARATOR);
+        if (parts.length != 2) return null;
+
+        String day = parts[0];
+        int period;
+        try {
+            period = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        if (period < 1 || period > PERIODS) return null;
+
+        // day offset from Monday (MON=0, TUE=1, …, FRI=4)
+        int dayOffset = -1;
+        for (int i = 0; i < DAYS.length; i++) {
+            if (DAYS[i].equals(day)) { dayOffset = i; break; }
+        }
+        if (dayOffset < 0) return null;
+
+        // PERIOD_TIMES[period-1] is like "09:00-09:50"; take the part after "-"
+        String endStr = PERIOD_TIMES[period - 1].split("-")[1]; // "09:50"
+        String[] hm = endStr.split(":");
+        int hour   = Integer.parseInt(hm[0]);
+        int minute = Integer.parseInt(hm[1]);
+
+        return weekStart.plusDays(dayOffset).atTime(hour, minute);
     }
 }

@@ -49,4 +49,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(
         User user, User matchedPartner, String status, Subject subject);
+
+    // finds all requests where another user is listed as the matched partner at a given status
+    // used when that partner is being deleted — so we can cancel their requests
+    List<Request> findByMatchedPartnerAndStatus(User matchedPartner, String status);
 }

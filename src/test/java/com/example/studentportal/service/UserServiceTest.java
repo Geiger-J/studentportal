@@ -1,6 +1,10 @@
 package com.example.studentportal.service;
 
+import com.example.studentportal.model.Request;
+import com.example.studentportal.model.Subject;
 import com.example.studentportal.model.User;
+import com.example.studentportal.repository.RequestRepository;
+import com.example.studentportal.repository.SubjectRepository;
 import com.example.studentportal.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,11 +33,22 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Autowired
+    private RequestRepository requestRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private Subject testSubject;
 
     @BeforeEach
     void setUp() {
+        requestRepository.deleteAll();
         userRepository.deleteAll();
+        subjectRepository.deleteAll();
+        testSubject = subjectRepository.save(new Subject("MATHS", "Mathematics"));
     }
 
     @Test
@@ -119,5 +136,52 @@ class UserServiceTest {
 
         assertFalse(userService.isProfileComplete(user));
         assertFalse(user.isProfileComplete());
+    }
+
+    // ── deleteUser partner-cancellation tests ──────────────────────────────
+
+    @Test
+    void testDeleteUser_CancelsPartnerMatchedRequest() {
+        // set up two matched users
+        User userA = userRepository.save(new User("User A", "1111@example.edu", "pass", "STUDENT"));
+        User userB = userRepository.save(new User("User B", "2222@example.edu", "pass", "STUDENT"));
+
+        // create a MATCHED request pair
+        Request reqA = new Request(userA, "TUTOR", testSubject, Set.of("MON_P1"));
+        reqA.setStatus("MATCHED");
+        reqA.setMatchedPartner(userB);
+        requestRepository.save(reqA);
+
+        Request reqB = new Request(userB, "TUTEE", testSubject, Set.of("MON_P1"));
+        reqB.setStatus("MATCHED");
+        reqB.setMatchedPartner(userA);
+        requestRepository.save(reqB);
+
+        // delete userA — userB's request should be cancelled
+        userService.deleteUser(userA.getId());
+
+        // userB's request must now be CANCELLED with no matchedPartner
+        Request updatedReqB = requestRepository.findById(reqB.getId()).orElseThrow();
+        assertEquals("CANCELLED", updatedReqB.getStatus(),
+                "Partner's request should be CANCELLED when matched user is deleted");
+        assertNull(updatedReqB.getMatchedPartner(),
+                "Partner reference should be cleared");
+    }
+
+    @Test
+    void testDeleteUser_AlsoDeletesOwnRequests() {
+        User user = userRepository.save(new User("User X", "3333@example.edu", "pass", "STUDENT"));
+
+        Request pending = new Request(user, "TUTOR", testSubject, Set.of("TUE_P2"));
+        pending.setStatus("PENDING");
+        requestRepository.save(pending);
+
+        userService.deleteUser(user.getId());
+
+        // user's own requests must be gone
+        assertFalse(requestRepository.findById(pending.getId()).isPresent(),
+                "User's own requests should be deleted");
+        assertFalse(userRepository.findById(user.getId()).isPresent(),
+                "User should be deleted");
     }
 }
