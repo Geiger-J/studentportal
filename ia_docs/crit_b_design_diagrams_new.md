@@ -12,119 +12,137 @@
 
 ### 1.1 Domain Class Diagram
 
-Caption: Core domain entities User, Request, and Subject — their fields, methods, and associations; corresponds to the model package.
+Caption: Domain entities, Match value object, and relationships.
 
 ```mermaid
 classDiagram
     direction LR
 
     class User {
-        +Long id
-        +String fullName
-        +String email
-        +String passwordHash
-        +String role
-        +Integer yearGroup
-        +String examBoard
-        +Boolean profileComplete
-        +LocalDateTime createdAt
-        +LocalDateTime updatedAt
+        -Long id
+        -String fullName
+        -String email
+        -String passwordHash
+        -String role
+        -Integer yearGroup
+        -String examBoard
+        -Boolean profileComplete
+        -LocalDateTime createdAt
+        -LocalDateTime updatedAt
+        +get/set*()
         +isProfileComplete() Boolean
         +updateProfileCompleteness() void
     }
 
     class Request {
-        +Long id
-        +String type
-        +String status
-        +String chosenTimeslot
-        +LocalDate weekStartDate
-        +Boolean archived
-        +LocalDateTime createdAt
+        -Long id
+        -String type
+        -String status
+        -String chosenTimeslot
+        -LocalDate weekStartDate
+        -Boolean archived
+        -LocalDateTime createdAt
+        +get/set*()
         +canBeCancelled() Boolean
         +cancel() void
     }
 
     class Subject {
-        +Long id
-        +String code
-        +String displayName
+        -Long id
+        -String code
+        -String displayName
+        +get/set*()
     }
 
-    User "1" --> "0..*" Request : owns
-    User "0..1" --> "0..*" Request : matchedPartner
+    class Match {
+        -Request offerRequest
+        -Request seekRequest
+        -String timeslot
+        -double weight
+        +getOfferRequest() Request
+        +getSeekRequest() Request
+        +getTimeslot() String
+        +getWeight() double
+    }
+
+    note for Match "Inner static class of MatchingService; transient value object"
+
+    User "1" *-- "0..*" Request : owns
+    Request "0..*" --> "0..1" User : matchedPartner
     Request "0..*" --> "1" Subject : subject
-    User "0..*" --> "0..*" Subject : subjects
+    User "0..*" o-- "0..*" Subject : subjects
+    Match "0..*" --> "1" Request : offerRequest
+    Match "0..*" --> "1" Request : seekRequest
 ```
 
-Source: src/main/java/com/example/studentportal/model/User.java, model/Request.java, model/Subject.java
+Source: src/main/java/com/example/studentportal/model/User.java, model/Request.java, model/Subject.java, service/MatchingService.java (inner Match class)
 
 ---
 
 ### 1.2 Service Interaction Diagram (Part 1 of 2) — Controllers to Services
 
-Caption: Controller layer classes and their dependencies on service layer classes; shows which controller calls which service.
+Caption: Controller and service classes with method signatures.
 
 ```mermaid
 classDiagram
     direction TB
 
     class AuthController {
-        +showRegistrationForm() String
-        +registerUser() String
+        +showRegistrationForm(Model model) String
+        +registerUser(RegistrationForm form, BindingResult result) String
     }
 
     class ProfileController {
-        +showProfile() String
-        +updateProfile() String
-        +deleteAccount() String
+        +showProfile(Principal principal, Model model) String
+        +updateProfile(Principal principal, Integer yearGroup, String examBoard, List~Long~ subjectIds, List~String~ timeslots) String
+        +deleteAccount(Principal principal) String
     }
 
     class RequestController {
-        +showRequestForm() String
-        +createRequest() String
-        +cancelRequest() String
+        +showRequestForm(Principal principal, Model model) String
+        +createRequest(Principal principal, String type, Long subjectId, List~String~ timeslots) String
+        +cancelRequest(Principal principal, Long id) String
     }
 
     class DashboardController {
-        +dashboard() String
+        +dashboard(Principal principal, boolean showArchived, Model model) String
     }
 
     class AdminController {
-        +adminDashboard() String
-        +viewRequests() String
-        +cancelRequest() String
-        +viewUsers() String
-        +changeUserPassword() String
-        +deleteUser() String
+        +adminDashboard(Principal principal, Model model) String
+        +viewRequests(String status, boolean showArchived, Model model) String
+        +cancelRequest(Long id, String status, boolean showArchived) String
+        +viewUsers(Integer yearGroup, Model model) String
+        +changeUserPassword(Long id, String newPassword) String
+        +deleteUser(Long id) String
         +triggerMatching() String
         +archiveOldRequests() String
     }
 
     class UserService {
-        +registerUser() User
-        +updateProfile() void
-        +changePassword() void
-        +deleteUser() void
-        +getAllUsers() List
+        +registerUser(String fullName, String email, String rawPassword) User
+        +updateProfile(User user) void
+        +changePassword(Long userId, String newRawPassword) void
+        +deleteUser(Long id) void
+        +getAllUsers() List~User~
     }
 
     class RequestService {
-        +createRequest() Request
-        +cancelRequest() void
-        +adminCancelRequest() Request
+        +createRequest(User user, String type, Subject subject, Set~String~ timeslots) Request
+        +cancelRequest(Long requestId, User user) Request
+        +adminCancelRequest(Long id) Request
         +archiveOldRequests() int
-        +getRequestsByStatus() List
+        +getRequestsByStatus(String status) List~Request~
     }
 
     class MatchingService {
         +performMatching() int
-        +runMatching() List
+        +runMatching() List~Match~
     }
 
     class SubjectService {
-        +getAllSubjects() List
-        +findById() Optional
+        +getAllSubjects() List~Subject~
+        +findById(Long id) Optional~Subject~
     }
 
     AuthController --> UserService
@@ -144,31 +162,31 @@ Source: src/main/java/com/example/studentportal/controller/AuthController.java, 
 
 ### 1.2 Service Interaction Diagram (Part 2 of 2) — Services to Repositories
 
-Caption: Service and scheduler classes and their dependencies on JPA repository interfaces; shows which service reads or writes which repository.
+Caption: Service and scheduler classes with repository method signatures.
 
 ```mermaid
 classDiagram
     direction TB
 
     class UserService {
-        +registerUser() User
-        +updateProfile() void
-        +changePassword() void
-        +deleteUser() void
-        +getAllUsers() List
+        +registerUser(String fullName, String email, String rawPassword) User
+        +updateProfile(User user) void
+        +changePassword(Long userId, String newRawPassword) void
+        +deleteUser(Long id) void
+        +getAllUsers() List~User~
     }
 
     class RequestService {
-        +createRequest() Request
-        +cancelRequest() void
-        +adminCancelRequest() Request
+        +createRequest(User user, String type, Subject subject, Set~String~ timeslots) Request
+        +cancelRequest(Long requestId, User user) Request
+        +adminCancelRequest(Long id) Request
         +archiveOldRequests() int
-        +getRequestsByStatus() List
+        +getRequestsByStatus(String status) List~Request~
     }
 
     class MatchingService {
         +performMatching() int
-        +runMatching() List
+        +runMatching() List~Match~
     }
 
     class RequestStatusScheduler {
@@ -176,25 +194,25 @@ classDiagram
     }
 
     class SubjectService {
-        +getAllSubjects() List
-        +findById() Optional
+        +getAllSubjects() List~Subject~
+        +findById(Long id) Optional~Subject~
     }
 
     class UserRepository {
-        +findByEmail() Optional
-        +existsByEmail() Boolean
-        +findByYearGroup() List
+        +findByEmail(String email) Optional~User~
+        +existsByEmail(String email) Boolean
+        +findByYearGroup(Integer yearGroup) List~User~
     }
 
     class RequestRepository {
-        +findByStatus() List
-        +findByUser() List
-        +clearMatchedPartnerReferences() void
-        +deleteByUser() void
+        +findByStatus(String status) List~Request~
+        +findByUserOrderByCreatedAtDesc(User user) List~Request~
+        +clearMatchedPartnerReferences(User user) void
+        +deleteByUser(User user) void
     }
 
     class SubjectRepository {
-        +findByCode() Optional
+        +findByCode(String code) Optional~Subject~
     }
 
     UserService --> UserRepository
@@ -338,23 +356,18 @@ Source: src/main/java/com/example/studentportal/controller/ (all controllers), s
 
 ---
 
-### 3.2 Level 0 DFD
+### 3.2 Level 0 DFD (Part 1 of 2) — Student-facing Processes
 
-Caption: Level 0 DFD decomposing the system into seven processes; shows data flows between external actors, processes, and the shared database store.
+Caption: Data flows for student interactions: auth, profile, and requests.
 
 ```mermaid
 graph TD
     STUDENT(["Student"])
-    ADMIN(["Admin"])
     DB[("Database")]
 
     P1["1 Authentication<br>SecurityConfig<br>AuthController"]
     P2["2 Profile Management<br>ProfileController<br>UserService"]
     P3["3 Tutoring Request Management<br>RequestController<br>RequestService"]
-    P4["4 Matching Algorithm<br>MatchingService<br>JGraphT"]
-    P5["5 Scheduled Status Transition<br>RequestStatusScheduler<br>TimeService"]
-    P6["6 Admin Request Management<br>AdminController<br>RequestService"]
-    P7["7 Admin User Management<br>AdminController<br>UserService"]
 
     STUDENT -- "Credentials" --> P1
     P1 -- "Authenticated session and role" --> STUDENT
@@ -367,6 +380,25 @@ graph TD
     STUDENT -- "Request type, subject, timeslots" --> P3
     P3 -- "Request confirmation and dashboard" --> STUDENT
     P3 -- "Write and read requests" --> DB
+```
+
+Source: src/main/java/com/example/studentportal/controller/AuthController.java, controller/ProfileController.java, controller/RequestController.java, service/UserService.java, service/RequestService.java
+
+---
+
+### 3.2 Level 0 DFD (Part 2 of 2) — Admin-facing Processes and Background Automation
+
+Caption: Data flows for admin operations and scheduled transitions.
+
+```mermaid
+graph TD
+    ADMIN(["Admin"])
+    DB[("Database")]
+
+    P4["4 Matching Algorithm<br>MatchingService<br>JGraphT"]
+    P5["5 Scheduled Status Transition<br>RequestStatusScheduler<br>TimeService"]
+    P6["6 Admin Request Management<br>AdminController<br>RequestService"]
+    P7["7 Admin User Management<br>AdminController<br>UserService"]
 
     ADMIN -- "Trigger matching" --> P4
     P4 -- "Match count result" --> ADMIN
@@ -385,7 +417,7 @@ graph TD
     P7 -- "Read and write and delete users and requests" --> DB
 ```
 
-Source: src/main/java/com/example/studentportal/controller/ (all controllers), service/ (all services)
+Source: src/main/java/com/example/studentportal/controller/AdminController.java, service/MatchingService.java, service/RequestStatusScheduler.java, service/UserService.java, service/RequestService.java
 
 ---
 
@@ -626,10 +658,16 @@ Source: src/main/java/com/example/studentportal/controller/DashboardController.j
 
 ### 5.1 Matching Algorithm — MatchingService.runMatching() and helpers
 
-Caption: IB pseudocode for the bipartite matching algorithm covering graph construction, hard constraints, weight calculation, JGraphT matching call, and greedy conflict-resolution pass.
+Caption: Bipartite matching: graph build, constraints, weights, greedy pass.
 
 ```text
+// Bipartite graph matching algorithm.
+// Constructs vertices for each (request, timeslot) pair, adds weighted edges
+// where hard constraints pass, runs JGraphT max-weight matching, then applies
+// a greedy pass to resolve per-user timeslot conflicts.
+
 method runMatching()
+    // Load all PENDING TUTOR and TUTEE requests from the database
     OFFER_REQUESTS = DB.findPendingByType("TUTOR")
     SEEK_REQUESTS  = DB.findPendingByType("TUTEE")
 
@@ -637,6 +675,7 @@ method runMatching()
     OFFER_VERTICES = new Set()
     SEEK_VERTICES  = new Set()
 
+    // Build offer-side vertices: one vertex per (TUTOR request, timeslot) pair
     loop for each OFFER in OFFER_REQUESTS
         loop for each SLOT in OFFER.getTimeslots()
             RT = new RequestTimeslot(OFFER, SLOT)
@@ -645,6 +684,7 @@ method runMatching()
         end loop
     end loop
 
+    // Build seek-side vertices: one vertex per (TUTEE request, timeslot) pair
     loop for each SEEK in SEEK_REQUESTS
         loop for each SLOT in SEEK.getTimeslots()
             RT = new RequestTimeslot(SEEK, SLOT)
@@ -653,6 +693,8 @@ method runMatching()
         end loop
     end loop
 
+    // Add a weighted edge for every offer-seek pair that shares a timeslot
+    // and satisfies all hard constraints
     loop for each OFFER_RT in OFFER_VERTICES
         loop for each SEEK_RT in SEEK_VERTICES
             if OFFER_RT.getTimeslot() = SEEK_RT.getTimeslot() AND
@@ -665,9 +707,11 @@ method runMatching()
         end loop
     end loop
 
+    // Run JGraphT maximum-weight bipartite matching on the constructed graph
     MATCHING     = MaximumWeightBipartiteMatching(GRAPH, OFFER_VERTICES, SEEK_VERTICES)
     MATCHED_EDGES = MATCHING.getEdges()
 
+    // Pre-load timeslots already used by existing MATCHED requests to prevent conflicts
     USER_SLOTS = new Map()
     EXISTING   = DB.findByStatus("MATCHED")
     loop for each EXISTING_REQ in EXISTING
@@ -682,6 +726,8 @@ method runMatching()
     USED_OFFER_IDS = new Set()
     USED_SEEK_IDS  = new Set()
 
+    // Greedy pass: accept edges from highest to lowest weight, skipping any
+    // edge where a request is already matched or the timeslot is already taken
     loop for each EDGE in SORTED_EDGES
         OFFER_RT  = getOfferSide(EDGE)
         SEEK_RT   = getSeekSide(EDGE)
@@ -691,6 +737,7 @@ method runMatching()
         TUTOR_ID  = OFFER_REQ.getUser().getId()
         TUTEE_ID  = SEEK_REQ.getUser().getId()
 
+        // Accept only if neither request is used and neither user has a clash
         if OFFER_REQ.getId() NOT IN USED_OFFER_IDS AND
            SEEK_REQ.getId()  NOT IN USED_SEEK_IDS  AND
            SLOT NOT IN USER_SLOTS[TUTOR_ID]         AND
@@ -708,14 +755,18 @@ method runMatching()
 end method
 
 
+// Hard-constraint gate: returns false if the pair must never be matched.
+// Checks: same subject, overlapping timeslots, tutor year >= tutee year, different users.
 method meetHardConstraints(OFFER_REQ, SEEK_REQ)
     TUTOR = OFFER_REQ.getUser()
     TUTEE = SEEK_REQ.getUser()
 
+    // Subjects must be identical
     if NOT (OFFER_REQ.getSubject().getCode() = SEEK_REQ.getSubject().getCode()) then
         return false
     end if
 
+    // At least one shared timeslot must exist
     TUTOR_SLOTS = OFFER_REQ.getTimeslots()
     TUTEE_SLOTS = SEEK_REQ.getTimeslots()
     OVERLAP = false
@@ -728,10 +779,12 @@ method meetHardConstraints(OFFER_REQ, SEEK_REQ)
         return false
     end if
 
+    // Tutor must be in the same or higher year group than the tutee
     if TUTOR.getYearGroup() < TUTEE.getYearGroup() then
         return false
     end if
 
+    // A user cannot be matched with themselves
     if TUTOR.getId() = TUTEE.getId() then
         return false
     end if
@@ -740,7 +793,10 @@ method meetHardConstraints(OFFER_REQ, SEEK_REQ)
 end method
 
 
+// Weight function: returns a score >= 100 for valid pairs.
+// Base 100; +50 for same exam board; +10..+30 for year-group proximity.
 method calculateWeight(OFFER_REQ, SEEK_REQ)
+    // Reject immediately if hard constraints are not met
     if NOT meetHardConstraints(OFFER_REQ, SEEK_REQ) then
         return 0
     end if
@@ -749,12 +805,14 @@ method calculateWeight(OFFER_REQ, SEEK_REQ)
     TUTOR  = OFFER_REQ.getUser()
     TUTEE  = SEEK_REQ.getUser()
 
+    // Bonus if both users are on the same exam board (and it is not NONE)
     if TUTOR.getExamBoard() not null AND
        TUTOR.getExamBoard() = TUTEE.getExamBoard() AND
        NOT (TUTOR.getExamBoard() = "NONE") then
         WEIGHT = WEIGHT + 50
     end if
 
+    // Bonus based on year-group proximity; year diff of 1 is optimal
     YEAR_DIFF = TUTOR.getYearGroup() - TUTEE.getYearGroup()
     if YEAR_DIFF = 1 then
         WEIGHT = WEIGHT + 30
@@ -778,21 +836,30 @@ Source: src/main/java/com/example/studentportal/service/MatchingService.java
 
 ### 5.2 Scheduler Status Update — RequestStatusScheduler.markCompletedRequestsDone()
 
-Caption: IB pseudocode for the scheduled background task that checks every 60 seconds whether any MATCHED request's timeslot end-time has elapsed and transitions it to DONE.
+Caption: Scheduler: MATCHED to DONE transition.
 
 ```text
+// Scheduled task (every 60 s, skipped in test profile).
+// Loads all MATCHED requests; for each request whose timeslot end-time has
+// passed (based on weekStartDate + chosenTimeslot), sets status to DONE.
+// Requests missing weekStartDate or chosenTimeslot are skipped silently.
+
 method markCompletedRequestsDone()
     NOW              = timeService.now()
     MATCHED_REQUESTS = DB.findByStatus("MATCHED")
 
+    // Iterate all currently MATCHED requests and check whether their session is over
     loop for each REQUEST in MATCHED_REQUESTS
+        // Skip requests that pre-date the scheduling feature (no date/slot stored)
         if REQUEST.getWeekStartDate() = null OR REQUEST.getChosenTimeslot() = null then
             continue
         end if
 
+        // Compute the exact end datetime for this request's scheduled session
         END_TIME = Timeslots.getTimeslotEndTime(REQUEST.getWeekStartDate(),
                                                 REQUEST.getChosenTimeslot())
 
+        // Transition to DONE once the session end-time has elapsed
         if END_TIME not null AND NOW.isAfter(END_TIME) then
             REQUEST.setStatus("DONE")
             DB.save(REQUEST)
@@ -807,20 +874,28 @@ Source: src/main/java/com/example/studentportal/service/RequestStatusScheduler.j
 
 ### 5.3 Request Cancellation Cascade — RequestService.cancelRequest() and adminCancelRequest()
 
-Caption: IB pseudocode for the student and admin cancellation paths; includes ownership check, canBeCancelled guard, and cascade cancellation of the matched partner's request when the cancelled request was MATCHED.
+Caption: Request cancellation with partner cascade.
 
 ```text
+// Student and admin cancellation paths.
+// Checks ownership (student) or bypasses it (admin, null user).
+// Guards against cancelling DONE/CANCELLED requests.
+// If the cancelled request was MATCHED, also cancels the partner's linked request.
+
 method cancelRequest(REQUEST_ID, CANCELLING_USER)
+    // Look up the request; throw if not found
     REQUEST = DB.findById(REQUEST_ID)
     if REQUEST = null then
         throw NotFoundException
     end if
 
+    // Students may only cancel their own requests
     if CANCELLING_USER not null AND
        NOT (REQUEST.getUser() = CANCELLING_USER) then
         throw ForbiddenException
     end if
 
+    // Only PENDING or MATCHED requests can be cancelled
     if NOT REQUEST.canBeCancelled() then
         return
     end if
@@ -829,6 +904,7 @@ method cancelRequest(REQUEST_ID, CANCELLING_USER)
     REQUEST.cancel()
     DB.save(REQUEST)
 
+    // If the request was MATCHED, cascade and cancel the partner's linked request
     if PREVIOUS_STATUS = "MATCHED" then
         PARTNER = REQUEST.getMatchedPartner()
         PARTNER_REQS = DB.findByUserAndMatchedPartnerAndStatus(
@@ -842,6 +918,7 @@ method cancelRequest(REQUEST_ID, CANCELLING_USER)
 end method
 
 
+// Admin shortcut: delegates to cancelRequest with no ownership check (null user)
 method adminCancelRequest(REQUEST_ID)
     call cancelRequest(REQUEST_ID, null)
 end method
@@ -853,15 +930,23 @@ Source: src/main/java/com/example/studentportal/service/RequestService.java, mod
 
 ### 5.4 User Deletion Cascade — UserService.deleteUser()
 
-Caption: IB pseudocode for admin-triggered user deletion; covers cascade cancellation of partner MATCHED requests, clearing of FK references, deletion of owned requests, user record deletion, and self-deletion session invalidation.
+Caption: User deletion with cascade cancellation.
 
 ```text
+// Admin-triggered user deletion.
+// Cancels all MATCHED requests where this user is the matched partner,
+// clears any remaining FK references, deletes all owned requests,
+// then deletes the user record.
+// If the deleted user is the currently logged-in admin, the session is invalidated.
+
 method deleteUser(USER_ID, CURRENT_SESSION)
+    // Look up the user; throw if not found
     USER = DB.findById(USER_ID)
     if USER = null then
         throw NotFoundException
     end if
 
+    // Cancel all requests whose matched partner is the user being deleted
     PARTNER_REQUESTS = DB.findByMatchedPartnerAndStatus(USER, "MATCHED")
     loop for each REQ in PARTNER_REQUESTS
         REQ.setStatus("CANCELLED")
@@ -869,12 +954,16 @@ method deleteUser(USER_ID, CURRENT_SESSION)
         DB.save(REQ)
     end loop
 
+    // Null out any remaining matched_partner_id FK pointing to this user
     DB.clearMatchedPartnerReferences(USER)
 
+    // Remove all tutoring requests owned by this user
     DB.deleteByUser(USER)
 
+    // Delete the user record itself
     DB.delete(USER)
 
+    // If the admin deleted their own account, invalidate their session
     if CURRENT_SESSION.getUserId() = USER_ID then
         CURRENT_SESSION.invalidate()
         redirect("/login")
