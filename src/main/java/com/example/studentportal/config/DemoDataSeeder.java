@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,13 +34,13 @@ public class DemoDataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
     private final SubjectRepository subjectRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public DemoDataSeeder(UserRepository userRepository,
                           RequestRepository requestRepository,
                           SubjectRepository subjectRepository,
-                          BCryptPasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
         this.subjectRepository = subjectRepository;
