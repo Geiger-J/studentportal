@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true)
+@Order(1)
 public class DataSeeder implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSeeder.class);
