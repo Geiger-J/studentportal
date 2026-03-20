@@ -23,8 +23,14 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 /**
- * Controller for authentication-related actions. Handles user registration and
- * login page display.
+ * Controller – registration and login page endpoints
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>serve login page</li>
+ *   <li>handle registration form submission</li>
+ *   <li>auto-authenticate user after registration</li>
+ * </ul>
  */
 @Controller
 public class AuthController {
@@ -47,10 +53,7 @@ public class AuthController {
         return "register";
     }
 
-    /**
-     * Processes user registration. Validates form data, creates user, and ensures
-     * the user is authenticated immediately.
-     */
+    // validate form → create user → auto-authenticate → redirect to profile
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") RegistrationForm form,
             BindingResult result, RedirectAttributes redirectAttributes,
@@ -61,16 +64,15 @@ public class AuthController {
         }
 
         try {
-            // Create the user
             User user = userService.registerUser(form.getFullName(), form.getEmail(),
                     form.getPassword());
 
-            // Load UserDetails and build authentication token
+            // load UserDetails → build auth token
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
 
-            // Create and persist a fresh SecurityContext (ensures session persistence)
+            // new SecurityContext → persist in session [ensures auth survives redirect]
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
@@ -89,17 +91,17 @@ public class AuthController {
         }
     }
 
-    /**
-     * Form bean for user registration.
-     */
+    // form bean for registration [fullName, email, password]
     public static class RegistrationForm {
 
         private String fullName;
         private String email;
         private String password;
 
+        // --- accessors
         public String getFullName() { return fullName; }
 
+        // --- mutators
         public void setFullName(String fullName) { this.fullName = fullName; }
 
         public String getEmail() { return email; }

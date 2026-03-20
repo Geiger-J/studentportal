@@ -4,14 +4,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * Controller for public pages.
+ * Controller – landing page for the public-facing index
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>serves the public index page</li>
+ * </ul>
  */
 @Controller
 public class HomeController {
 
-    /**
-     * Landing page - publicly accessible.
-     */
     @GetMapping("/")
     public String home() { return "index"; }
 }

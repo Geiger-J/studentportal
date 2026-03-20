@@ -4,8 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 /**
- * Entity representing academic subjects available for tutoring. Seeded with
- * standard subjects offered at the school.
+ * Model – academic subject entity [code + display name]
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>uniquely identified by code [e.g., MATHEMATICS]</li>
+ *   <li>used to categorise tutoring requests and user profiles</li>
+ * </ul>
  */
 @Entity
 @Table(name = "subjects")
@@ -30,9 +35,10 @@ public class Subject {
         this.displayName = displayName;
     }
 
-    // Getters and setters
+    // --- accessors
     public Long getId() { return id; }
 
+    // --- mutators
     public void setId(Long id) { this.id = id; }
 
     public String getCode() { return code; }

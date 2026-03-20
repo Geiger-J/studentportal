@@ -15,16 +15,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Background scheduler that automatically marks matched requests as DONE once
- * the timeslot they are scheduled for has passed. - Runs every 60 seconds
- * (configurable via fixedDelay). - Skipped entirely in the "test" Spring
- * profile so unit tests are unaffected. - Uses TimeService so simulation time
- * is respected during local testing. Example: a request with
- * chosenTimeslot="MON_P1" and weekStartDate=2025-01-20 becomes DONE after 09:50
- * on that Monday.
+ * Service – scheduler that transitions MATCHED requests to DONE once their timeslot has passed
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>runs every 60 s via @Scheduled</li>
+ *   <li>skipped in 'test' profile [unit tests unaffected]</li>
+ *   <li>uses TimeService so simulation time is respected</li>
+ * </ul>
  */
 @Component
-@Profile("!test")
+@Profile("!test") // skip in test profile [prevents scheduler from running in unit tests]
 public class RequestStatusScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestStatusScheduler.class);
@@ -38,11 +39,8 @@ public class RequestStatusScheduler {
         this.timeService = timeService;
     }
 
-    /**
-     * Checks all MATCHED requests every minute and transitions any whose scheduled
-     * timeslot end-time has passed to DONE.
-     */
-    @Scheduled(fixedDelay = 60_000)
+    // check all MATCHED requests; mark DONE if timeslot end has passed
+    @Scheduled(fixedDelay = 60_000) // every 60 s
     @Transactional
     public void markCompletedRequestsDone() {
         LocalDateTime now = timeService.now();
@@ -64,11 +62,7 @@ public class RequestStatusScheduler {
         }
     }
 
-    /**
-     * Returns true when the request's timeslot end-time is in the past. Requests
-     * without a weekStartDate or chosenTimeslot are skipped (they pre-date this
-     * feature).
-     */
+    // true when request's timeslot end-time is in the past; skip if weekStartDate/chosenTimeslot absent
     boolean shouldBeMarkedDone(Request request, LocalDateTime now) {
         if (request.getWeekStartDate() == null || request.getChosenTimeslot() == null) {
             return false;

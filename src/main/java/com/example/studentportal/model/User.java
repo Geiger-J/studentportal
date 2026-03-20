@@ -29,8 +29,14 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * Entity representing users in the student portal system. Supports both
- * students and administrators with role-based features.
+ * Model – user entity for both students and administrators
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>stores identity [email, name, hashed password] and role [STUDENT or ADMIN]</li>
+ *   <li>tracks academic profile [year group, exam board, subjects, availability]</li>
+ *   <li>exposes profile-completeness logic used for redirect guards</li>
+ * </ul>
  */
 @Entity
 @Table(name = "users")
@@ -83,8 +89,10 @@ public class User {
         this.role = role;
     }
 
+    // --- accessors
     public Long getId() { return id; }
 
+    // --- mutators
     public void setId(Long id) { this.id = id; }
 
     public String getFullName() { return fullName; }
@@ -105,6 +113,7 @@ public class User {
 
     public Integer getYearGroup() { return yearGroup; }
 
+    // auto-set examBoard based on year group [GCSE for 9-11, must choose for 12-13]
     public void setYearGroup(Integer yearGroup) {
         this.yearGroup = yearGroup;
         if (yearGroup != null) {

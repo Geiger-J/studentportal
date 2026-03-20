@@ -21,11 +21,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 /**
- * Controller for admin dashboard and management functions.
+ * Controller – admin dashboard, request management, user management, and matching trigger
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>serve admin dashboard with summary stats</li>
+ *   <li>filter/cancel requests</li>
+ *   <li>list/delete users and change passwords</li>
+ *   <li>trigger matching algorithm and archival</li>
+ * </ul>
  */
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMIN')") // all endpoints in this controller require ADMIN
 public class AdminController {
 
     private final RequestService requestService;
@@ -40,6 +48,7 @@ public class AdminController {
         this.matchingService = matchingService;
     }
 
+    // load summary stats and recent requests for dashboard
     @GetMapping("/dashboard")
     public String adminDashboard(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -66,6 +75,7 @@ public class AdminController {
         return "admin/dashboard";
     }
 
+    // list requests, optionally filtered by status and archived flag
     @GetMapping("/requests")
     public String viewRequests(@RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
@@ -130,6 +140,7 @@ public class AdminController {
         return "admin/users";
     }
 
+    // validate matching passwords → delegate to UserService
     @PostMapping("/users/{id}/change-password")
     public String changeUserPassword(@PathVariable Long id, @RequestParam String newPassword,
             @RequestParam String confirmPassword, RedirectAttributes redirectAttributes) {
@@ -225,6 +236,7 @@ public class AdminController {
         return "admin/profile";
     }
 
+    // admin changes own password — validate match, delegate to UserService
     @PostMapping("/profile/change-password")
     public String changeAdminPassword(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,

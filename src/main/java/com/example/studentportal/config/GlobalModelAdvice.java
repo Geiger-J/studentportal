@@ -10,8 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Global model attributes added to every controller's model. Provides label
- * maps for String-based enums and catalog data.
+ * Configuration – injects label maps and catalog data into every controller's model
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>exposes typeLabels, statusLabels, roleLabels, examBoardLabels maps</li>
+ *   <li>exposes timeslotLabels from Timeslots catalog</li>
+ *   <li>exposes allStatuses list for filter UIs</li>
+ * </ul>
  */
 @ControllerAdvice
 public class GlobalModelAdvice {
@@ -47,6 +53,7 @@ public class GlobalModelAdvice {
     }
 
     @ModelAttribute
+    // populate model with all shared label maps and reference data
     public void addGlobalAttributes(Model model) {
         model.addAttribute("typeLabels", TYPE_LABELS);
         model.addAttribute("statusLabels", STATUS_LABELS);

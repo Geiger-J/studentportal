@@ -14,8 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 /**
- * Controller for the user dashboard. Shows user's requests and provides
- * navigation to other features.
+ * Controller – student dashboard showing the user's active and archived requests
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>redirect ADMIN to admin dashboard</li>
+ *   <li>redirect incomplete profiles to /profile</li>
+ *   <li>render dashboard with user's requests</li>
+ * </ul>
  */
 @Controller
 public class DashboardController {
@@ -27,11 +33,7 @@ public class DashboardController {
         this.requestService = requestService;
     }
 
-    /**
-     * Shows the user dashboard with their requests. Redirects ADMIN users to
-     * /admin/dashboard. Redirects STUDENT users to profile completion if profile is
-     * not complete.
-     */
+    // redirect admins/incomplete profiles; load requests for students
     @GetMapping("/dashboard")
     public String dashboard(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -40,17 +42,14 @@ public class DashboardController {
 
         User user = principal.getUser();
 
-        // Redirect ADMIN users to admin dashboard
         if ("ADMIN".equals(user.getRole())) {
             return "redirect:/admin/dashboard";
         }
 
-        // Check if profile is complete for STUDENT users - redirect to profile if not
         if (!user.getProfileComplete()) {
             return "redirect:/profile";
         }
 
-        // Get user's requests
         List<Request> userRequests = requestService.getUserRequests(user, showArchived);
 
         model.addAttribute("user", user);
