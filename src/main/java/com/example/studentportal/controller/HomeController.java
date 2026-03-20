@@ -3,13 +3,11 @@ package com.example.studentportal.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/**
+/*
  * Controller – landing page for the public-facing index
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>serves the public index page</li>
- * </ul>
+ * Responsibilities:
+ * - serves the public index page
  */
 @Controller
 public class HomeController {

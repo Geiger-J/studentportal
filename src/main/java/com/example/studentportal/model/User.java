@@ -28,15 +28,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/**
+/*
  * Model – user entity for both students and administrators
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>stores identity [email, name, hashed password] and role [STUDENT or ADMIN]</li>
- *   <li>tracks academic profile [year group, exam board, subjects, availability]</li>
- *   <li>exposes profile-completeness logic used for redirect guards</li>
- * </ul>
+ * Responsibilities:
+ * - stores identity [email, name, hashed password] and role [STUDENT or ADMIN]
+ * - tracks academic profile [year group, exam board, subjects, availability]
+ * - exposes profile-completeness logic used for redirect guards
  */
 @Entity
 @Table(name = "users")

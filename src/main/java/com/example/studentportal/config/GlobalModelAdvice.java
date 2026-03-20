@@ -9,15 +9,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
+/*
  * Configuration – injects label maps and catalog data into every controller's model
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>exposes typeLabels, statusLabels, roleLabels, examBoardLabels maps</li>
- *   <li>exposes timeslotLabels from Timeslots catalog</li>
- *   <li>exposes allStatuses list for filter UIs</li>
- * </ul>
+ * Responsibilities:
+ * - exposes typeLabels, statusLabels, roleLabels, examBoardLabels maps
+ * - exposes timeslotLabels from Timeslots catalog
+ * - exposes allStatuses list for filter UIs
  */
 @ControllerAdvice
 public class GlobalModelAdvice {

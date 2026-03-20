@@ -23,15 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
+/*
  * Controller – tutoring request creation and cancellation for students
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>guard profile completeness before request creation</li>
- *   <li>validate and filter timeslot codes</li>
- *   <li>cancel requests and their matched counterparts</li>
- * </ul>
+ * Responsibilities:
+ * - guard profile completeness before request creation
+ * - validate and filter timeslot codes
+ * - cancel requests and their matched counterparts
  */
 @Controller
 @RequestMapping("/requests")

@@ -27,15 +27,13 @@ import com.example.studentportal.service.SubjectService;
 import com.example.studentportal.service.UserService;
 import com.example.studentportal.util.Timeslots;
 
-/**
+/*
  * Controller – profile view and update for authenticated students
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>display and populate profile form</li>
- *   <li>validate and save year group, exam board, subjects, availability</li>
- *   <li>handle account deletion with auto-logout</li>
- * </ul>
+ * Responsibilities:
+ * - display and populate profile form
+ * - validate and save year group, exam board, subjects, availability
+ * - handle account deletion with auto-logout
  */
 @Controller
 public class ProfileController {

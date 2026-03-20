@@ -6,14 +6,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
+/*
  * Utility – canonical timeslot catalog [MON_P1 … FRI_P7] with labels and end-time lookup
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>defines ALL_CODES, ALL_CODES_SET, LABELS for slot validation and display</li>
- *   <li>provides getTimeslotEndTime for scheduler to detect when a session has ended</li>
- * </ul>
+ * Responsibilities:
+ * - defines ALL_CODES, ALL_CODES_SET, LABELS for slot validation and display
+ * - provides getTimeslotEndTime for scheduler to detect when a session has ended
  */
 @Component("timeslots")
 public class Timeslots {

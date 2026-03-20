@@ -10,15 +10,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-/**
+/*
  * Configuration – seeds initial subjects on startup if none exist
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>runs once via CommandLineRunner on startup</li>
- *   <li>skips seeding if subjects already present</li>
- *   <li>creates curated set of Language, STEM, and Social Science subjects</li>
- * </ul>
+ * Responsibilities:
+ * - runs once via CommandLineRunner on startup
+ * - skips seeding if subjects already present
+ * - creates curated set of Language, STEM, and Social Science subjects
  */
 @Component
 @ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true) // only runs if seeder enabled [defaults to true if property absent]

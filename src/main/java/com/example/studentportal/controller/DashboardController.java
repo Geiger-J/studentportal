@@ -13,15 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-/**
+/*
  * Controller – student dashboard showing the user's active and archived requests
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>redirect ADMIN to admin dashboard</li>
- *   <li>redirect incomplete profiles to /profile</li>
- *   <li>render dashboard with user's requests</li>
- * </ul>
+ * Responsibilities:
+ * - redirect ADMIN to admin dashboard
+ * - redirect incomplete profiles to /profile
+ * - render dashboard with user's requests
  */
 @Controller
 public class DashboardController {

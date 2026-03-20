@@ -3,14 +3,12 @@ package com.example.studentportal.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
-/**
+/*
  * Model – academic subject entity [code + display name]
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>uniquely identified by code [e.g., MATHEMATICS]</li>
- *   <li>used to categorise tutoring requests and user profiles</li>
- * </ul>
+ * Responsibilities:
+ * - uniquely identified by code [e.g., MATHEMATICS]
+ * - used to categorise tutoring requests and user profiles
  */
 @Entity
 @Table(name = "subjects")

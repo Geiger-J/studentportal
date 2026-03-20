@@ -11,15 +11,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
+/*
  * Configuration – redirects on access denied based on authenticated role
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>sends ADMIN to /admin/dashboard on 403</li>
- *   <li>sends STUDENT to /dashboard on 403</li>
- *   <li>sends unauthenticated users to /login</li>
- * </ul>
+ * Responsibilities:
+ * - sends ADMIN to /admin/dashboard on 403
+ * - sends STUDENT to /dashboard on 403
+ * - sends unauthenticated users to /login
  */
 @Component
 public class RoleRedirectAccessDeniedHandler implements AccessDeniedHandler {

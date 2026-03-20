@@ -6,14 +6,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
+/*
  * Repository – JPA repository for Subject entities
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>lookup by code for seeding and request validation</li>
- *   <li>existence check to prevent duplicate seeding</li>
- * </ul>
+ * Responsibilities:
+ * - lookup by code for seeding and request validation
+ * - existence check to prevent duplicate seeding
  */
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Long> {

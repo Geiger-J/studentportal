@@ -9,15 +9,13 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
+/*
  * Model – tutoring request entity linking a user, subject, and set of timeslots
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>stores request type [TUTOR or TUTEE], status, and chosen timeslot after matching</li>
- *   <li>tracks matched partner and week start date after matching</li>
- *   <li>provides cancellation logic for PENDING and MATCHED states</li>
- * </ul>
+ * Responsibilities:
+ * - stores request type [TUTOR or TUTEE], status, and chosen timeslot after matching
+ * - tracks matched partner and week start date after matching
+ * - provides cancellation logic for PENDING and MATCHED states
  */
 @Entity
 @Table(name = "requests")

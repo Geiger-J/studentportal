@@ -13,15 +13,13 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-/**
+/*
  * Configuration – Spring Security filter chain and authentication provider configuration
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>defines public, student-only, and admin-only URL access rules</li>
- *   <li>configures form login with custom success handler</li>
- *   <li>registers role-based access-denied handler</li>
- * </ul>
+ * Responsibilities:
+ * - defines public, student-only, and admin-only URL access rules
+ * - configures form login with custom success handler
+ * - registers role-based access-denied handler
  */
 @Configuration
 @EnableWebSecurity

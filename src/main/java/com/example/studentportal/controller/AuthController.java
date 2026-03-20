@@ -22,15 +22,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-/**
+/*
  * Controller – registration and login page endpoints
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>serve login page</li>
- *   <li>handle registration form submission</li>
- *   <li>auto-authenticate user after registration</li>
- * </ul>
+ * Responsibilities:
+ * - serve login page
+ * - handle registration form submission
+ * - auto-authenticate user after registration
  */
 @Controller
 public class AuthController {

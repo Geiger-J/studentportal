@@ -16,15 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-/**
+/*
  * Service – bipartite matching service pairing TUTOR and TUTEE requests
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>builds weighted bipartite graph of request-timeslot vertices</li>
- *   <li>runs MaximumWeightBipartiteMatching [JGraphT] to find optimal pairings</li>
- *   <li>applies hard constraints [same subject, overlapping slots, tutor year ≥ tutee year] and weight bonuses</li>
- * </ul>
+ * Responsibilities:
+ * - builds weighted bipartite graph of request-timeslot vertices
+ * - runs MaximumWeightBipartiteMatching [JGraphT] to find optimal pairings
+ * - applies hard constraints [same subject, overlapping slots, tutor year ≥ tutee year] and weight bonuses
  */
 @Service
 @Transactional
