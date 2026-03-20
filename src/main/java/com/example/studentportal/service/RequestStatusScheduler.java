@@ -14,14 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/*
- * Service – scheduler that transitions MATCHED requests to DONE once their timeslot has passed
- *
- * Responsibilities:
- * - runs every 60 s via @Scheduled
- * - skipped in 'test' profile [unit tests unaffected]
- * - uses TimeService so simulation time is respected
- */
+// Service - scheduler that transitions MATCHED requests to DONE once their timeslot has passed
+//
+// Responsibilities:
+// - runs every 60 s via @Scheduled
+// - skipped in 'test' profile [unit tests unaffected]
+// - uses TimeService so simulation time is respected
 @Component
 @Profile("!test") // skip in test profile [prevents scheduler from running in unit tests]
 public class RequestStatusScheduler {

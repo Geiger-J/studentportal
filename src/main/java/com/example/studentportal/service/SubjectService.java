@@ -9,14 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/*
- * Service – subject retrieval and persistence for seeding and request creation
- *
- * Responsibilities:
- * - fetch all subjects or by ID/code for controllers
- * - save subjects during data seeding
- * - existence check to prevent duplicate seeding
- */
+// Service - subject retrieval and persistence for seeding and request creation
+//
+// Responsibilities:
+// - fetch all subjects or by ID/code for controllers
+// - save subjects during data seeding
+// - existence check to prevent duplicate seeding
 @Service
 @Transactional(readOnly = true)
 public class SubjectService {

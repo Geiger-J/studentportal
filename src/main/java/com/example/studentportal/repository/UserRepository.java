@@ -7,13 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/*
- * Repository – JPA repository for User entities
- *
- * Responsibilities:
- * - lookup and existence check by email for authentication and registration
- * - filter users by year group for admin views
- */
+// Repository - JPA repository for User entities
+//
+// Responsibilities:
+// - lookup and existence check by email for authentication and registration
+// - filter users by year group for admin views
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 

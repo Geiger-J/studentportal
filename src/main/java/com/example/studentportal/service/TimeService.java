@@ -7,13 +7,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/*
- * Service – wall-clock abstraction supporting simulation override for testing
- *
- * Responsibilities:
- * - return real LocalDateTime.now() in production
- * - return configured fixed timestamp when app.simulation.datetime is set [e.g., application-local.properties]
- */
+// Service - wall-clock abstraction supporting simulation override for testing
+//
+// Responsibilities:
+// - return real LocalDateTime.now() in production
+// - return configured fixed timestamp when app.simulation.datetime is set [e.g., application-local.properties]
 @Service
 public class TimeService {
 

@@ -9,14 +9,12 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/*
- * Model – tutoring request entity linking a user, subject, and set of timeslots
- *
- * Responsibilities:
- * - stores request type [TUTOR or TUTEE], status, and chosen timeslot after matching
- * - tracks matched partner and week start date after matching
- * - provides cancellation logic for PENDING and MATCHED states
- */
+// Model - tutoring request entity linking a user, subject, and set of timeslots
+//
+// Responsibilities:
+// - stores request type [TUTOR or TUTEE], status, and chosen timeslot after matching
+// - tracks matched partner and week start date after matching
+// - provides cancellation logic for PENDING and MATCHED states
 @Entity
 @Table(name = "requests")
 public class Request {

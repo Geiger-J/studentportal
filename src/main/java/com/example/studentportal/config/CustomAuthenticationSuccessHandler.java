@@ -10,14 +10,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/*
- * Configuration – post-login redirect based on role and profile state
- *
- * Responsibilities:
- * - redirect ADMIN to /admin/dashboard
- * - redirect STUDENT to /dashboard if profile complete
- * - redirect STUDENT to /profile if incomplete
- */
+// Configuration - post-login redirect based on role and profile state
+//
+// Responsibilities:
+// - redirect ADMIN to /admin/dashboard
+// - redirect STUDENT to /dashboard if profile complete
+// - redirect STUDENT to /profile if incomplete
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 

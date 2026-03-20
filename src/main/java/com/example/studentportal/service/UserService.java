@@ -12,14 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/*
- * Service – user registration, profile management, and deletion
- *
- * Responsibilities:
- * - validate email domain and uniqueness; determine role from email prefix
- * - encode password with BCrypt; persist user
- * - cascade-cancel matched partner requests before deleting a user
- */
+// Service - user registration, profile management, and deletion
+//
+// Responsibilities:
+// - validate email domain and uniqueness; determine role from email prefix
+// - encode password with BCrypt; persist user
+// - cascade-cancel matched partner requests before deleting a user
 @Service
 @Transactional
 public class UserService {

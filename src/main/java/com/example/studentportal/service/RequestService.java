@@ -12,14 +12,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/*
- * Service – tutoring request lifecycle: creation, retrieval, cancellation, archival
- *
- * Responsibilities:
- * - enforce no-duplicate-active-request rule per user/subject/type
- * - cascade cancellation to matched partner when a MATCHED request is cancelled
- * - archive DONE and CANCELLED requests on demand
- */
+// Service - tutoring request lifecycle: creation, retrieval, cancellation, archival
+//
+// Responsibilities:
+// - enforce no-duplicate-active-request rule per user/subject/type
+// - cascade cancellation to matched partner when a MATCHED request is cancelled
+// - archive DONE and CANCELLED requests on demand
 @Service
 @Transactional
 public class RequestService {

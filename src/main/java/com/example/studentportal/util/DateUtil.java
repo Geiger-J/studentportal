@@ -4,13 +4,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
-/*
- * Utility – date helpers for week-boundary calculations
- *
- * Responsibilities:
- * - compute next Monday strictly after a given date
- * - get the Monday of the week containing a given date
- */
+// Utility - date helpers for week-boundary calculations
+//
+// Responsibilities:
+// - compute next Monday strictly after a given date
+// - get the Monday of the week containing a given date
 public class DateUtil {
 
     // next Monday strictly after date [if today is Monday, returns next week's Monday]

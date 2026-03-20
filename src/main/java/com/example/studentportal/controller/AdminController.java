@@ -20,15 +20,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-/*
- * Controller – admin dashboard, request management, user management, and matching trigger
- *
- * Responsibilities:
- * - serve admin dashboard with summary stats
- * - filter/cancel requests
- * - list/delete users and change passwords
- * - trigger matching algorithm and archival
- */
+// Controller - admin dashboard, request management, user management, and matching trigger
+//
+// Responsibilities:
+// - serve admin dashboard with summary stats
+// - filter/cancel requests
+// - list/delete users and change passwords
+// - trigger matching algorithm and archival
 @Controller
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')") // all endpoints in this controller require ADMIN

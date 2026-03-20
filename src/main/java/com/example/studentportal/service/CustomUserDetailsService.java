@@ -14,13 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Collections;
 
-/*
- * Service – Spring Security UserDetailsService — loads user by email for authentication
- *
- * Responsibilities:
- * - find User by email; throw UsernameNotFoundException if absent
- * - wrap User in CustomUserPrincipal for security context
- */
+// Service - Spring Security UserDetailsService - loads user by email for authentication
+//
+// Responsibilities:
+// - find User by email; throw UsernameNotFoundException if absent
+// - wrap User in CustomUserPrincipal for security context
 @Service
 @Transactional(readOnly = true) // read-only tx [no writes during auth]
 public class CustomUserDetailsService implements UserDetailsService {

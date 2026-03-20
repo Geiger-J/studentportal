@@ -23,14 +23,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/*
- * Controller – tutoring request creation and cancellation for students
- *
- * Responsibilities:
- * - guard profile completeness before request creation
- * - validate and filter timeslot codes
- * - cancel requests and their matched counterparts
- */
+// Controller - tutoring request creation and cancellation for students
+//
+// Responsibilities:
+// - guard profile completeness before request creation
+// - validate and filter timeslot codes
+// - cancel requests and their matched counterparts
 @Controller
 @RequestMapping("/requests")
 @PreAuthorize("hasRole('STUDENT')") // all endpoints require STUDENT role

@@ -12,14 +12,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/*
- * Repository – JPA repository for Request entities
- *
- * Responsibilities:
- * - query methods for status-based and user-based request retrieval
- * - modifying queries to clear matched-partner references on deletion
- * - archival support via archived-flag filters
- */
+// Repository - JPA repository for Request entities
+//
+// Responsibilities:
+// - query methods for status-based and user-based request retrieval
+// - modifying queries to clear matched-partner references on deletion
+// - archival support via archived-flag filters
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
