@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service class for subject management operations.
- * Handles subject retrieval and management.
+ * Service class for subject management operations. Handles subject retrieval
+ * and management.
  */
 @Service
 @Transactional(readOnly = true)
@@ -29,9 +29,7 @@ public class SubjectService {
      * 
      * @return list of all subjects
      */
-    public List<Subject> getAllSubjects() {
-        return subjectRepository.findAll();
-    }
+    public List<Subject> getAllSubjects() { return subjectRepository.findAll(); }
 
     /**
      * Finds a subject by its ID.
@@ -39,9 +37,7 @@ public class SubjectService {
      * @param id the subject ID
      * @return Optional containing the subject if found
      */
-    public Optional<Subject> findById(Long id) {
-        return subjectRepository.findById(id);
-    }
+    public Optional<Subject> findById(Long id) { return subjectRepository.findById(id); }
 
     /**
      * Finds a subject by its code.
@@ -60,16 +56,12 @@ public class SubjectService {
      * @return the saved subject
      */
     @Transactional
-    public Subject save(Subject subject) {
-        return subjectRepository.save(subject);
-    }
+    public Subject save(Subject subject) { return subjectRepository.save(subject); }
 
     /**
      * Checks if any subjects exist in the database.
      * 
      * @return true if subjects exist, false if database is empty
      */
-    public boolean hasSubjects() {
-        return subjectRepository.count() > 0;
-    }
+    public boolean hasSubjects() { return subjectRepository.count() > 0; }
 }

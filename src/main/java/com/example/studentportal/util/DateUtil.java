@@ -5,17 +5,16 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
 /**
- * Utility class for date and week calculations.
- * Handles week start date logic for scheduling functionality.
+ * Utility class for date and week calculations. Handles week start date logic
+ * for scheduling functionality.
  */
 public class DateUtil {
 
     /**
-     * Calculates the next Monday strictly after the given date.
-     * This ensures we always schedule for future weeks, never the current week.
-     * 
-     * Reasoning: Even if today is Monday, we choose the next Monday to allow
-     * sufficient time for scheduling runs and matching processes.
+     * Calculates the next Monday strictly after the given date. This ensures we
+     * always schedule for future weeks, never the current week. Reasoning: Even if
+     * today is Monday, we choose the next Monday to allow sufficient time for
+     * scheduling runs and matching processes.
      * 
      * @param date the reference date
      * @return the LocalDate of the next Monday after the given date
@@ -24,21 +23,19 @@ public class DateUtil {
         if (date == null) {
             date = LocalDate.now();
         }
-        
+
         // Always get the Monday that comes after the given date
         // If today is Monday, this will return next Monday
         return date.plusDays(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
     }
 
     /**
-     * Gets the next Monday from today.
-     * Convenience method for the most common use case.
+     * Gets the next Monday from today. Convenience method for the most common use
+     * case.
      * 
      * @return the LocalDate of the next Monday after today
      */
-    public static LocalDate nextMonday() {
-        return nextMonday(LocalDate.now());
-    }
+    public static LocalDate nextMonday() { return nextMonday(LocalDate.now()); }
 
     /**
      * Checks if the given date is a Monday.

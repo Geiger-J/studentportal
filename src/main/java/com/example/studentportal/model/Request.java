@@ -94,7 +94,9 @@ public class Request {
 
     public Boolean getArchived() { return archived; }
 
-    public void setArchived(Boolean archived) { this.archived = archived != null ? archived : false; }
+    public void setArchived(Boolean archived) {
+        this.archived = archived != null ? archived : false;
+    }
 
     public String getStatus() { return status; }
 
@@ -109,7 +111,8 @@ public class Request {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     /**
-     * Checks if this request can be cancelled (i.e., is currently PENDING or MATCHED).
+     * Checks if this request can be cancelled (i.e., is currently PENDING or
+     * MATCHED).
      */
     public boolean canBeCancelled() {
         return "PENDING".equals(this.status) || "MATCHED".equals(this.status);
@@ -140,7 +143,8 @@ public class Request {
     @Override
     public String toString() {
         return "Request{" + "id=" + id + ", type=" + type + ", subject="
-                + (subject != null ? subject.getDisplayName() : "null") + ", timeslots=" + timeslots.size()
-                + ", chosenTimeslot=" + chosenTimeslot + ", status=" + status + ", archived=" + archived + '}';
+                + (subject != null ? subject.getDisplayName() : "null") + ", timeslots="
+                + timeslots.size() + ", chosenTimeslot=" + chosenTimeslot + ", status=" + status
+                + ", archived=" + archived + '}';
     }
 }

@@ -33,14 +33,16 @@ public class AdminController {
     private final MatchingService matchingService;
 
     @Autowired
-    public AdminController(RequestService requestService, UserService userService, MatchingService matchingService) {
+    public AdminController(RequestService requestService, UserService userService,
+            MatchingService matchingService) {
         this.requestService = requestService;
         this.userService = userService;
         this.matchingService = matchingService;
     }
 
     @GetMapping("/dashboard")
-    public String adminDashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String adminDashboard(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             Model model) {
         User admin = principal.getUser();
 
@@ -90,7 +92,8 @@ public class AdminController {
         return "admin/requests";
     }
 
-    // cancel a pending/matched request — admins can only cancel, not permanently delete
+    // cancel a pending/matched request — admins can only cancel, not permanently
+    // delete
     @PostMapping("/requests/{id}/cancel")
     public String cancelRequest(@PathVariable Long id,
             @RequestParam(value = "status", required = false) String status,
@@ -98,17 +101,20 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
         try {
             requestService.adminCancelRequest(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Request cancelled successfully.");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Request cancelled successfully.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error cancelling request: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error cancelling request: " + e.getMessage());
         }
         // preserve filter state on redirect
         String redirect = "redirect:/admin/requests";
         if (status != null && !status.isEmpty()) {
             redirect += "?status=" + status;
-            if (showArchived) redirect += "&showArchived=true";
+            if (showArchived)
+                redirect += "&showArchived=true";
         } else if (showArchived) {
             redirect += "?showArchived=true";
         }
@@ -125,10 +131,8 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/change-password")
-    public String changeUserPassword(@PathVariable Long id,
-            @RequestParam String newPassword,
-            @RequestParam String confirmPassword,
-            RedirectAttributes redirectAttributes) {
+    public String changeUserPassword(@PathVariable Long id, @RequestParam String newPassword,
+            @RequestParam String confirmPassword, RedirectAttributes redirectAttributes) {
         try {
             if (!newPassword.equals(confirmPassword)) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Passwords do not match.");
@@ -150,13 +154,11 @@ public class AdminController {
     @PostMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-            HttpServletRequest request,
-            HttpServletResponse response,
+            HttpServletRequest request, HttpServletResponse response,
             RedirectAttributes redirectAttributes) {
         try {
             // check whether the admin is deleting their own account (null-safe)
-            boolean deletingSelf = principal != null
-                    && principal.getUser() != null
+            boolean deletingSelf = principal != null && principal.getUser() != null
                     && principal.getUser().getId().equals(id);
             userService.deleteUser(id);
             if (deletingSelf) {
@@ -216,16 +218,17 @@ public class AdminController {
     }
 
     @GetMapping("/profile")
-    public String showAdminProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String showAdminProfile(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             Model model) {
         model.addAttribute("admin", principal.getUser());
         return "admin/profile";
     }
 
     @PostMapping("/profile/change-password")
-    public String changeAdminPassword(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-            @RequestParam String newPassword,
-            @RequestParam String confirmPassword,
+    public String changeAdminPassword(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            @RequestParam String newPassword, @RequestParam String confirmPassword,
             RedirectAttributes redirectAttributes) {
         try {
             if (!newPassword.equals(confirmPassword)) {
@@ -233,7 +236,8 @@ public class AdminController {
                 return "redirect:/admin/profile";
             }
             userService.changePassword(principal.getUser().getId(), newPassword);
-            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully.");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Password changed successfully.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
@@ -246,8 +250,7 @@ public class AdminController {
     @PostMapping("/profile/delete-account")
     public String deleteAdminAccount(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-            HttpServletRequest request,
-            HttpServletResponse response,
+            HttpServletRequest request, HttpServletResponse response,
             RedirectAttributes redirectAttributes) {
         try {
             Long userId = principal.getUser().getId();

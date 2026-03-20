@@ -41,8 +41,9 @@ public class RequestController {
     }
 
     @GetMapping("/new")
-    public String showRequestForm(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-                                 Model model) {
+    public String showRequestForm(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            Model model) {
 
         User user = principal.getUser();
 
@@ -50,8 +51,8 @@ public class RequestController {
             return "redirect:/profile";
         }
 
-        Set<String> userAvailabilityNames = user.getAvailability() != null
-                ? user.getAvailability() : new HashSet<>();
+        Set<String> userAvailabilityNames = user.getAvailability() != null ? user.getAvailability()
+                : new HashSet<>();
 
         model.addAttribute("subjectGroups", getGroupedUserSubjects(user));
         model.addAttribute("userAvailabilityNames", userAvailabilityNames);
@@ -61,12 +62,11 @@ public class RequestController {
     }
 
     @PostMapping
-    public String createRequest(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-                               @RequestParam String type,
-                               @RequestParam Long subjectId,
-                               @RequestParam(required = false) List<String> timeslots,
-                               RedirectAttributes redirectAttributes,
-                               Model model) {
+    public String createRequest(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            @RequestParam String type, @RequestParam Long subjectId,
+            @RequestParam(required = false) List<String> timeslots,
+            RedirectAttributes redirectAttributes, Model model) {
 
         User user = principal.getUser();
 
@@ -76,7 +76,7 @@ public class RequestController {
 
         try {
             Subject subject = subjectService.findById(subjectId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid subject selected"));
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid subject selected"));
 
             if (timeslots == null || timeslots.isEmpty()) {
                 populateRequestFormModel(model, user);
@@ -85,8 +85,7 @@ public class RequestController {
             }
 
             // Validate and filter timeslot codes
-            Set<String> timeslotSet = timeslots.stream()
-                    .filter(Timeslots.ALL_CODES_SET::contains)
+            Set<String> timeslotSet = timeslots.stream().filter(Timeslots.ALL_CODES_SET::contains)
                     .collect(Collectors.toCollection(HashSet::new));
 
             if (timeslotSet.isEmpty()) {
@@ -99,8 +98,8 @@ public class RequestController {
 
             String typeLabel = "TUTOR".equals(type) ? "offering tutoring" : "seeking tutoring";
             redirectAttributes.addFlashAttribute("message",
-                "Request created successfully! Your " + typeLabel +
-                " request for " + subject.getDisplayName() + " has been submitted.");
+                    "Request created successfully! Your " + typeLabel + " request for "
+                            + subject.getDisplayName() + " has been submitted.");
 
             return "redirect:/dashboard";
 
@@ -116,33 +115,35 @@ public class RequestController {
     }
 
     @PostMapping("/{id}/cancel")
-    public String cancelRequest(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-                               @PathVariable Long id,
-                               RedirectAttributes redirectAttributes) {
+    public String cancelRequest(
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            @PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         User user = principal.getUser();
 
         try {
             Request cancelledRequest = requestService.cancelRequest(id, user);
 
-            String typeLabel = "TUTOR".equals(cancelledRequest.getType()) ? "offering tutoring" : "seeking tutoring";
+            String typeLabel = "TUTOR".equals(cancelledRequest.getType()) ? "offering tutoring"
+                    : "seeking tutoring";
             redirectAttributes.addFlashAttribute("message",
-                "Request cancelled successfully. Your " + typeLabel +
-                " request for " + cancelledRequest.getSubject().getDisplayName() +
-                " has been cancelled.");
+                    "Request cancelled successfully. Your " + typeLabel + " request for "
+                            + cancelledRequest.getSubject().getDisplayName()
+                            + " has been cancelled.");
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error cancelling request: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error",
+                    "Error cancelling request: " + e.getMessage());
         }
 
         return "redirect:/dashboard";
     }
 
     private void populateRequestFormModel(Model model, User user) {
-        Set<String> userAvailabilityNames = user.getAvailability() != null
-                ? user.getAvailability() : new HashSet<>();
+        Set<String> userAvailabilityNames = user.getAvailability() != null ? user.getAvailability()
+                : new HashSet<>();
         model.addAttribute("subjectGroups", getGroupedUserSubjects(user));
         model.addAttribute("userAvailabilityNames", userAvailabilityNames);
         model.addAttribute("requestTypes", List.of("TUTOR", "TUTEE"));
@@ -156,26 +157,26 @@ public class RequestController {
         Map<String, List<Subject>> groups = new HashMap<>();
 
         List<Subject> languages = subjects.stream()
-            .filter(s -> s.getDisplayName().equals("English") ||
-                        s.getDisplayName().equals("German") ||
-                        s.getDisplayName().equals("French"))
-            .collect(Collectors.toList());
-        if (!languages.isEmpty()) groups.put("Languages", languages);
+                .filter(s -> s.getDisplayName().equals("English")
+                        || s.getDisplayName().equals("German")
+                        || s.getDisplayName().equals("French"))
+                .collect(Collectors.toList());
+        if (!languages.isEmpty())
+            groups.put("Languages", languages);
 
-        List<Subject> stem = subjects.stream()
-            .filter(s -> s.getDisplayName().equals("Mathematics") ||
-                        s.getDisplayName().equals("Physics") ||
-                        s.getDisplayName().equals("Biology") ||
-                        s.getDisplayName().equals("Chemistry"))
-            .collect(Collectors.toList());
-        if (!stem.isEmpty()) groups.put("STEM", stem);
+        List<Subject> stem = subjects.stream().filter(s -> s.getDisplayName().equals("Mathematics")
+                || s.getDisplayName().equals("Physics") || s.getDisplayName().equals("Biology")
+                || s.getDisplayName().equals("Chemistry")).collect(Collectors.toList());
+        if (!stem.isEmpty())
+            groups.put("STEM", stem);
 
         List<Subject> social = subjects.stream()
-            .filter(s -> s.getDisplayName().equals("Economics") ||
-                        s.getDisplayName().equals("Politics") ||
-                        s.getDisplayName().equals("Business"))
-            .collect(Collectors.toList());
-        if (!social.isEmpty()) groups.put("Social Sciences", social);
+                .filter(s -> s.getDisplayName().equals("Economics")
+                        || s.getDisplayName().equals("Politics")
+                        || s.getDisplayName().equals("Business"))
+                .collect(Collectors.toList());
+        if (!social.isEmpty())
+            groups.put("Social Sciences", social);
 
         return groups;
     }

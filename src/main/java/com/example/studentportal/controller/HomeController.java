@@ -13,7 +13,5 @@ public class HomeController {
      * Landing page - publicly accessible.
      */
     @GetMapping("/")
-    public String home() {
-        return "index";
-    }
+    public String home() { return "index"; }
 }

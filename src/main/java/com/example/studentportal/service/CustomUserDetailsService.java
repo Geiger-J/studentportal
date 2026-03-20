@@ -15,8 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Custom UserDetailsService implementation for Spring Security.
- * Loads user data from the database and provides authentication information.
+ * Custom UserDetailsService implementation for Spring Security. Loads user data
+ * from the database and provides authentication information.
  */
 @Service
 @Transactional(readOnly = true)
@@ -31,8 +31,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with email: " + email));
 
         return new CustomUserPrincipal(user);
     }
@@ -43,54 +43,37 @@ public class CustomUserDetailsService implements UserDetailsService {
     public static class CustomUserPrincipal implements UserDetails {
         private final User user;
 
-        public CustomUserPrincipal(User user) {
-            this.user = user;
-        }
+        public CustomUserPrincipal(User user) { this.user = user; }
 
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
             // Convert role to granted authority
-            return Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole())
-            );
+            return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         }
 
         @Override
-        public String getPassword() {
-            return user.getPasswordHash();
-        }
+        public String getPassword() { return user.getPasswordHash(); }
 
         @Override
-        public String getUsername() {
-            return user.getEmail();
-        }
+        public String getUsername() { return user.getEmail(); }
 
         @Override
-        public boolean isAccountNonExpired() {
-            return true;
-        }
+        public boolean isAccountNonExpired() { return true; }
 
         @Override
-        public boolean isAccountNonLocked() {
-            return true;
-        }
+        public boolean isAccountNonLocked() { return true; }
 
         @Override
-        public boolean isCredentialsNonExpired() {
-            return true;
-        }
+        public boolean isCredentialsNonExpired() { return true; }
 
         @Override
-        public boolean isEnabled() {
-            return true;
-        }
+        public boolean isEnabled() { return true; }
 
         /**
          * Gets the underlying User entity.
+         * 
          * @return the User entity
          */
-        public User getUser() {
-            return user;
-        }
+        public User getUser() { return user; }
     }
 }

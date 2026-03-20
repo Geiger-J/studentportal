@@ -11,12 +11,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Data seeding component that runs on application startup.
- * Seeds the database with initial subjects if none exist.
- * 
- * Note: Using simple CommandLineRunner for early iteration. 
- * In production, this should be replaced with Flyway migrations
- * for better version control and deployment consistency.
+ * Data seeding component that runs on application startup. Seeds the database
+ * with initial subjects if none exist. Note: Using simple CommandLineRunner for
+ * early iteration. In production, this should be replaced with Flyway
+ * migrations for better version control and deployment consistency.
  */
 @Component
 @ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true)
@@ -27,18 +25,14 @@ public class DataSeeder implements CommandLineRunner {
     private final SubjectService subjectService;
 
     @Autowired
-    public DataSeeder(SubjectService subjectService) {
-        this.subjectService = subjectService;
-    }
+    public DataSeeder(SubjectService subjectService) { this.subjectService = subjectService; }
 
     @Override
-    public void run(String... args) throws Exception {
-        seedSubjects();
-    }
+    public void run(String... args) throws Exception { seedSubjects(); }
 
     /**
-     * Seeds the database with standard subjects if none exist.
-     * Prevents duplicate seeding on application restarts.
+     * Seeds the database with standard subjects if none exist. Prevents duplicate
+     * seeding on application restarts.
      */
     private void seedSubjects() {
         if (subjectService.hasSubjects()) {
@@ -50,22 +44,16 @@ public class DataSeeder implements CommandLineRunner {
 
         // Define standard subjects - simple curated list shared across all exam boards
         String[][] subjectData = {
-            // Languages
-            {"ENGLISH", "English"},
-            {"GERMAN", "German"},
-            {"FRENCH", "French"},
-            
-            // STEM
-            {"MATHEMATICS", "Mathematics"},
-            {"PHYSICS", "Physics"},
-            {"BIOLOGY", "Biology"},
-            {"CHEMISTRY", "Chemistry"},
-            
-            // Social Sciences
-            {"ECONOMICS", "Economics"},
-            {"POLITICS", "Politics"},
-            {"BUSINESS", "Business"}
-        };
+                // Languages
+                { "ENGLISH", "English" }, { "GERMAN", "German" }, { "FRENCH", "French" },
+
+                // STEM
+                { "MATHEMATICS", "Mathematics" }, { "PHYSICS", "Physics" },
+                { "BIOLOGY", "Biology" }, { "CHEMISTRY", "Chemistry" },
+
+                // Social Sciences
+                { "ECONOMICS", "Economics" }, { "POLITICS", "Politics" },
+                { "BUSINESS", "Business" } };
 
         for (String[] subjectInfo : subjectData) {
             Subject subject = new Subject(subjectInfo[0], subjectInfo[1]);

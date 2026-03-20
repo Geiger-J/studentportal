@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class StudentportalApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(StudentportalApplication.class, args);
 	}
 

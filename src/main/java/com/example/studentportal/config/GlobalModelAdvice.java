@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Global model attributes added to every controller's model.
- * Provides label maps for String-based enums and catalog data.
+ * Global model attributes added to every controller's model. Provides label
+ * maps for String-based enums and catalog data.
  */
 @ControllerAdvice
 public class GlobalModelAdvice {

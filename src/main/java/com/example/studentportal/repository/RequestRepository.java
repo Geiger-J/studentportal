@@ -22,11 +22,11 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findByUserAndArchivedFalseOrderByCreatedAtDesc(User user);
 
-    Optional<Request> findByUserAndSubjectAndTypeAndStatus(
-        User user, Subject subject, String type, String status);
+    Optional<Request> findByUserAndSubjectAndTypeAndStatus(User user, Subject subject, String type,
+            String status);
 
-    boolean existsByUserAndSubjectAndTypeAndStatus(
-        User user, Subject subject, String type, String status);
+    boolean existsByUserAndSubjectAndTypeAndStatus(User user, Subject subject, String type,
+            String status);
 
     List<Request> findByStatus(String status);
 
@@ -44,13 +44,14 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner")
     void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner);
 
-    Optional<Request> findByUserAndMatchedPartnerAndStatus(
-        User user, User matchedPartner, String status);
+    Optional<Request> findByUserAndMatchedPartnerAndStatus(User user, User matchedPartner,
+            String status);
 
-    Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(
-        User user, User matchedPartner, String status, Subject subject);
+    Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(User user, User matchedPartner,
+            String status, Subject subject);
 
-    // finds all requests where another user is listed as the matched partner at a given status
+    // finds all requests where another user is listed as the matched partner at a
+    // given status
     // used when that partner is being deleted — so we can cancel their requests
     List<Request> findByMatchedPartnerAndStatus(User matchedPartner, String status);
 }

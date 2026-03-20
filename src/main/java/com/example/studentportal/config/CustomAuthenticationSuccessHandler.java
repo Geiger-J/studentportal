@@ -11,24 +11,23 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Custom authentication success handler that redirects users based on profile completeness.
- * Implements the business rule: if profile incomplete -> /profile, else -> /dashboard
+ * Custom authentication success handler that redirects users based on profile
+ * completeness. Implements the business rule: if profile incomplete ->
+ * /profile, else -> /dashboard
  */
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, 
-                                      HttpServletResponse response,
-                                      Authentication authentication) throws IOException, ServletException {
-        
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
+
         // Get the authenticated user
         Object principal = authentication.getPrincipal();
-        
+
         if (principal instanceof CustomUserDetailsService.CustomUserPrincipal) {
-            CustomUserDetailsService.CustomUserPrincipal userPrincipal = 
-                (CustomUserDetailsService.CustomUserPrincipal) principal;
-            
+            CustomUserDetailsService.CustomUserPrincipal userPrincipal = (CustomUserDetailsService.CustomUserPrincipal) principal;
+
             // ADMIN users go to admin dashboard
             if ("ADMIN".equals(userPrincipal.getUser().getRole())) {
                 response.sendRedirect("/admin/dashboard");

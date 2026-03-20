@@ -8,12 +8,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Provides the "current" time to the rest of the application.
- *
- * - In normal operation it returns the real wall-clock time.
- * - When app.simulation.datetime is set (e.g. in application-local.properties),
- *   it returns that fixed timestamp instead.
- *   This lets you fast-forward time for manual testing without touching production code.
+ * Provides the "current" time to the rest of the application. - In normal
+ * operation it returns the real wall-clock time. - When app.simulation.datetime
+ * is set (e.g. in application-local.properties), it returns that fixed
+ * timestamp instead. This lets you fast-forward time for manual testing without
+ * touching production code.
  */
 @Service
 public class TimeService {
@@ -36,7 +35,5 @@ public class TimeService {
     /**
      * Convenience: returns just the date part of now().
      */
-    public LocalDate today() {
-        return now().toLocalDate();
-    }
+    public LocalDate today() { return now().toLocalDate(); }
 }

@@ -1,6 +1,4 @@
 
-
-
 package com.example.studentportal.model;
 
 import java.time.LocalDateTime;
@@ -133,7 +131,9 @@ public class User {
         return subjects;
     }
 
-    public void setSubjects(Set<Subject> subjects) { this.subjects = (subjects != null) ? subjects : new HashSet<>(); }
+    public void setSubjects(Set<Subject> subjects) {
+        this.subjects = (subjects != null) ? subjects : new HashSet<>();
+    }
 
     public Set<String> getAvailability() {
         if (availability == null) {
@@ -153,11 +153,15 @@ public class User {
         return requests;
     }
 
-    public void setRequests(Set<Request> requests) { this.requests = (requests != null) ? requests : new HashSet<>(); }
+    public void setRequests(Set<Request> requests) {
+        this.requests = (requests != null) ? requests : new HashSet<>();
+    }
 
     public Boolean getProfileComplete() { return profileComplete; }
 
-    public void setProfileComplete(Boolean profileComplete) { this.profileComplete = profileComplete; }
+    public void setProfileComplete(Boolean profileComplete) {
+        this.profileComplete = profileComplete;
+    }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 
@@ -194,8 +198,8 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "id=" + id + ", fullName='" + fullName + '\'' + ", email='" + email + '\'' + ", role=" + role
-                + ", yearGroup=" + yearGroup + ", examBoard=" + examBoard + ", profileComplete=" + profileComplete
-                + '}';
+        return "User{" + "id=" + id + ", fullName='" + fullName + '\'' + ", email='" + email + '\''
+                + ", role=" + role + ", yearGroup=" + yearGroup + ", examBoard=" + examBoard
+                + ", profileComplete=" + profileComplete + '}';
     }
 }

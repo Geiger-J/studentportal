@@ -33,32 +33,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authz -> authz
+        http.authorizeHttpRequests(authz -> authz
                 // Public
-                .requestMatchers("/", "/login", "/register",
-                        "/css/**", "/images/**", "/js/**").permitAll()
+                .requestMatchers("/", "/login", "/register", "/css/**", "/images/**", "/js/**")
+                .permitAll()
                 // Admin-only area
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Student-only functional pages
                 .requestMatchers("/dashboard", "/profile/**", "/requests/**").hasRole("STUDENT")
                 // Any other authenticated route (tighten if desired)
-                .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                .loginPage("/login")
-                .permitAll()
-                .successHandler(authenticationSuccessHandler)
-                .failureUrl("/login?error=true")
-                )
-                .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
-                .permitAll()
-                )
-                .exceptionHandling(ex -> ex
-                .accessDeniedHandler(roleRedirectAccessDeniedHandler)
-                )
+                .anyRequest().authenticated())
+                .formLogin(form -> form.loginPage("/login").permitAll()
+                        .successHandler(authenticationSuccessHandler)
+                        .failureUrl("/login?error=true"))
+                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/").permitAll())
+                .exceptionHandling(ex -> ex.accessDeniedHandler(roleRedirectAccessDeniedHandler))
                 .csrf(csrf -> csrf.disable());
 
         return http.build();

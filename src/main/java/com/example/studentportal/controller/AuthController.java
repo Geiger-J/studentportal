@@ -39,9 +39,7 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+    public String login() { return "login"; }
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
@@ -50,13 +48,12 @@ public class AuthController {
     }
 
     /**
-     * Processes user registration. Validates form data, creates user, and
-     * ensures the user is authenticated immediately.
+     * Processes user registration. Validates form data, creates user, and ensures
+     * the user is authenticated immediately.
      */
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") RegistrationForm form,
-            BindingResult result,
-            RedirectAttributes redirectAttributes,
+            BindingResult result, RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
 
         if (result.hasErrors()) {
@@ -65,12 +62,13 @@ public class AuthController {
 
         try {
             // Create the user
-            User user = userService.registerUser(form.getFullName(), form.getEmail(), form.getPassword());
+            User user = userService.registerUser(form.getFullName(), form.getEmail(),
+                    form.getPassword());
 
             // Load UserDetails and build authentication token
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-            UsernamePasswordAuthenticationToken auth
-                    = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
 
             // Create and persist a fresh SecurityContext (ensures session persistence)
             SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -78,9 +76,11 @@ public class AuthController {
             SecurityContextHolder.setContext(context);
 
             HttpSession session = request.getSession(true);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    context);
 
-            redirectAttributes.addFlashAttribute("message", "Registration successful! Please complete your profile.");
+            redirectAttributes.addFlashAttribute("message",
+                    "Registration successful! Please complete your profile.");
             return "redirect:/profile";
 
         } catch (IllegalArgumentException e) {
@@ -98,28 +98,16 @@ public class AuthController {
         private String email;
         private String password;
 
-        public String getFullName() {
-            return fullName;
-        }
+        public String getFullName() { return fullName; }
 
-        public void setFullName(String fullName) {
-            this.fullName = fullName;
-        }
+        public void setFullName(String fullName) { this.fullName = fullName; }
 
-        public String getEmail() {
-            return email;
-        }
+        public String getEmail() { return email; }
 
-        public void setEmail(String email) {
-            this.email = email;
-        }
+        public void setEmail(String email) { this.email = email; }
 
-        public String getPassword() {
-            return password;
-        }
+        public String getPassword() { return password; }
 
-        public void setPassword(String password) {
-            this.password = password;
-        }
+        public void setPassword(String password) { this.password = password; }
     }
 }
