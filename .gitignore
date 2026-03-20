@@ -32,6 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-
-src/main/resources/application-local.properties
-.github/copilot-instructions.md
+.DS_Store
