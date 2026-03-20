@@ -12,10 +12,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Service class for tutoring request management. Handles request creation,
- * listing, cancellation, and duplicate prevention.
- */
+// Service - tutoring request lifecycle: creation, retrieval, cancellation, archival
+//
+// Responsibilities:
+// - enforce no-duplicate-active-request rule per user/subject/type
+// - cascade cancellation to matched partner when a MATCHED request is cancelled
+// - archive DONE and CANCELLED requests on demand
 @Service
 @Transactional
 public class RequestService {
@@ -27,56 +29,37 @@ public class RequestService {
         this.requestRepository = requestRepository;
     }
 
-    /**
-     * Creates a new tutoring request with duplicate checking.
-     *
-     * @param user      the user creating the request
-     * @param type      the request type ("TUTOR"/"TUTEE")
-     * @param subject   the subject for tutoring
-     * @param timeslots the selected timeslots (must have at least one)
-     * @return the created request
-     * @throws IllegalArgumentException if validation fails or duplicate exists
-     */
+    // validate → check duplicate → create; throws if timeslots empty or duplicate active request
     public Request createRequest(User user, String type, Subject subject, Set<String> timeslots) {
 
-        // Validate timeslots
         if (timeslots == null || timeslots.isEmpty()) {
             throw new IllegalArgumentException("At least one timeslot must be selected");
         }
 
-        // Check for duplicate active request
         if (hasActiveRequest(user, subject, type)) {
             String typeLabel = "TUTOR".equals(type) ? "offering tutoring" : "seeking tutoring";
             throw new IllegalArgumentException("You already have an active " + typeLabel
                     + " request for " + subject.getDisplayName());
         }
 
-        // Create and save request
         Request request = new Request(user, type, subject, timeslots);
         return requestRepository.save(request);
     }
 
-    /**
-     * Checks if user has an active (PENDING) request for the given subject and
-     * type.
-     */
+    // true if user has PENDING request for same subject/type
     @Transactional(readOnly = true)
     public boolean hasActiveRequest(User user, Subject subject, String type) {
         return requestRepository.existsByUserAndSubjectAndTypeAndStatus(user, subject, type,
                 "PENDING");
     }
 
-    /**
-     * Retrieves all requests for a specific user, ordered by creation date.
-     */
+    // all requests for user, newest first
     @Transactional(readOnly = true)
     public List<Request> getUserRequests(User user) {
         return requestRepository.findByUserOrderByCreatedAtDesc(user);
     }
 
-    /**
-     * Retrieves requests for a specific user, optionally including archived ones.
-     */
+    // requests for user; includeArchived controls whether archived are included
     @Transactional(readOnly = true)
     public List<Request> getUserRequests(User user, boolean includeArchived) {
         if (includeArchived) {
@@ -86,10 +69,7 @@ public class RequestService {
         }
     }
 
-    /**
-     * Cancels a request if it's currently pending or matched. If the request is
-     * matched, also cancels the matched partner's request.
-     */
+    // cancel request [ownership-checked]; if MATCHED, also cancels partner's request
     public Request cancelRequest(Long requestId, User user) {
         Optional<Request> requestOpt = requestRepository.findById(requestId);
 
@@ -99,17 +79,14 @@ public class RequestService {
 
         Request request = requestOpt.get();
 
-        // Check ownership
         if (!request.getUser().equals(user)) {
             throw new IllegalArgumentException("You can only cancel your own requests");
         }
 
-        // Check if cancellable
         if (!request.canBeCancelled()) {
             throw new IllegalArgumentException("This request cannot be cancelled");
         }
 
-        // If request is matched, also cancel the partner's request
         if ("MATCHED".equals(request.getStatus()) && request.getMatchedPartner() != null) {
             User partner = request.getMatchedPartner();
             Optional<Request> partnerRequestOpt = requestRepository
@@ -123,59 +100,37 @@ public class RequestService {
             }
         }
 
-        // Cancel and save the original request
         request.cancel();
         return requestRepository.save(request);
     }
 
-    /**
-     * Finds a request by ID.
-     */
     @Transactional(readOnly = true)
     public Optional<Request> findById(Long id) { return requestRepository.findById(id); }
 
-    /**
-     * Retrieves all requests with a specific status.
-     */
     @Transactional(readOnly = true)
     public List<Request> getRequestsByStatus(String status) {
         return requestRepository.findByStatus(status);
     }
 
-    /**
-     * Retrieves all pending requests.
-     */
     @Transactional(readOnly = true)
     public List<Request> getPendingRequests() { return getRequestsByStatus("PENDING"); }
 
-    /**
-     * Retrieves all non-archived requests.
-     */
     @Transactional(readOnly = true)
     public List<Request> getAllNonArchivedRequests() {
         return requestRepository.findAllByArchivedFalse();
     }
 
-    /**
-     * Retrieves all requests (including archived).
-     */
     @Transactional(readOnly = true)
     public List<Request> getAllRequests() {
         return requestRepository.findAllByOrderByCreatedAtDesc();
     }
 
-    /**
-     * Retrieves non-archived requests filtered by status.
-     */
     @Transactional(readOnly = true)
     public List<Request> getNonArchivedRequestsByStatus(String status) {
         return requestRepository.findByStatusAndArchivedFalse(status);
     }
 
-    /**
-     * Cancels a request by ID on behalf of an admin. - only PENDING or MATCHED
-     * requests can be cancelled - if matched, also cancels the partner's request
-     */
+    // admin cancel — cascades to partner if MATCHED
     public Request adminCancelRequest(Long id) {
         Request request = requestRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Request not found with id: " + id));
@@ -202,24 +157,16 @@ public class RequestService {
         return requestRepository.save(request);
     }
 
-    /**
-     * Deletes a request by ID (admin use).
-     */
     public void deleteRequest(Long id) {
         Request request = requestRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Request not found with id: " + id));
         requestRepository.delete(request);
     }
 
-    /**
-     * Retrieves all matched requests.
-     */
     @Transactional(readOnly = true)
     public List<Request> getMatchedRequests() { return getRequestsByStatus("MATCHED"); }
 
-    /**
-     * Archives old DONE and CANCELLED requests.
-     */
+    // mark all non-archived DONE and CANCELLED requests as archived
     public int archiveOldRequests() {
         List<Request> doneRequests = getRequestsByStatus("DONE");
         List<Request> cancelledRequests = getRequestsByStatus("CANCELLED");

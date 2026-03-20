@@ -5,18 +5,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/**
- * Configuration for password encoding. Uses BCrypt for secure password hashing.
- */
+// Configuration - BCrypt password encoder bean
+//
+// Responsibilities:
+// - provides PasswordEncoder bean for the security context
+// - uses BCrypt [adaptive, slow-hash algorithm designed for passwords]
 @Configuration
 public class PasswordConfig {
 
-    /**
-     * Provides BCrypt password encoder bean. BCrypt is a strong, adaptive hashing
-     * function designed for passwords.
-     * 
-     * @return BCryptPasswordEncoder instance
-     */
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 }

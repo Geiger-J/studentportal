@@ -9,10 +9,12 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Entity representing tutoring requests within the system. Users can create
- * requests to offer or seek tutoring in specific subjects and timeslots.
- */
+// Model - tutoring request entity linking a user, subject, and set of timeslots
+//
+// Responsibilities:
+// - stores request type [TUTOR or TUTEE], status, and chosen timeslot after matching
+// - tracks matched partner and week start date after matching
+// - provides cancellation logic for PENDING and MATCHED states
 @Entity
 @Table(name = "requests")
 public class Request {
@@ -61,9 +63,10 @@ public class Request {
         this.archived = false;
     }
 
-    // Getters and setters
+    // --- accessors
     public Long getId() { return id; }
 
+    // --- mutators
     public void setId(Long id) { this.id = id; }
 
     public User getUser() { return user; }
@@ -110,17 +113,11 @@ public class Request {
 
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    /**
-     * Checks if this request can be cancelled (i.e., is currently PENDING or
-     * MATCHED).
-     */
+    // true if status is PENDING or MATCHED
     public boolean canBeCancelled() {
         return "PENDING".equals(this.status) || "MATCHED".equals(this.status);
     }
 
-    /**
-     * Cancels this request if it's currently pending or matched.
-     */
     public void cancel() {
         if (canBeCancelled()) {
             this.status = "CANCELLED";

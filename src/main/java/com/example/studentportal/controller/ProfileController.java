@@ -27,10 +27,12 @@ import com.example.studentportal.service.SubjectService;
 import com.example.studentportal.service.UserService;
 import com.example.studentportal.util.Timeslots;
 
-/**
- * Controller for user profile management. Handles profile completion and
- * updates.
- */
+// Controller - profile view and update for authenticated students
+//
+// Responsibilities:
+// - display and populate profile form
+// - validate and save year group, exam board, subjects, availability
+// - handle account deletion with auto-logout
 @Controller
 public class ProfileController {
 
@@ -43,6 +45,7 @@ public class ProfileController {
         this.subjectService = subjectService;
     }
 
+    // guard null principal; init empty collections if needed
     @GetMapping("/profile")
     public String showProfile(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -69,6 +72,7 @@ public class ProfileController {
         return "profile";
     }
 
+    // validate year group and exam board → resolve subjects/timeslots → save
     @PostMapping("/profile")
     public String updateProfile(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -137,6 +141,7 @@ public class ProfileController {
         }
     }
 
+    // delete user → invalidate session → redirect home
     @PostMapping("/profile/delete-account")
     public String deleteAccount(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -155,6 +160,7 @@ public class ProfileController {
         return "redirect:/";
     }
 
+    // repopulate form model on validation errors
     private void populateFormModel(Model model, User user, String errorMessage) {
         model.addAttribute("error", errorMessage);
         model.addAttribute("user", user);
@@ -168,6 +174,7 @@ public class ProfileController {
         return groupSubjectsByCategory(subjectService.getAllSubjects());
     }
 
+    // partition subjects into Language, STEM, Social Science groups
     private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
 

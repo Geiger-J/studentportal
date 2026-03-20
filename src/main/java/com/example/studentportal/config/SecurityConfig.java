@@ -13,9 +13,15 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+// Configuration - Spring Security filter chain and authentication provider configuration
+//
+// Responsibilities:
+// - defines public, student-only, and admin-only URL access rules
+// - configures form login with custom success handler
+// - registers role-based access-denied handler
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true) // enables @PreAuthorize on controllers
 public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
@@ -31,6 +37,7 @@ public class SecurityConfig {
         this.roleRedirectAccessDeniedHandler = roleRedirectAccessDeniedHandler;
     }
 
+    // configure URL access rules, login, logout, and error handling
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authz -> authz
@@ -53,6 +60,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // wire DAO auth with our UserDetailsService and BCrypt encoder
     @Bean
     public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

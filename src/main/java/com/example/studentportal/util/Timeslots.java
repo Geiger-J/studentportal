@@ -6,11 +6,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Utility class providing the canonical timeslot catalog. Defines all allowed
- * slot codes, their display labels, and grouping by day/period. Used to
- * validate incoming slot strings and generate display labels.
- */
+// Utility - canonical timeslot catalog [MON_P1 ... FRI_P7] with labels and end-time lookup
+//
+// Responsibilities:
+// - defines ALL_CODES, ALL_CODES_SET, LABELS for slot validation and display
+// - provides getTimeslotEndTime for scheduler to detect when a session has ended
 @Component("timeslots")
 public class Timeslots {
 
@@ -52,29 +52,10 @@ public class Timeslots {
         LABELS = Collections.unmodifiableMap(labels);
     }
 
-    /**
-     * Returns the human-readable label for a timeslot code.
-     * 
-     * @param code slot code like "MON_P1"
-     * @return label like "Monday Period 1 (09:00-09:50)", or the code itself if
-     *         unknown
-     */
     public String label(String code) { return LABELS.getOrDefault(code, code); }
 
-    /**
-     * Validates whether the given code is an allowed timeslot.
-     * 
-     * @param code slot code to validate
-     * @return true if valid, false otherwise
-     */
     public boolean isValid(String code) { return code != null && ALL_CODES_SET.contains(code); }
 
-    /**
-     * Filters a collection of slot strings, keeping only valid codes.
-     * 
-     * @param codes input collection
-     * @return new set containing only valid codes
-     */
     public Set<String> filterValid(Collection<String> codes) {
         if (codes == null)
             return new HashSet<>();
@@ -86,13 +67,7 @@ public class Timeslots {
         return valid;
     }
 
-    /**
-     * Calculates the exact end date-time for a given timeslot within a specific
-     * week. - weekStart must be the Monday of the week (use
-     * DateUtil.getMondayOfWeek). - code is like "MON_P1", "FRI_P7", etc. - Returns
-     * null if the code or weekStart is invalid. Example: weekStart=2025-01-20
-     * (Mon), code="TUE_P2" → 2025-01-21 10:45
-     */
+    // timeslot end datetime for a given week; null if weekStart/code invalid
     public static LocalDateTime getTimeslotEndTime(LocalDate weekStart, String code) {
         if (weekStart == null || code == null)
             return null;

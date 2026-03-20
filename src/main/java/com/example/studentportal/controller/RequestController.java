@@ -23,12 +23,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Controller for tutoring request management.
- */
+// Controller - tutoring request creation and cancellation for students
+//
+// Responsibilities:
+// - guard profile completeness before request creation
+// - validate and filter timeslot codes
+// - cancel requests and their matched counterparts
 @Controller
 @RequestMapping("/requests")
-@PreAuthorize("hasRole('STUDENT')")
+@PreAuthorize("hasRole('STUDENT')") // all endpoints require STUDENT role
 public class RequestController {
 
     private final RequestService requestService;
@@ -40,6 +43,7 @@ public class RequestController {
         this.subjectService = subjectService;
     }
 
+    // guard: redirect to profile if incomplete; populate form with user's subjects/slots
     @GetMapping("/new")
     public String showRequestForm(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -61,6 +65,7 @@ public class RequestController {
         return "request_form";
     }
 
+    // validate → resolve subject → filter timeslots → create request
     @PostMapping
     public String createRequest(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -114,6 +119,7 @@ public class RequestController {
         }
     }
 
+    // cancel request owned by current user
     @PostMapping("/{id}/cancel")
     public String cancelRequest(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -153,6 +159,7 @@ public class RequestController {
         return groupSubjectsByCategory(new ArrayList<>(user.getSubjects()));
     }
 
+    // partition subjects into Language, STEM, Social Science groups
     private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
 

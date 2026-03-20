@@ -12,9 +12,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repository interface for Request entity operations.
- */
+// Repository - JPA repository for Request entities
+//
+// Responsibilities:
+// - query methods for status-based and user-based request retrieval
+// - modifying queries to clear matched-partner references on deletion
+// - archival support via archived-flag filters
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
@@ -50,8 +53,6 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(User user, User matchedPartner,
             String status, Subject subject);
 
-    // finds all requests where another user is listed as the matched partner at a
-    // given status
-    // used when that partner is being deleted — so we can cancel their requests
+    // requests where a given user is listed as matchedPartner [used when that user is deleted]
     List<Request> findByMatchedPartnerAndStatus(User matchedPartner, String status);
 }

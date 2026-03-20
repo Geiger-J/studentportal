@@ -3,10 +3,11 @@ package com.example.studentportal.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * Entity representing academic subjects available for tutoring. Seeded with
- * standard subjects offered at the school.
- */
+// Model - academic subject entity [code + display name]
+//
+// Responsibilities:
+// - uniquely identified by code [e.g., MATHEMATICS]
+// - used to categorise tutoring requests and user profiles
 @Entity
 @Table(name = "subjects")
 public class Subject {
@@ -30,9 +31,10 @@ public class Subject {
         this.displayName = displayName;
     }
 
-    // Getters and setters
+    // --- accessors
     public Long getId() { return id; }
 
+    // --- mutators
     public void setId(Long id) { this.id = id; }
 
     public String getCode() { return code; }

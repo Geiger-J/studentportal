@@ -10,14 +10,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-/**
- * Data seeding component that runs on application startup. Seeds the database
- * with initial subjects if none exist. Note: Using simple CommandLineRunner for
- * early iteration. In production, this should be replaced with Flyway
- * migrations for better version control and deployment consistency.
- */
+// Configuration - seeds initial subjects on startup if none exist
+//
+// Responsibilities:
+// - runs once via CommandLineRunner on startup
+// - skips seeding if subjects already present
+// - creates curated set of Language, STEM, and Social Science subjects
 @Component
-@ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true) // only runs if seeder enabled [defaults to true if property absent]
 public class DataSeeder implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSeeder.class);
@@ -30,10 +30,7 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception { seedSubjects(); }
 
-    /**
-     * Seeds the database with standard subjects if none exist. Prevents duplicate
-     * seeding on application restarts.
-     */
+    // seed subjects → skip if already populated
     private void seedSubjects() {
         if (subjectService.hasSubjects()) {
             logger.info("Subjects already exist, skipping seeding");
@@ -42,7 +39,7 @@ public class DataSeeder implements CommandLineRunner {
 
         logger.info("Seeding subjects...");
 
-        // Define standard subjects - simple curated list shared across all exam boards
+        // curated subject list shared across all exam boards
         String[][] subjectData = {
                 // Languages
                 { "ENGLISH", "English" }, { "GERMAN", "German" }, { "FRENCH", "French" },
