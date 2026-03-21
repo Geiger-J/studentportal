@@ -12,9 +12,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repository interface for Request entity operations.
- */
+// Repository: JPA repository for Request entities
+//
+// Responsibilities:
+// - query requests by user, status, subject, and matched partner
+// - clear matched-partner references before user deletion
+// - support admin filtering and archiving workflows
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
@@ -41,8 +44,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     void deleteByUser(User user);
 
     @Modifying
-    @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner")
-    void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner);
+    @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner") // bulk-null matched partner [avoids N+1 on delete]
+    void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner); // bind matchedPartner to JPQL param
 
     Optional<Request> findByUserAndMatchedPartnerAndStatus(User user, User matchedPartner,
             String status);
@@ -50,8 +53,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(User user, User matchedPartner,
             String status, Subject subject);
 
-    // finds all requests where another user is listed as the matched partner at a
-    // given status
-    // used when that partner is being deleted — so we can cancel their requests
+    // requests where another user is the matched partner at a given status
+    // used when that partner is being deleted - cancel their outstanding matches
     List<Request> findByMatchedPartnerAndStatus(User matchedPartner, String status);
 }

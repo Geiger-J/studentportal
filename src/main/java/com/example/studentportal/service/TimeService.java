@@ -7,24 +7,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Provides the "current" time to the rest of the application. - In normal
- * operation it returns the real wall-clock time. - When app.simulation.datetime
- * is set (e.g. in application-local.properties), it returns that fixed
- * timestamp instead. This lets you fast-forward time for manual testing without
- * touching production code.
- */
+// Service: provides current time, with optional simulation override
+//
+// Responsibilities:
+// - return real wall-clock time by default
+// - return a fixed simulation timestamp when app.simulation.datetime is set
 @Service
 public class TimeService {
 
-    // ISO-8601 datetime string, e.g. "2025-01-20T10:00:00"
-    // blank/missing = use real time
-    @Value("${app.simulation.datetime:}")
+    // ISO-8601 datetime string [e.g. "2025-01-20T10:00:00"]; blank = use real time
+    @Value("${app.simulation.datetime:}") // inject simulation override [blank = real time]
     private String simulationDatetime;
 
-    /**
-     * Returns "now" — either the real time or the configured simulation timestamp.
-     */
+    // real time or configured simulation timestamp
     public LocalDateTime now() {
         if (simulationDatetime != null && !simulationDatetime.isBlank()) {
             return LocalDateTime.parse(simulationDatetime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -32,8 +27,6 @@ public class TimeService {
         return LocalDateTime.now();
     }
 
-    /**
-     * Convenience: returns just the date part of now().
-     */
+    // date part of now()
     public LocalDate today() { return now().toLocalDate(); }
 }

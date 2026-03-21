@@ -9,45 +9,47 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Entity representing tutoring requests within the system. Users can create
- * requests to offer or seek tutoring in specific subjects and timeslots.
- */
+// Model: JPA entity for a tutoring request
+//
+// Responsibilities:
+// - persist request type (TUTOR/TUTEE), subject, and candidate timeslots
+// - track matching state (status, matched partner, chosen timeslot)
+// - provide lifecycle helpers (canBeCancelled, cancel)
 @Entity
-@Table(name = "requests")
+@Table(name = "requests") // maps to DB table "requests"
 public class Request {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment PK
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) // lazy-load owning user
+    @JoinColumn(name = "user_id", nullable = false) // FK to users table [not null]
     @NotNull(message = "User is required")
     private User user;
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     @NotNull(message = "Request type is required")
     private String type;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) // lazy-load subject
+    @JoinColumn(name = "subject_id", nullable = false) // FK to subjects [not null]
     @NotNull(message = "Subject is required")
     private Subject subject;
-    @ElementCollection
-    @CollectionTable(name = "request_timeslots", joinColumns = @JoinColumn(name = "request_id"))
-    @Column(name = "timeslot")
+    @ElementCollection // collection of plain strings
+    @CollectionTable(name = "request_timeslots", joinColumns = @JoinColumn(name = "request_id")) // separate table for timeslot strings
+    @Column(name = "timeslot") // column name in collection table
     private Set<String> timeslots = new HashSet<>();
-    @Column(name = "chosen_timeslot")
+    @Column(name = "chosen_timeslot") // nullable; set after matching
     private String chosenTimeslot;
-    // Monday of the week this session belongs to — set when the match is made
-    @Column(name = "week_start_date")
+    // Monday of the week this session belongs to - set when the match is made
+    @Column(name = "week_start_date") // nullable; set when match is made
     private LocalDate weekStartDate;
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     private String status = "PENDING";
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     private Boolean archived = false;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "matched_partner_id")
+    @ManyToOne(fetch = FetchType.LAZY) // lazy-load matched partner [null until matched]
+    @JoinColumn(name = "matched_partner_id") // nullable FK to matched user
     private User matchedPartner;
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false) // immutable after insert
     private LocalDateTime createdAt;
 
     public Request() {}
@@ -61,7 +63,7 @@ public class Request {
         this.archived = false;
     }
 
-    // Getters and setters
+    // accessors and mutators
     public Long getId() { return id; }
 
     public void setId(Long id) { this.id = id; }
@@ -110,17 +112,12 @@ public class Request {
 
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    /**
-     * Checks if this request can be cancelled (i.e., is currently PENDING or
-     * MATCHED).
-     */
+    // true if status allows cancellation
     public boolean canBeCancelled() {
         return "PENDING".equals(this.status) || "MATCHED".equals(this.status);
     }
 
-    /**
-     * Cancels this request if it's currently pending or matched.
-     */
+    // transition to CANCELLED if allowed
     public void cancel() {
         if (canBeCancelled()) {
             this.status = "CANCELLED";

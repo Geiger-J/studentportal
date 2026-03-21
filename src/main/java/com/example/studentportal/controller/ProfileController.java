@@ -27,10 +27,12 @@ import com.example.studentportal.service.SubjectService;
 import com.example.studentportal.service.UserService;
 import com.example.studentportal.util.Timeslots;
 
-/**
- * Controller for user profile management. Handles profile completion and
- * updates.
- */
+// Controller: student profile view and update
+//
+// Responsibilities:
+// - display profile form with subjects and availability slots
+// - validate and persist profile updates
+// - handle account deletion
 @Controller
 public class ProfileController {
 
@@ -69,6 +71,7 @@ public class ProfileController {
         return "profile";
     }
 
+    // validate year group -> exam board -> subjects -> timeslots -> persist -> redirect
     @PostMapping("/profile")
     public String updateProfile(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -111,7 +114,7 @@ public class ProfileController {
 
             Set<String> selectedTimeslots = new HashSet<>();
             if (timeslots != null) {
-                // Validate slot codes
+                // filter out any codes not in the canonical catalog
                 for (String slot : timeslots) {
                     if (Timeslots.ALL_CODES_SET.contains(slot)) {
                         selectedTimeslots.add(slot);
@@ -164,6 +167,7 @@ public class ProfileController {
                 user.getAvailability() != null ? user.getAvailability() : new HashSet<>());
     }
 
+    // group subjects by category for the profile form display
     private Map<String, List<Subject>> getGroupedSubjects() {
         return groupSubjectsByCategory(subjectService.getAllSubjects());
     }

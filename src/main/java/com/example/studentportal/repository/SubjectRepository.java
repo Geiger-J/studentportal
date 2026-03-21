@@ -6,26 +6,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Repository interface for Subject entity operations. Provides database access
- * methods for subject management.
- */
+// Repository: JPA repository for Subject entities
+//
+// Responsibilities:
+// - look up subjects by code
+// - check existence by code for seeder deduplication
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
 
-    /**
-     * Finds a subject by its code.
-     * 
-     * @param code the subject code to search for
-     * @return Optional containing the subject if found
-     */
+    // find subject by its natural key
     Optional<Subject> findByCode(String code);
 
-    /**
-     * Checks if a subject exists with the given code.
-     * 
-     * @param code the code to check
-     * @return true if subject exists, false otherwise
-     */
+    // existence check used by seeder to avoid re-inserting
     boolean existsByCode(String code);
 }

@@ -4,12 +4,26 @@
     <meta charset="UTF-8">
 </head>
 <body>
-    <!-- Subject Selection Fragment - can be used in profile and request forms -->
+    <!--
+      Parameterized Thymeleaf fragment for subject selection.
+      Parameters:
+      - subjectGroups: Map<String, List<Subject>> from controller model
+      - selectedSubjects: Set<Subject> of currently selected subjects (may be null)
+      - inputName: form field name used for the checkbox/radio inputs
+      - multiSelect: boolean - true renders checkboxes, false renders radio buttons
+
+      Included via: th:replace="~{fragments/subject_selection :: subject_selection(...)}"
+    -->
     <div th:fragment="subject_selection(subjectGroups, selectedSubjects, inputName, multiSelect)">
         <div class="subject-groups">
+            <!-- iterate each category group (Languages, STEM, Social Sciences) -->
             <div th:each="group : ${subjectGroups}" class="subject-group" th:attr="data-exam-board=${group.value.isEmpty() ? '' : group.value.get(0).examBoard}">
                 <h3 th:if="${!group.value.isEmpty()}" th:text="${group.key}">Subject Group</h3>
                 <div class="subject-cards">
+                    <!-- one card per Subject entity in the group -->
+                    <!-- th:classappend adds 'selected' CSS class when subject is already chosen -->
+                    <!-- th:aria-pressed mirrors the selected state for screen readers -->
+                    <!-- th:onclick / th:onkeydown wire toggleSubject (multi) or selectSingleSubject (single) -->
                     <div th:each="subject : ${group.value}" 
                          class="subject-card select-card"
                          th:classappend="${selectedSubjects != null and selectedSubjects.contains(subject)} ? 'selected' : ''"
@@ -20,12 +34,14 @@
                          th:aria-label="${'Select ' + subject.displayName + ' subject'}"
                          th:onclick="${multiSelect ? 'toggleSubject(this)' : 'selectSingleSubject(this)'}"
                          th:onkeydown="${multiSelect ? 'if(event.key === \'Enter\' || event.key === \' \') { event.preventDefault(); toggleSubject(this); }' : 'if(event.key === \'Enter\' || event.key === \' \') { event.preventDefault(); selectSingleSubject(this); }'}">
+                        <!-- checkbox variant: submits multiple subject IDs under inputName -->
                         <input th:if="${multiSelect}" 
                                type="checkbox"
                                th:id="${'subject_' + subject.id}"
                                th:name="${inputName}"
                                th:value="${subject.id}"
                                th:checked="${selectedSubjects != null and selectedSubjects.contains(subject)}">
+                        <!-- radio variant: submits a single subject ID; hidden because the card itself is the click target -->
                         <input th:if="${!multiSelect}" 
                                type="radio"
                                th:id="${'subject_' + subject.id}"

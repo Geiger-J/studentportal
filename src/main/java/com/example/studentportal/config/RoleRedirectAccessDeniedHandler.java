@@ -11,6 +11,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+// Configuration: redirects on access denial based on user role
+//
+// Responsibilities:
+// - redirect admins to admin dashboard on access denied
+// - redirect students to student dashboard
+// - redirect unauthenticated users to login
 @Component
 public class RoleRedirectAccessDeniedHandler implements AccessDeniedHandler {
 
@@ -21,7 +27,7 @@ public class RoleRedirectAccessDeniedHandler implements AccessDeniedHandler {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null) {
-            // Redirect based on role
+            // role-based redirect: admin -> admin dashboard, others -> student dashboard
             boolean isAdmin = auth.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 

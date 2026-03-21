@@ -3,23 +3,24 @@ package com.example.studentportal.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * Entity representing academic subjects available for tutoring. Seeded with
- * standard subjects offered at the school.
- */
+// Model: JPA entity for an academic subject
+//
+// Responsibilities:
+// - persist subject identity (code and display name)
+// - serve as FK target from User and Request
 @Entity
-@Table(name = "subjects")
+@Table(name = "subjects") // maps to DB table "subjects"
 public class Subject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment PK
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false) // unique + not-null [code is the natural key]
     @NotBlank(message = "Subject code is required")
     private String code;
 
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     @NotBlank(message = "Display name is required")
     private String displayName;
 
@@ -30,7 +31,7 @@ public class Subject {
         this.displayName = displayName;
     }
 
-    // Getters and setters
+    // accessors and mutators
     public Long getId() { return id; }
 
     public void setId(Long id) { this.id = id; }

@@ -28,50 +28,52 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/**
- * Entity representing users in the student portal system. Supports both
- * students and administrators with role-based features.
- */
+// Model: JPA entity for user accounts (students and admins)
+//
+// Responsibilities:
+// - persist user identity, credentials, and role
+// - track academic profile (year group, exam board, subjects, availability)
+// - determine and cache profile completeness
 @Entity
-@Table(name = "users")
+@Table(name = "users") // maps to DB table "users"
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment PK
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     @NotBlank(message = "Full name is required")
     private String fullName;
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false) // unique + not-null at DB level
     @Email(message = "Valid email is required")
     @Pattern(regexp = ".*@example\\.edu$", message = "Email must end with @example.edu")
     private String email;
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     @NotBlank(message = "Password is required")
     @Size(min = 4, message = "Password must be at least 4 characters")
     private String passwordHash;
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     private String role;
     @Min(value = 9, message = "Year group must be between 9 and 13")
     @Max(value = 13, message = "Year group must be between 9 and 13")
     private Integer yearGroup;
     @Column
-    private String examBoard = "NONE";
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private String examBoard = "NONE"; // default [overridden when yearGroup is set]
+    @ManyToMany(fetch = FetchType.EAGER) // eager-load subjects with user
+    @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id")) // join table for user-subject M:M
     private Set<Subject> subjects = new HashSet<>();
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_availability", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "timeslot")
+    @ElementCollection(fetch = FetchType.EAGER) // eager-load availability set
+    @CollectionTable(name = "user_availability", joinColumns = @JoinColumn(name = "user_id")) // separate table for availability strings
+    @Column(name = "timeslot") // column name in collection table
     private Set<String> availability = new HashSet<>();
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER) // requests owned by this user
     private Set<Request> requests = new HashSet<>();
-    @Column(nullable = false)
-    private Boolean profileComplete = false;
+    @Column(nullable = false) // not-null constraint
+    private Boolean profileComplete = false; // cached flag [updated via updateProfileCompleteness]
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false) // immutable after insert
     private LocalDateTime createdAt;
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(nullable = false) // not-null constraint
     private LocalDateTime updatedAt;
 
     public User() {}
@@ -83,6 +85,7 @@ public class User {
         this.role = role;
     }
 
+    // accessors and mutators
     public Long getId() { return id; }
 
     public void setId(Long id) { this.id = id; }
@@ -105,6 +108,7 @@ public class User {
 
     public Integer getYearGroup() { return yearGroup; }
 
+    // set year group and auto-derive exam board default
     public void setYearGroup(Integer yearGroup) {
         this.yearGroup = yearGroup;
         if (yearGroup != null) {
@@ -112,7 +116,7 @@ public class User {
                 this.examBoard = "GCSE";
             } else if (yearGroup >= 12 && yearGroup <= 13) {
                 if ("GCSE".equals(this.examBoard) || "NONE".equals(this.examBoard)) {
-                    this.examBoard = "NONE"; // must choose A_LEVELS or IB
+                    this.examBoard = "NONE"; // years 12-13: must choose A_LEVELS or IB explicitly
                 }
             } else {
                 this.examBoard = "NONE";
@@ -171,8 +175,9 @@ public class User {
 
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
+    // admin always complete; students need year, subjects, and availability
     public boolean isProfileComplete() {
-        // Admin users don't need academic profile completion
+        // admin users bypass academic profile requirement
         if ("ADMIN".equals(role)) {
             return true;
         }

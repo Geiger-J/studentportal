@@ -20,12 +20,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-/**
- * Controller for admin dashboard and management functions.
- */
+// Controller: admin dashboard and management endpoints
+//
+// Responsibilities:
+// - manage users (list, delete, change password)
+// - manage requests (view, cancel, archive)
+// - trigger matching algorithm manually
 @Controller
-@RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@RequestMapping("/admin") // base path for all admin endpoints
+@PreAuthorize("hasRole('ADMIN')") // restricts all endpoints to ADMIN role
 public class AdminController {
 
     private final RequestService requestService;
@@ -40,6 +43,7 @@ public class AdminController {
         this.matchingService = matchingService;
     }
 
+    // load summary counts and recent non-archived requests for dashboard
     @GetMapping("/dashboard")
     public String adminDashboard(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
@@ -59,13 +63,14 @@ public class AdminController {
         model.addAttribute("studentCount", studentCount);
         model.addAttribute("adminCount", adminCount);
 
-        // Recent requests for dashboard table (non-archived, up to 10)
+        // recent requests for dashboard table (non-archived, up to 10)
         List<Request> allRequests = requestService.getAllNonArchivedRequests();
         model.addAttribute("allRequests", allRequests);
 
         return "admin/dashboard";
     }
 
+    // filter requests by status and archive flag; preserve filter state in model
     @GetMapping("/requests")
     public String viewRequests(@RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
@@ -92,8 +97,7 @@ public class AdminController {
         return "admin/requests";
     }
 
-    // cancel a pending/matched request — admins can only cancel, not permanently
-    // delete
+    // cancel a pending/matched request; preserve filter state on redirect
     @PostMapping("/requests/{id}/cancel")
     public String cancelRequest(@PathVariable Long id,
             @RequestParam(value = "status", required = false) String status,
@@ -110,8 +114,7 @@ public class AdminController {
                     "Error cancelling request: " + e.getMessage());
         }
         // preserve filter state on redirect
-        String redirect = "redirect:/admin/requests";
-        if (status != null && !status.isEmpty()) {
+        String redirect = "redirect:/admin/requests";        if (status != null && !status.isEmpty()) {
             redirect += "?status=" + status;
             if (showArchived)
                 redirect += "&showArchived=true";
@@ -150,19 +153,19 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // delete a user — if admin deletes themselves, log out and go to home page
+    // if admin deletes themselves, log out and redirect to home
     @PostMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             HttpServletRequest request, HttpServletResponse response,
             RedirectAttributes redirectAttributes) {
         try {
-            // check whether the admin is deleting their own account (null-safe)
+            // null-safe self-delete check
             boolean deletingSelf = principal != null && principal.getUser() != null
                     && principal.getUser().getId().equals(id);
             userService.deleteUser(id);
             if (deletingSelf) {
-                // log out the current session since we just removed ourselves
+                // invalidate session since we just removed ourselves
                 new SecurityContextLogoutHandler().logout(request, response,
                         SecurityContextHolder.getContext().getAuthentication());
                 return "redirect:/";
