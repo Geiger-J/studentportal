@@ -10,14 +10,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-/**
- * Data seeding component that runs on application startup. Seeds the database
- * with initial subjects if none exist. Note: Using simple CommandLineRunner for
- * early iteration. In production, this should be replaced with Flyway
- * migrations for better version control and deployment consistency.
- */
+// Configuration: seeds initial subject data on startup
+//
+// Responsibilities:
+// - insert default subjects if table is empty
+// - run once per startup (skipped if data already exists)
 @Component
-@ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true) // run seeder only if property set [defaults to true if absent]
 public class DataSeeder implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSeeder.class);
@@ -30,10 +29,7 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception { seedSubjects(); }
 
-    /**
-     * Seeds the database with standard subjects if none exist. Prevents duplicate
-     * seeding on application restarts.
-     */
+    // skip if subjects already exist; prevents re-seeding on restart
     private void seedSubjects() {
         if (subjectService.hasSubjects()) {
             logger.info("Subjects already exist, skipping seeding");
@@ -42,7 +38,7 @@ public class DataSeeder implements CommandLineRunner {
 
         logger.info("Seeding subjects...");
 
-        // Define standard subjects - simple curated list shared across all exam boards
+        // curated list shared across all exam boards: [code, displayName]
         String[][] subjectData = {
                 // Languages
                 { "ENGLISH", "English" }, { "GERMAN", "German" }, { "FRENCH", "French" },

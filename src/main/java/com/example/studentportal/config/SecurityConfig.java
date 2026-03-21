@@ -13,9 +13,15 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+// Configuration: Spring Security setup for the application
+//
+// Responsibilities:
+// - define URL authorization rules (public, admin, student)
+// - configure form login, logout, and access denied handling
+// - register DAO authentication provider with BCrypt
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true) // enables @PreAuthorize on controller methods
 public class SecurityConfig {
 
     private final PasswordEncoder passwordEncoder;
@@ -31,17 +37,18 @@ public class SecurityConfig {
         this.roleRedirectAccessDeniedHandler = roleRedirectAccessDeniedHandler;
     }
 
+    // define URL access rules, form login/logout, and exception handling
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authz -> authz
-                // Public
+                // public: no auth required
                 .requestMatchers("/", "/login", "/register", "/css/**", "/images/**", "/js/**")
                 .permitAll()
-                // Admin-only area
+                // admin-only area
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Student-only functional pages
+                // student-only functional pages
                 .requestMatchers("/dashboard", "/profile/**", "/requests/**").hasRole("STUDENT")
-                // Any other authenticated route (tighten if desired)
+                // any other authenticated route
                 .anyRequest().authenticated())
                 .formLogin(form -> form.loginPage("/login").permitAll()
                         .successHandler(authenticationSuccessHandler)

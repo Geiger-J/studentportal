@@ -22,10 +22,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-/**
- * Controller for authentication-related actions. Handles user registration and
- * login page display.
- */
+// Controller: registration and login page endpoints
+//
+// Responsibilities:
+// - display registration and login forms
+// - create user account and auto-authenticate on registration
 @Controller
 public class AuthController {
 
@@ -47,10 +48,7 @@ public class AuthController {
         return "register";
     }
 
-    /**
-     * Processes user registration. Validates form data, creates user, and ensures
-     * the user is authenticated immediately.
-     */
+    // create user -> build auth token -> persist SecurityContext -> redirect to profile
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") RegistrationForm form,
             BindingResult result, RedirectAttributes redirectAttributes,
@@ -65,12 +63,11 @@ public class AuthController {
             User user = userService.registerUser(form.getFullName(), form.getEmail(),
                     form.getPassword());
 
-            // Load UserDetails and build authentication token
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
 
-            // Create and persist a fresh SecurityContext (ensures session persistence)
+            // create and store a fresh SecurityContext so session survives redirect
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
@@ -98,6 +95,7 @@ public class AuthController {
         private String email;
         private String password;
 
+        // accessors and mutators
         public String getFullName() { return fullName; }
 
         public void setFullName(String fullName) { this.fullName = fullName; }

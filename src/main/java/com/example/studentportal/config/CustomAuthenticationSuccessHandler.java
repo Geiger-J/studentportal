@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Custom authentication success handler that redirects users based on profile
- * completeness. Implements the business rule: if profile incomplete ->
- * /profile, else -> /dashboard
- */
+// Configuration: post-login redirect based on user role and profile state
+//
+// Responsibilities:
+// - redirect admins to admin dashboard
+// - redirect students to dashboard or profile depending on completeness
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -22,24 +22,22 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        // Get the authenticated user
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof CustomUserDetailsService.CustomUserPrincipal) {
             CustomUserDetailsService.CustomUserPrincipal userPrincipal = (CustomUserDetailsService.CustomUserPrincipal) principal;
 
-            // ADMIN users go to admin dashboard
             if ("ADMIN".equals(userPrincipal.getUser().getRole())) {
                 response.sendRedirect("/admin/dashboard");
-            }
-            // STUDENT users: check if profile is complete
-            else if (userPrincipal.getUser().getProfileComplete()) {
+            } else if (userPrincipal.getUser().getProfileComplete()) {
+                // complete profile -> go straight to dashboard
                 response.sendRedirect("/dashboard");
             } else {
+                // incomplete profile -> force setup
                 response.sendRedirect("/profile");
             }
         } else {
-            // Fallback to dashboard if principal type is unexpected
+            // unexpected principal type -> fall back to dashboard
             response.sendRedirect("/dashboard");
         }
     }

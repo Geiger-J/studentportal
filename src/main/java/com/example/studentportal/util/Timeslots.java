@@ -6,11 +6,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Utility class providing the canonical timeslot catalog. Defines all allowed
- * slot codes, their display labels, and grouping by day/period. Used to
- * validate incoming slot strings and generate display labels.
- */
+// Utility: canonical timeslot catalog and helpers
+//
+// Responsibilities:
+// - define all valid slot codes (MON_P1 .. FRI_P7)
+// - map codes to human-readable labels
+// - calculate slot end times for the scheduler
 @Component("timeslots")
 public class Timeslots {
 
@@ -27,11 +28,11 @@ public class Timeslots {
     private static final String[] DAY_NAMES = { "Monday", "Tuesday", "Wednesday", "Thursday",
             "Friday" };
     private static final int PERIODS = 7;
-    // end time for each period (index 0 = P1, 1 = P2, …)
+    // end time for each period index [0 = P1, 6 = P7]
     private static final String[] PERIOD_TIMES = { "09:00-09:50", "09:55-10:45", "11:05-11:55",
             "12:00-12:50", "14:05-14:55", "15:00-15:50", "16:00-17:15" };
 
-    // separator between day code and period number in slot codes (e.g. "MON_P1")
+    // separator between day code and period number [e.g. "MON_P1"]
     private static final String TIMESLOT_SEPARATOR = "_P";
 
     static {
@@ -52,29 +53,12 @@ public class Timeslots {
         LABELS = Collections.unmodifiableMap(labels);
     }
 
-    /**
-     * Returns the human-readable label for a timeslot code.
-     * 
-     * @param code slot code like "MON_P1"
-     * @return label like "Monday Period 1 (09:00-09:50)", or the code itself if
-     *         unknown
-     */
+    // label returns display text [e.g. "Monday, P1"]; falls back to code if unknown
     public String label(String code) { return LABELS.getOrDefault(code, code); }
 
-    /**
-     * Validates whether the given code is an allowed timeslot.
-     * 
-     * @param code slot code to validate
-     * @return true if valid, false otherwise
-     */
     public boolean isValid(String code) { return code != null && ALL_CODES_SET.contains(code); }
 
-    /**
-     * Filters a collection of slot strings, keeping only valid codes.
-     * 
-     * @param codes input collection
-     * @return new set containing only valid codes
-     */
+    // filter to only valid codes; null input returns empty set
     public Set<String> filterValid(Collection<String> codes) {
         if (codes == null)
             return new HashSet<>();
@@ -86,18 +70,14 @@ public class Timeslots {
         return valid;
     }
 
-    /**
-     * Calculates the exact end date-time for a given timeslot within a specific
-     * week. - weekStart must be the Monday of the week (use
-     * DateUtil.getMondayOfWeek). - code is like "MON_P1", "FRI_P7", etc. - Returns
-     * null if the code or weekStart is invalid. Example: weekStart=2025-01-20
-     * (Mon), code="TUE_P2" → 2025-01-21 10:45
-     */
+    // compute exact end datetime for a slot within a week; null if code/weekStart invalid
+    // weekStart must be the Monday of the week [use DateUtil.getMondayOfWeek]
+    // example: weekStart=2025-01-20, code="TUE_P2" -> 2025-01-21T10:45
     public static LocalDateTime getTimeslotEndTime(LocalDate weekStart, String code) {
         if (weekStart == null || code == null)
             return null;
 
-        // split "TUE_P3" into ["TUE", "3"] using the separator constant
+        // split "TUE_P3" -> ["TUE", "3"]
         String[] parts = code.split(TIMESLOT_SEPARATOR);
         if (parts.length != 2)
             return null;
@@ -112,7 +92,7 @@ public class Timeslots {
         if (period < 1 || period > PERIODS)
             return null;
 
-        // day offset from Monday (MON=0, TUE=1, …, FRI=4)
+        // day offset from Monday [MON=0, TUE=1, ..., FRI=4]
         int dayOffset = -1;
         for (int i = 0; i < DAYS.length; i++) {
             if (DAYS[i].equals(day)) {
@@ -123,8 +103,8 @@ public class Timeslots {
         if (dayOffset < 0)
             return null;
 
-        // PERIOD_TIMES[period-1] is like "09:00-09:50"; take the part after "-"
-        String endStr = PERIOD_TIMES[period - 1].split("-")[1]; // "09:50"
+        // PERIOD_TIMES[period-1] like "09:00-09:50"; take part after "-"
+        String endStr = PERIOD_TIMES[period - 1].split("-")[1];
         String[] hm = endStr.split(":");
         int hour = Integer.parseInt(hm[0]);
         int minute = Integer.parseInt(hm[1]);

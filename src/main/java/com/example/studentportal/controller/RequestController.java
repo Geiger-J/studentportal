@@ -23,12 +23,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Controller for tutoring request management.
- */
+// Controller: student tutoring request management
+//
+// Responsibilities:
+// - display request creation form filtered to user's subjects and availability
+// - create and validate new requests
+// - cancel existing requests
 @Controller
-@RequestMapping("/requests")
-@PreAuthorize("hasRole('STUDENT')")
+@RequestMapping("/requests") // base path for request endpoints
+@PreAuthorize("hasRole('STUDENT')") // restricts all endpoints to STUDENT role
 public class RequestController {
 
     private final RequestService requestService;
@@ -84,7 +87,7 @@ public class RequestController {
                 return "request_form";
             }
 
-            // Validate and filter timeslot codes
+            // filter submitted slots to only catalog-valid codes
             Set<String> timeslotSet = timeslots.stream().filter(Timeslots.ALL_CODES_SET::contains)
                     .collect(Collectors.toCollection(HashSet::new));
 

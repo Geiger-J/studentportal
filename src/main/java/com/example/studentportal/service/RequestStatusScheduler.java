@@ -14,17 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Background scheduler that automatically marks matched requests as DONE once
- * the timeslot they are scheduled for has passed. - Runs every 60 seconds
- * (configurable via fixedDelay). - Skipped entirely in the "test" Spring
- * profile so unit tests are unaffected. - Uses TimeService so simulation time
- * is respected during local testing. Example: a request with
- * chosenTimeslot="MON_P1" and weekStartDate=2025-01-20 becomes DONE after 09:50
- * on that Monday.
- */
+// Service: scheduled job to auto-complete matched requests
+//
+// Responsibilities:
+// - poll MATCHED requests every 60 s and mark as DONE when timeslot has passed
+// - skip processing in "test" profile to avoid test interference
+// - honour TimeService simulation time during local testing
 @Component
-@Profile("!test")
+@Profile("!test") // skip scheduler in test profile
 public class RequestStatusScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestStatusScheduler.class);
@@ -38,11 +35,8 @@ public class RequestStatusScheduler {
         this.timeService = timeService;
     }
 
-    /**
-     * Checks all MATCHED requests every minute and transitions any whose scheduled
-     * timeslot end-time has passed to DONE.
-     */
-    @Scheduled(fixedDelay = 60_000)
+    // poll all MATCHED requests; transition to DONE if timeslot end has passed
+    @Scheduled(fixedDelay = 60_000) // every 60 s [60_000 ms]
     @Transactional
     public void markCompletedRequestsDone() {
         LocalDateTime now = timeService.now();
@@ -64,11 +58,7 @@ public class RequestStatusScheduler {
         }
     }
 
-    /**
-     * Returns true when the request's timeslot end-time is in the past. Requests
-     * without a weekStartDate or chosenTimeslot are skipped (they pre-date this
-     * feature).
-     */
+    // true if the request's timeslot end time is in the past; missing data -> skip
     boolean shouldBeMarkedDone(Request request, LocalDateTime now) {
         if (request.getWeekStartDate() == null || request.getChosenTimeslot() == null) {
             return false;

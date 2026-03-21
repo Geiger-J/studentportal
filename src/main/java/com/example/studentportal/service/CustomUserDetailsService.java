@@ -14,12 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Collections;
 
-/**
- * Custom UserDetailsService implementation for Spring Security. Loads user data
- * from the database and provides authentication information.
- */
+// Service: Spring Security UserDetailsService implementation
+//
+// Responsibilities:
+// - load user by email for authentication
+// - wrap User entity as CustomUserPrincipal for Spring Security
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true) // read-only TX for auth lookups
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -47,7 +48,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
-            // Convert role to granted authority
+            // prefix role with ROLE_ as required by Spring Security
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         }
 
@@ -69,11 +70,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         @Override
         public boolean isEnabled() { return true; }
 
-        /**
-         * Gets the underlying User entity.
-         * 
-         * @return the User entity
-         */
+        // accessors and mutators
         public User getUser() { return user; }
     }
 }
