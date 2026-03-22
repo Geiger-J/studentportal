@@ -108,13 +108,15 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // cancel partner matches -> clear remaining partner refs -> delete user's requests -> delete user
+    // cancel partner matches -> clear remaining partner refs -> delete user's
+    // requests -> delete user
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
 
-        // cancel partner requests: partner sees CANCELLED so they know the match fell through
+        // cancel partner requests: partner sees CANCELLED so they know the match fell
+        // through
         List<Request> partnerMatchedRequests = requestRepository.findByMatchedPartnerAndStatus(user,
                 "MATCHED");
         for (Request partnerRequest : partnerMatchedRequests) {
@@ -123,7 +125,8 @@ public class UserService {
             requestRepository.save(partnerRequest);
         }
 
-        // null out remaining partner references [e.g. DONE requests still holding a ref]
+        // null out remaining partner references [e.g. DONE requests still holding a
+        // ref]
         requestRepository.clearMatchedPartnerReferences(user);
 
         requestRepository.deleteByUser(user);

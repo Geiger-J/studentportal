@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter;
 
 // Service: provides current time, with optional simulation override
 //
-// Responsibilities:
 // - return real wall-clock time by default
 // - return a fixed simulation timestamp when app.simulation.datetime is set
 @Service

@@ -18,7 +18,6 @@ import java.util.*;
 
 // Service: weighted bipartite matching for tutoring requests
 //
-// Responsibilities:
 // - build a timeslot-level bipartite graph from PENDING requests
 // - run max-weight bipartite matching and persist matched pairs
 // - enforce hard constraints (subject, year, uniqueness) and soft weights
@@ -38,8 +37,8 @@ public class MatchingService {
     }
 
     /**
-     * RequestTimeslot pair - vertex in the bipartite matching graph.
-     * Represents a single request pinned to one of its candidate timeslots.
+     * RequestTimeslot pair - vertex in the bipartite matching graph. Represents a
+     * single request pinned to one of its candidate timeslots.
      */
     private static class RequestTimeslot {
         private final Request request;
@@ -52,7 +51,9 @@ public class MatchingService {
 
         public Request getRequest() { return request; }
 
-        public String getTimeslot() { return timeslot; }        @Override
+        public String getTimeslot() { return timeslot; }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o)
                 return true;
@@ -107,7 +108,8 @@ public class MatchingService {
             Request seekRequest = match.getSeekRequest();
             String chosenTimeslot = match.getTimeslot();
 
-            // set week start to Monday of current week [sessions happen within the matching week]
+            // set week start to Monday of current week [sessions happen within the matching
+            // week]
             java.time.LocalDate weekStart = DateUtil.getMondayOfWeek(timeService.today());
 
             offerRequest.setStatus("MATCHED");
@@ -133,7 +135,8 @@ public class MatchingService {
         return matchedCount;
     }
 
-    // build bipartite graph -> run max-weight matching -> return candidate Match list
+    // build bipartite graph -> run max-weight matching -> return candidate Match
+    // list
     public List<Match> runMatching() {
         List<Request> offerRequests = requestRepository.findByStatus("PENDING").stream()
                 .filter(r -> "TUTOR".equals(r.getType())).toList();
@@ -201,7 +204,8 @@ public class MatchingService {
         Set<Long> matchedOfferRequestIds = new HashSet<>();
         Set<Long> matchedSeekRequestIds = new HashSet<>();
 
-        // collect timeslots already used by currently matched requests [prevents double-booking]
+        // collect timeslots already used by currently matched requests [prevents
+        // double-booking]
         Map<Long, Set<String>> userMatchedTimeslots = new HashMap<>();
         List<Request> alreadyMatchedRequests = requestRepository.findByStatus("MATCHED");
         for (Request matchedRequest : alreadyMatchedRequests) {
@@ -275,7 +279,8 @@ public class MatchingService {
         return matches;
     }
 
-    // base weight 100 + exam board bonus + year-proximity bonus; 0 if hard constraints fail
+    // base weight 100 + exam board bonus + year-proximity bonus; 0 if hard
+    // constraints fail
     private double calculateWeight(Request offer, Request seek) {
         if (!meetHardConstraints(offer, seek)) {
             return 0.0;
@@ -292,7 +297,8 @@ public class MatchingService {
             weight += 50.0;
         }
 
-        // closer year groups -> better match [tutor's knowledge is more recently relevant]
+        // closer year groups -> better match [tutor's knowledge is more recently
+        // relevant]
         int yearDifference = tutor.getYearGroup() - tutee.getYearGroup();
         if (yearDifference == 1) {
             weight += 30.0;
@@ -312,7 +318,8 @@ public class MatchingService {
         return weight;
     }
 
-    // returns false if subject, timeslot overlap, year order, or uniqueness constraints not met
+    // returns false if subject, timeslot overlap, year order, or uniqueness
+    // constraints not met
     private boolean meetHardConstraints(Request offer, Request seek) {
         User tutor = offer.getUser();
         User tutee = seek.getUser();
@@ -333,7 +340,8 @@ public class MatchingService {
             return false;
         }
 
-        // tutor must be same year or older [peer tutoring: no tutoring down year groups]
+        // tutor must be same year or older [peer tutoring: no tutoring down year
+        // groups]
         if (tutor.getYearGroup() < tutee.getYearGroup()) {
             logger.debug("Constraint failed: tutor year {} < tutee year {} ({} vs {})",
                     tutor.getYearGroup(), tutee.getYearGroup(), tutor.getFullName(),

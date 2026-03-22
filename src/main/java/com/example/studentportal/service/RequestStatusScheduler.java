@@ -16,7 +16,6 @@ import java.util.List;
 
 // Service: scheduled job to auto-complete matched requests
 //
-// Responsibilities:
 // - poll MATCHED requests every 60 s and mark as DONE when timeslot has passed
 // - skip processing in "test" profile to avoid test interference
 // - honour TimeService simulation time during local testing

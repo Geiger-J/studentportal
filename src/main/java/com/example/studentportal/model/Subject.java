@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 
 // Model: JPA entity for an academic subject
 //
-// Responsibilities:
 // - persist subject identity (code and display name)
 // - serve as FK target from User and Request
 @Entity

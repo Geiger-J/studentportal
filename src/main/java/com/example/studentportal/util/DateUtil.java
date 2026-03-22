@@ -6,7 +6,6 @@ import java.time.temporal.TemporalAdjusters;
 
 // Utility: date and week calculation helpers
 //
-// Responsibilities:
 // - compute the Monday strictly after a given date
 // - determine the Monday of the week containing a given date
 public class DateUtil {
@@ -28,7 +27,8 @@ public class DateUtil {
         return date != null && date.getDayOfWeek() == DayOfWeek.MONDAY;
     }
 
-    // Monday of the week containing date [used for weekStartDate on matched requests]
+    // Monday of the week containing date [used for weekStartDate on matched
+    // requests]
     public static LocalDate getMondayOfWeek(LocalDate date) {
         if (date == null) {
             date = LocalDate.now();

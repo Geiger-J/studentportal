@@ -8,7 +8,6 @@ import java.util.*;
 
 // Utility: canonical timeslot catalog and helpers
 //
-// Responsibilities:
 // - define all valid slot codes (MON_P1 .. FRI_P7)
 // - map codes to human-readable labels
 // - calculate slot end times for the scheduler
@@ -70,7 +69,8 @@ public class Timeslots {
         return valid;
     }
 
-    // compute exact end datetime for a slot within a week; null if code/weekStart invalid
+    // compute exact end datetime for a slot within a week; null if code/weekStart
+    // invalid
     // weekStart must be the Monday of the week [use DateUtil.getMondayOfWeek]
     // example: weekStart=2025-01-20, code="TUE_P2" -> 2025-01-21T10:45
     public static LocalDateTime getTimeslotEndTime(LocalDate weekStart, String code) {

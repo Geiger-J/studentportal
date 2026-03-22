@@ -24,7 +24,6 @@ import jakarta.validation.Valid;
 
 // Controller: registration and login page endpoints
 //
-// Responsibilities:
 // - display registration and login forms
 // - create user account and auto-authenticate on registration
 @Controller
@@ -48,7 +47,8 @@ public class AuthController {
         return "register";
     }
 
-    // create user -> build auth token -> persist SecurityContext -> redirect to profile
+    // create user -> build auth token -> persist SecurityContext -> redirect to
+    // profile
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") RegistrationForm form,
             BindingResult result, RedirectAttributes redirectAttributes,

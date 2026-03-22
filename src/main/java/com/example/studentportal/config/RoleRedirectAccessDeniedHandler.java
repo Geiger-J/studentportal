@@ -13,7 +13,6 @@ import java.io.IOException;
 
 // Configuration: redirects on access denial based on user role
 //
-// Responsibilities:
 // - redirect admins to admin dashboard on access denied
 // - redirect students to student dashboard
 // - redirect unauthenticated users to login

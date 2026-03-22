@@ -29,7 +29,6 @@ import com.example.studentportal.util.Timeslots;
 
 // Controller: student profile view and update
 //
-// Responsibilities:
 // - display profile form with subjects and availability slots
 // - validate and persist profile updates
 // - handle account deletion
@@ -71,7 +70,8 @@ public class ProfileController {
         return "profile";
     }
 
-    // validate year group -> exam board -> subjects -> timeslots -> persist -> redirect
+    // validate year group -> exam board -> subjects -> timeslots -> persist ->
+    // redirect
     @PostMapping("/profile")
     public String updateProfile(
             @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,

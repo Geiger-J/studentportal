@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 // Controller: student tutoring request management
 //
-// Responsibilities:
 // - display request creation form filtered to user's subjects and availability
 // - create and validate new requests
 // - cancel existing requests

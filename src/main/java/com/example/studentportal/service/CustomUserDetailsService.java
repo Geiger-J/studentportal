@@ -16,7 +16,6 @@ import java.util.Collections;
 
 // Service: Spring Security UserDetailsService implementation
 //
-// Responsibilities:
 // - load user by email for authentication
 // - wrap User entity as CustomUserPrincipal for Spring Security
 @Service

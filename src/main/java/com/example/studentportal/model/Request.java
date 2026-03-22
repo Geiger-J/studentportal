@@ -11,7 +11,6 @@ import java.util.Set;
 
 // Model: JPA entity for a tutoring request
 //
-// Responsibilities:
 // - persist request type (TUTOR/TUTEE), subject, and candidate timeslots
 // - track matching state (status, matched partner, chosen timeslot)
 // - provide lifecycle helpers (canBeCancelled, cancel)
@@ -33,7 +32,11 @@ public class Request {
     @NotNull(message = "Subject is required")
     private Subject subject;
     @ElementCollection // collection of plain strings
-    @CollectionTable(name = "request_timeslots", joinColumns = @JoinColumn(name = "request_id")) // separate table for timeslot strings
+    @CollectionTable(name = "request_timeslots", joinColumns = @JoinColumn(name = "request_id")) // separate
+                                                                                                 // table
+                                                                                                 // for
+                                                                                                 // timeslot
+                                                                                                 // strings
     @Column(name = "timeslot") // column name in collection table
     private Set<String> timeslots = new HashSet<>();
     @Column(name = "chosen_timeslot") // nullable; set after matching

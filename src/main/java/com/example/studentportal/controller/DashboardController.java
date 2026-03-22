@@ -15,7 +15,6 @@ import java.util.List;
 
 // Controller: student dashboard view
 //
-// Responsibilities:
 // - display user's active tutoring requests
 // - redirect admins to admin dashboard
 // - redirect students with incomplete profiles to profile setup

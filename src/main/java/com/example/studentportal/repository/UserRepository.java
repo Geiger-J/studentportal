@@ -9,7 +9,6 @@ import java.util.Optional;
 
 // Repository: JPA repository for User entities
 //
-// Responsibilities:
 // - look up users by email and year group
 // - check existence by email for duplicate detection
 @Repository

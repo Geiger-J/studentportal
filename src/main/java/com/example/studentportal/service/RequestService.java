@@ -14,7 +14,6 @@ import java.util.Set;
 
 // Service: tutoring request lifecycle management
 //
-// Responsibilities:
 // - create requests with duplicate prevention
 // - cancel requests and propagate to matched partner
 // - archive completed and cancelled requests
@@ -139,7 +138,8 @@ public class RequestService {
             throw new IllegalArgumentException("Only pending or matched requests can be cancelled");
         }
 
-        // propagate to partner's matched request [partner sees CANCELLED on their dashboard]
+        // propagate to partner's matched request [partner sees CANCELLED on their
+        // dashboard]
         if ("MATCHED".equals(request.getStatus()) && request.getMatchedPartner() != null) {
             User partner = request.getMatchedPartner();
             Optional<Request> partnerOpt = requestRepository

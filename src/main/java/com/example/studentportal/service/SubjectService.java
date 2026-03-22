@@ -11,7 +11,6 @@ import java.util.Optional;
 
 // Service: subject catalog access
 //
-// Responsibilities:
 // - retrieve subjects for profile and request forms
 // - support data seeder with save and existence check
 @Service
@@ -29,9 +28,7 @@ public class SubjectService {
 
     public Optional<Subject> findById(Long id) { return subjectRepository.findById(id); }
 
-    public Optional<Subject> findByCode(String code) {
-        return subjectRepository.findByCode(code);
-    }
+    public Optional<Subject> findByCode(String code) { return subjectRepository.findByCode(code); }
 
     @Transactional
     public Subject save(Subject subject) { return subjectRepository.save(subject); }

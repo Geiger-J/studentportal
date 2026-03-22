@@ -14,46 +14,54 @@ import java.util.Optional;
 
 // Repository: JPA repository for Request entities
 //
-// Responsibilities:
 // - query requests by user, status, subject, and matched partner
 // - clear matched-partner references before user deletion
 // - support admin filtering and archiving workflows
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
-    List<Request> findByUserOrderByCreatedAtDesc(User user);
+        List<Request> findByUserOrderByCreatedAtDesc(User user);
 
-    List<Request> findByUserAndArchivedFalseOrderByCreatedAtDesc(User user);
+        List<Request> findByUserAndArchivedFalseOrderByCreatedAtDesc(User user);
 
-    Optional<Request> findByUserAndSubjectAndTypeAndStatus(User user, Subject subject, String type,
-            String status);
+        Optional<Request> findByUserAndSubjectAndTypeAndStatus(User user, Subject subject,
+                        String type, String status);
 
-    boolean existsByUserAndSubjectAndTypeAndStatus(User user, Subject subject, String type,
-            String status);
+        boolean existsByUserAndSubjectAndTypeAndStatus(User user, Subject subject, String type,
+                        String status);
 
-    List<Request> findByStatus(String status);
+        List<Request> findByStatus(String status);
 
-    List<Request> findByStatusAndArchivedFalse(String status);
+        List<Request> findByStatusAndArchivedFalse(String status);
 
-    List<Request> findAllByOrderByCreatedAtDesc();
+        List<Request> findAllByOrderByCreatedAtDesc();
 
-    List<Request> findBySubject(Subject subject);
+        List<Request> findBySubject(Subject subject);
 
-    List<Request> findAllByArchivedFalse();
+        List<Request> findAllByArchivedFalse();
 
-    void deleteByUser(User user);
+        void deleteByUser(User user);
 
-    @Modifying
-    @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner") // bulk-null matched partner [avoids N+1 on delete]
-    void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner); // bind matchedPartner to JPQL param
+        @Modifying
+        @Query("UPDATE Request r SET r.matchedPartner = null WHERE r.matchedPartner = :matchedPartner") // bulk-null
+                                                                                                        // matched
+                                                                                                        // partner
+                                                                                                        // [avoids
+                                                                                                        // N+1
+                                                                                                        // on
+                                                                                                        // delete]
+        void clearMatchedPartnerReferences(@Param("matchedPartner") User matchedPartner); // bind
+                                                                                          // matchedPartner
+                                                                                          // to JPQL
+                                                                                          // param
 
-    Optional<Request> findByUserAndMatchedPartnerAndStatus(User user, User matchedPartner,
-            String status);
+        Optional<Request> findByUserAndMatchedPartnerAndStatus(User user, User matchedPartner,
+                        String status);
 
-    Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(User user, User matchedPartner,
-            String status, Subject subject);
+        Optional<Request> findByUserAndMatchedPartnerAndStatusAndSubject(User user,
+                        User matchedPartner, String status, Subject subject);
 
-    // requests where another user is the matched partner at a given status
-    // used when that partner is being deleted - cancel their outstanding matches
-    List<Request> findByMatchedPartnerAndStatus(User matchedPartner, String status);
+        // requests where another user is the matched partner at a given status
+        // used when that partner is being deleted - cancel their outstanding matches
+        List<Request> findByMatchedPartnerAndStatus(User matchedPartner, String status);
 }

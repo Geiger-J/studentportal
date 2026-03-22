@@ -8,7 +8,6 @@ import java.util.Optional;
 
 // Repository: JPA repository for Subject entities
 //
-// Responsibilities:
 // - look up subjects by code
 // - check existence by code for seeder deduplication
 @Repository

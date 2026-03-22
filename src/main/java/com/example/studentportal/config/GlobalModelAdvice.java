@@ -11,16 +11,17 @@ import java.util.Map;
 
 // Configuration: injects global model attributes into every view
 //
-// Responsibilities:
 // - provide label maps for request type, status, role, and exam board
 // - expose timeslot labels and status list to all templates
 @ControllerAdvice
 public class GlobalModelAdvice {
 
     private static final Map<String, String> TYPE_LABELS; // TUTOR/TUTEE -> display text
-    private static final Map<String, String> STATUS_LABELS; // PENDING/MATCHED/DONE/CANCELLED -> display text
+    private static final Map<String, String> STATUS_LABELS; // PENDING/MATCHED/DONE/CANCELLED ->
+                                                            // display text
     private static final Map<String, String> ROLE_LABELS; // STUDENT/ADMIN -> display text
-    private static final Map<String, String> EXAM_BOARD_LABELS; // GCSE/A_LEVELS/IB/NONE -> display text
+    private static final Map<String, String> EXAM_BOARD_LABELS; // GCSE/A_LEVELS/IB/NONE -> display
+                                                                // text
     private static final List<String> ALL_STATUSES; // ordered status list for filter dropdowns
 
     static {

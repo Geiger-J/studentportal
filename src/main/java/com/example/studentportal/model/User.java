@@ -30,7 +30,6 @@ import jakarta.validation.constraints.Size;
 
 // Model: JPA entity for user accounts (students and admins)
 //
-// Responsibilities:
 // - persist user identity, credentials, and role
 // - track academic profile (year group, exam board, subjects, availability)
 // - determine and cache profile completeness
@@ -59,10 +58,18 @@ public class User {
     @Column
     private String examBoard = "NONE"; // default [overridden when yearGroup is set]
     @ManyToMany(fetch = FetchType.EAGER) // eager-load subjects with user
-    @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id")) // join table for user-subject M:M
+    @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id")) // join
+                                                                                                                                           // table
+                                                                                                                                           // for
+                                                                                                                                           // user-subject
+                                                                                                                                           // M:M
     private Set<Subject> subjects = new HashSet<>();
     @ElementCollection(fetch = FetchType.EAGER) // eager-load availability set
-    @CollectionTable(name = "user_availability", joinColumns = @JoinColumn(name = "user_id")) // separate table for availability strings
+    @CollectionTable(name = "user_availability", joinColumns = @JoinColumn(name = "user_id")) // separate
+                                                                                              // table
+                                                                                              // for
+                                                                                              // availability
+                                                                                              // strings
     @Column(name = "timeslot") // column name in collection table
     private Set<String> availability = new HashSet<>();
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER) // requests owned by this user

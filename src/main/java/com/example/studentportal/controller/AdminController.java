@@ -22,7 +22,6 @@ import java.util.List;
 
 // Controller: admin dashboard and management endpoints
 //
-// Responsibilities:
 // - manage users (list, delete, change password)
 // - manage requests (view, cancel, archive)
 // - trigger matching algorithm manually
@@ -114,7 +113,8 @@ public class AdminController {
                     "Error cancelling request: " + e.getMessage());
         }
         // preserve filter state on redirect
-        String redirect = "redirect:/admin/requests";        if (status != null && !status.isEmpty()) {
+        String redirect = "redirect:/admin/requests";
+        if (status != null && !status.isEmpty()) {
             redirect += "?status=" + status;
             if (showArchived)
                 redirect += "&showArchived=true";

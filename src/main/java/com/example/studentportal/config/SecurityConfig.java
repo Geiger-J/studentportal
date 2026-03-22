@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 // Configuration: Spring Security setup for the application
 //
-// Responsibilities:
 // - define URL authorization rules (public, admin, student)
 // - configure form login, logout, and access denied handling
 // - register DAO authentication provider with BCrypt
