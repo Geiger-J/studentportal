@@ -14,7 +14,6 @@ import java.util.Optional;
 
 // Service: user account management
 //
-// Responsibilities:
 // - register new users, deriving role from email prefix
 // - update profile and cache completeness flag
 // - delete users with cascade cleanup of requests and matches

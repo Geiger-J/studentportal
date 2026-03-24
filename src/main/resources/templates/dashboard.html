@@ -54,6 +54,7 @@
                                 <th>Timeslots</th>
                                 <th>Status</th>
                                 <th>Matched Partner</th>
+                                <th>Chosen Slot</th>
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
@@ -106,6 +107,7 @@
                                     </span>
                                     <span th:if="${request.matchedPartner == null}" class="no-partner">—</span>
                                 </td>
+                                <td th:text="${request.chosenTimeslot != null ? timeslotLabels.get(request.chosenTimeslot) : '—'}">—</td>
                                 <td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
                                 <td class="actions-cell">
                                     <form th:if="${request.canBeCancelled()}"

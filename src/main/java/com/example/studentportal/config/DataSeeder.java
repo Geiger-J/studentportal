@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -15,8 +16,11 @@ import org.springframework.stereotype.Component;
 // Responsibilities:
 // - insert default subjects if table is empty
 // - run once per startup (skipped if data already exists)
+
+// run seeder only if property set [defaults to true if absent]
 @Component
-@ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true) // run seeder only if property set [defaults to true if absent]
+@Order(1)
+@ConditionalOnProperty(name = "app.data-seeder.enabled", havingValue = "true", matchIfMissing = true)
 public class DataSeeder implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSeeder.class);

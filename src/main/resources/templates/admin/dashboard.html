@@ -55,6 +55,38 @@
                 <form th:action="@{/admin/archive}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-warning">Archive Old Requests</button>
                 </form>
+                <button type="button" class="btn" onclick="document.getElementById('shutdownDialog').showModal()"
+                        style="background:#dc2626;color:#fff;border:none;padding:0.4rem 0.9rem;border-radius:6px;cursor:pointer;font-size:0.9rem;">
+                    Stop Server
+                </button>
+
+                <dialog id="shutdownDialog">
+                    <p>Stop the server? The application will shut down immediately.</p>
+                    <div style="display:flex;gap:0.6rem;justify-content:flex-end;margin-top:1rem;">
+                        <button type="button" onclick="document.getElementById('shutdownDialog').close()">Cancel</button>
+                        <button type="button" onclick="doShutdown()"
+                                style="background:#dc2626;color:#fff;border:none;padding:0.4rem 0.9rem;border-radius:6px;cursor:pointer;">
+                            Yes, stop
+                        </button>
+                    </div>
+                </dialog>
+
+                <script>
+                function doShutdown() {
+                    fetch('/actuator/shutdown', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-XSRF-TOKEN': document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ''
+                        },
+                        body: '{}'
+                    }).then(() => {
+                        document.body.innerHTML = '<p style="font-family:sans-serif;padding:2rem;">Server stopped. You can close this tab.</p>';
+                    }).catch(() => {
+                        document.body.innerHTML = '<p style="font-family:sans-serif;padding:2rem;">Server stopped. You can close this tab.</p>';
+                    });
+                }
+                </script>
             </div>
 
             <!-- Recent Requests -->
