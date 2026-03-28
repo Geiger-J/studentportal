@@ -20,9 +20,7 @@ public class SubjectService {
     private final SubjectRepository subjectRepository;
 
     @Autowired
-    public SubjectService(SubjectRepository subjectRepository) {
-        this.subjectRepository = subjectRepository;
-    }
+    public SubjectService(SubjectRepository subjectRepository) { this.subjectRepository = subjectRepository; }
 
     public List<Subject> getAllSubjects() { return subjectRepository.findAll(); }
 

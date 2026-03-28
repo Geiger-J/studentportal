@@ -35,8 +35,7 @@ public class AdminController {
     private final MatchingService matchingService;
 
     @Autowired
-    public AdminController(RequestService requestService, UserService userService,
-            MatchingService matchingService) {
+    public AdminController(RequestService requestService, UserService userService, MatchingService matchingService) {
         this.requestService = requestService;
         this.userService = userService;
         this.matchingService = matchingService;
@@ -44,8 +43,7 @@ public class AdminController {
 
     // load summary counts and recent non-archived requests for dashboard
     @GetMapping("/dashboard")
-    public String adminDashboard(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String adminDashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             Model model) {
         User admin = principal.getUser();
 
@@ -98,19 +96,16 @@ public class AdminController {
 
     // cancel a pending/matched request; preserve filter state on redirect
     @PostMapping("/requests/{id}/cancel")
-    public String cancelRequest(@PathVariable Long id,
-            @RequestParam(value = "status", required = false) String status,
+    public String cancelRequest(@PathVariable Long id, @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
             RedirectAttributes redirectAttributes) {
         try {
             requestService.adminCancelRequest(id);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Request cancelled successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "Request cancelled successfully.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error cancelling request: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error cancelling request: " + e.getMessage());
         }
         // preserve filter state on redirect
         String redirect = "redirect:/admin/requests";
@@ -125,8 +120,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public String viewUsers(@RequestParam(value = "yearGroup", required = false) Integer yearGroup,
-            Model model) {
+    public String viewUsers(@RequestParam(value = "yearGroup", required = false) Integer yearGroup, Model model) {
         List<User> users = userService.getUsersByYearGroup(yearGroup);
         model.addAttribute("users", users);
         model.addAttribute("selectedYearGroup", yearGroup);
@@ -142,13 +136,11 @@ public class AdminController {
                 return "redirect:/admin/users";
             }
             userService.changePassword(id, newPassword);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Password changed successfully for user.");
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully for user.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error changing password: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error changing password: " + e.getMessage());
         }
         return "redirect:/admin/users";
     }
@@ -156,9 +148,8 @@ public class AdminController {
     // if admin deletes themselves, log out and redirect to home
     @PostMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-            HttpServletRequest request, HttpServletResponse response,
-            RedirectAttributes redirectAttributes) {
+            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal, HttpServletRequest request,
+            HttpServletResponse response, RedirectAttributes redirectAttributes) {
         try {
             // null-safe self-delete check
             boolean deletingSelf = principal != null && principal.getUser() != null
@@ -175,8 +166,7 @@ public class AdminController {
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error deleting user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting user: " + e.getMessage());
         }
         return "redirect:/admin/users";
     }
@@ -188,8 +178,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Matching process completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Matching process failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Matching process failed: " + e.getMessage());
         }
         return "redirect:/admin/dashboard";
     }
@@ -201,8 +190,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Intelligent matching completed. " + matchedCount + " requests matched.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Matching algorithm failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Matching algorithm failed: " + e.getMessage());
         }
         return "redirect:/admin/dashboard";
     }
@@ -214,23 +202,20 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Archiving completed. " + archivedCount + " requests archived.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Archiving failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Archiving failed: " + e.getMessage());
         }
         return "redirect:/admin/dashboard";
     }
 
     @GetMapping("/profile")
-    public String showAdminProfile(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String showAdminProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             Model model) {
         model.addAttribute("admin", principal.getUser());
         return "admin/profile";
     }
 
     @PostMapping("/profile/change-password")
-    public String changeAdminPassword(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String changeAdminPassword(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             @RequestParam String newPassword, @RequestParam String confirmPassword,
             RedirectAttributes redirectAttributes) {
         try {
@@ -239,30 +224,25 @@ public class AdminController {
                 return "redirect:/admin/profile";
             }
             userService.changePassword(principal.getUser().getId(), newPassword);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Password changed successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error changing password: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error changing password: " + e.getMessage());
         }
         return "redirect:/admin/profile";
     }
 
     @PostMapping("/profile/delete-account")
-    public String deleteAdminAccount(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-            HttpServletRequest request, HttpServletResponse response,
-            RedirectAttributes redirectAttributes) {
+    public String deleteAdminAccount(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
         try {
             Long userId = principal.getUser().getId();
             userService.deleteUser(userId);
             new SecurityContextLogoutHandler().logout(request, response,
                     SecurityContextHolder.getContext().getAuthentication());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error deleting account: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting account: " + e.getMessage());
             return "redirect:/admin/profile";
         }
         return "redirect:/";

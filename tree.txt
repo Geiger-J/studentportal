@@ -1,0 +1,199 @@
+.
+├── Dockerfile
+├── README.md
+├── README_NEW.md
+├── TEST_PROCEDURE.md
+├── logs.txt
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── example
+│   │   │           └── studentportal
+│   │   │               ├── StudentportalApplication.java
+│   │   │               ├── config
+│   │   │               │   ├── CustomAuthenticationSuccessHandler.java
+│   │   │               │   ├── DataSeeder.java
+│   │   │               │   ├── DemoDataSeeder.java
+│   │   │               │   ├── GlobalModelAdvice.java
+│   │   │               │   ├── PasswordConfig.java
+│   │   │               │   ├── RoleRedirectAccessDeniedHandler.java
+│   │   │               │   └── SecurityConfig.java
+│   │   │               ├── controller
+│   │   │               │   ├── AdminController.java
+│   │   │               │   ├── AuthController.java
+│   │   │               │   ├── DashboardController.java
+│   │   │               │   ├── HomeController.java
+│   │   │               │   ├── ProfileController.java
+│   │   │               │   └── RequestController.java
+│   │   │               ├── model
+│   │   │               │   ├── Request.java
+│   │   │               │   ├── Subject.java
+│   │   │               │   └── User.java
+│   │   │               ├── repository
+│   │   │               │   ├── RequestRepository.java
+│   │   │               │   ├── SubjectRepository.java
+│   │   │               │   └── UserRepository.java
+│   │   │               ├── service
+│   │   │               │   ├── CustomUserDetailsService.java
+│   │   │               │   ├── MatchingService.java
+│   │   │               │   ├── RequestService.java
+│   │   │               │   ├── RequestStatusScheduler.java
+│   │   │               │   ├── SubjectService.java
+│   │   │               │   ├── TimeService.java
+│   │   │               │   └── UserService.java
+│   │   │               └── util
+│   │   │                   ├── DateUtil.java
+│   │   │                   └── Timeslots.java
+│   │   └── resources
+│   │       ├── application-demo.properties
+│   │       ├── application-local.properties
+│   │       ├── application.properties
+│   │       ├── static
+│   │       │   ├── css
+│   │       │   │   └── style.css
+│   │       │   └── images
+│   │       │       └── imageplaceholder.txt
+│   │       └── templates
+│   │           ├── admin
+│   │           │   ├── dashboard.html
+│   │           │   ├── profile.html
+│   │           │   ├── requests.html
+│   │           │   └── users.html
+│   │           ├── dashboard.html
+│   │           ├── error.html
+│   │           ├── fragments
+│   │           │   ├── header.html
+│   │           │   └── subject_selection.html
+│   │           ├── index.html
+│   │           ├── login.html
+│   │           ├── profile.html
+│   │           ├── register.html
+│   │           └── request_form.html
+│   └── test
+│       ├── java
+│       │   └── com
+│       │       └── example
+│       │           └── studentportal
+│       │               ├── StudentportalApplicationTests.java
+│       │               ├── security
+│       │               │   └── SecurityConfigTest.java
+│       │               └── service
+│       │                   ├── MatchingServiceDuplicateTest.java
+│       │                   ├── MatchingServiceRepeatedRunTest.java
+│       │                   ├── MatchingServiceTest.java
+│       │                   ├── MatchingServiceTimeslotConflictTest.java
+│       │                   ├── RequestServiceTest.java
+│       │                   ├── RequestStatusSchedulerTest.java
+│       │                   ├── TimeServiceTest.java
+│       │                   └── UserServiceTest.java
+│       └── resources
+│           └── application-test.properties
+├── target
+│   ├── classes
+│   │   ├── application-demo.properties
+│   │   ├── application-local.properties
+│   │   ├── application.properties
+│   │   ├── com
+│   │   │   └── example
+│   │   │       └── studentportal
+│   │   │           ├── StudentportalApplication.class
+│   │   │           ├── config
+│   │   │           │   ├── CustomAuthenticationSuccessHandler.class
+│   │   │           │   ├── DataSeeder.class
+│   │   │           │   ├── DemoDataSeeder.class
+│   │   │           │   ├── GlobalModelAdvice.class
+│   │   │           │   ├── PasswordConfig.class
+│   │   │           │   ├── RoleRedirectAccessDeniedHandler.class
+│   │   │           │   └── SecurityConfig.class
+│   │   │           ├── controller
+│   │   │           │   ├── AdminController.class
+│   │   │           │   ├── AuthController$RegistrationForm.class
+│   │   │           │   ├── AuthController.class
+│   │   │           │   ├── DashboardController.class
+│   │   │           │   ├── HomeController.class
+│   │   │           │   ├── ProfileController.class
+│   │   │           │   └── RequestController.class
+│   │   │           ├── model
+│   │   │           │   ├── Request.class
+│   │   │           │   ├── Subject.class
+│   │   │           │   └── User.class
+│   │   │           ├── repository
+│   │   │           │   ├── RequestRepository.class
+│   │   │           │   ├── SubjectRepository.class
+│   │   │           │   └── UserRepository.class
+│   │   │           ├── service
+│   │   │           │   ├── CustomUserDetailsService$CustomUserPrincipal.class
+│   │   │           │   ├── CustomUserDetailsService.class
+│   │   │           │   ├── MatchingService$Match.class
+│   │   │           │   ├── MatchingService$RequestTimeslot.class
+│   │   │           │   ├── MatchingService.class
+│   │   │           │   ├── RequestService.class
+│   │   │           │   ├── RequestStatusScheduler.class
+│   │   │           │   ├── SubjectService.class
+│   │   │           │   ├── TimeService.class
+│   │   │           │   └── UserService.class
+│   │   │           └── util
+│   │   │               ├── DateUtil.class
+│   │   │               └── Timeslots.class
+│   │   ├── static
+│   │   │   ├── css
+│   │   │   │   └── style.css
+│   │   │   └── images
+│   │   │       └── imageplaceholder.txt
+│   │   └── templates
+│   │       ├── admin
+│   │       │   ├── dashboard.html
+│   │       │   ├── profile.html
+│   │       │   ├── requests.html
+│   │       │   └── users.html
+│   │       ├── dashboard.html
+│   │       ├── error.html
+│   │       ├── fragments
+│   │       │   ├── header.html
+│   │       │   └── subject_selection.html
+│   │       ├── index.html
+│   │       ├── login.html
+│   │       ├── profile.html
+│   │       ├── register.html
+│   │       └── request_form.html
+│   ├── generated-sources
+│   │   └── annotations
+│   ├── generated-test-sources
+│   │   └── test-annotations
+│   ├── maven-archiver
+│   │   └── pom.properties
+│   ├── maven-status
+│   │   └── maven-compiler-plugin
+│   │       ├── compile
+│   │       │   └── default-compile
+│   │       │       ├── createdFiles.lst
+│   │       │       └── inputFiles.lst
+│   │       └── testCompile
+│   │           └── default-testCompile
+│   │               ├── createdFiles.lst
+│   │               └── inputFiles.lst
+│   ├── studentportal-0.0.1-SNAPSHOT.jar.original
+│   └── test-classes
+│       ├── application-test.properties
+│       └── com
+│           └── example
+│               └── studentportal
+│                   ├── StudentportalApplicationTests.class
+│                   ├── security
+│                   │   └── SecurityConfigTest.class
+│                   └── service
+│                       ├── MatchingServiceDuplicateTest.class
+│                       ├── MatchingServiceRepeatedRunTest.class
+│                       ├── MatchingServiceTest.class
+│                       ├── MatchingServiceTimeslotConflictTest.class
+│                       ├── RequestServiceTest.class
+│                       ├── RequestStatusSchedulerTest.class
+│                       ├── TimeServiceTest.class
+│                       └── UserServiceTest.class
+└── tree.txt
+
+62 directories, 135 files

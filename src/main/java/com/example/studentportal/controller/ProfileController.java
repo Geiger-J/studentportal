@@ -45,8 +45,7 @@ public class ProfileController {
     }
 
     @GetMapping("/profile")
-    public String showProfile(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String showProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             Model model) {
 
         if (principal == null) {
@@ -73,12 +72,11 @@ public class ProfileController {
     // validate year group -> exam board -> subjects -> timeslots -> persist ->
     // redirect
     @PostMapping("/profile")
-    public String updateProfile(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String updateProfile(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             @RequestParam Integer yearGroup, @RequestParam(required = false) String examBoard,
             @RequestParam(required = false) List<Long> subjectIds,
-            @RequestParam(required = false) List<String> timeslots,
-            RedirectAttributes redirectAttributes, Model model) {
+            @RequestParam(required = false) List<String> timeslots, RedirectAttributes redirectAttributes,
+            Model model) {
 
         if (principal == null) {
             return "redirect:/login";
@@ -98,8 +96,7 @@ public class ProfileController {
                 if (examBoard != null && ("A_LEVELS".equals(examBoard) || "IB".equals(examBoard))) {
                     user.setExamBoard(examBoard);
                 } else {
-                    populateFormModel(model, user,
-                            "Please select an exam board (A Levels or IB) for years 12-13");
+                    populateFormModel(model, user, "Please select an exam board (A Levels or IB) for years 12-13");
                     return "profile";
                 }
             }
@@ -141,18 +138,15 @@ public class ProfileController {
     }
 
     @PostMapping("/profile/delete-account")
-    public String deleteAccount(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
-            HttpServletRequest request, HttpServletResponse response,
-            RedirectAttributes redirectAttributes) {
+    public String deleteAccount(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+            HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
         try {
             Long userId = principal.getUser().getId();
             userService.deleteUser(userId);
             new SecurityContextLogoutHandler().logout(request, response,
                     SecurityContextHolder.getContext().getAuthentication());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error deleting account: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting account: " + e.getMessage());
             return "redirect:/profile";
         }
         return "redirect:/";
@@ -175,24 +169,21 @@ public class ProfileController {
     private Map<String, List<Subject>> groupSubjectsByCategory(List<Subject> subjects) {
         Map<String, List<Subject>> groups = new HashMap<>();
 
-        List<Subject> languages = subjects.stream()
-                .filter(s -> s.getDisplayName().equals("English")
-                        || s.getDisplayName().equals("German")
-                        || s.getDisplayName().equals("French"))
+        List<Subject> languages = subjects.stream().filter(s -> s.getDisplayName().equals("English")
+                || s.getDisplayName().equals("German") || s.getDisplayName().equals("French"))
                 .collect(Collectors.toList());
         if (!languages.isEmpty())
             groups.put("Languages", languages);
 
-        List<Subject> stem = subjects.stream().filter(s -> s.getDisplayName().equals("Mathematics")
-                || s.getDisplayName().equals("Physics") || s.getDisplayName().equals("Biology")
-                || s.getDisplayName().equals("Chemistry")).collect(Collectors.toList());
+        List<Subject> stem = subjects.stream()
+                .filter(s -> s.getDisplayName().equals("Mathematics") || s.getDisplayName().equals("Physics")
+                        || s.getDisplayName().equals("Biology") || s.getDisplayName().equals("Chemistry"))
+                .collect(Collectors.toList());
         if (!stem.isEmpty())
             groups.put("STEM", stem);
 
-        List<Subject> social = subjects.stream()
-                .filter(s -> s.getDisplayName().equals("Economics")
-                        || s.getDisplayName().equals("Politics")
-                        || s.getDisplayName().equals("Business"))
+        List<Subject> social = subjects.stream().filter(s -> s.getDisplayName().equals("Economics")
+                || s.getDisplayName().equals("Politics") || s.getDisplayName().equals("Business"))
                 .collect(Collectors.toList());
         if (!social.isEmpty())
             groups.put("Social Sciences", social);

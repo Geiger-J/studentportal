@@ -32,11 +32,8 @@ public class Request {
     @NotNull(message = "Subject is required")
     private Subject subject;
     @ElementCollection // collection of plain strings
-    @CollectionTable(name = "request_timeslots", joinColumns = @JoinColumn(name = "request_id")) // separate
-                                                                                                 // table
-                                                                                                 // for
-                                                                                                 // timeslot
-                                                                                                 // strings
+    // separate table for timeslot strings
+    @CollectionTable(name = "request_timeslots", joinColumns = @JoinColumn(name = "request_id"))
     @Column(name = "timeslot") // column name in collection table
     private Set<String> timeslots = new HashSet<>();
     @Column(name = "chosen_timeslot") // nullable; set after matching
@@ -99,9 +96,7 @@ public class Request {
 
     public Boolean getArchived() { return archived; }
 
-    public void setArchived(Boolean archived) {
-        this.archived = archived != null ? archived : false;
-    }
+    public void setArchived(Boolean archived) { this.archived = archived != null ? archived : false; }
 
     public String getStatus() { return status; }
 
@@ -116,9 +111,7 @@ public class Request {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     // true if status allows cancellation
-    public boolean canBeCancelled() {
-        return "PENDING".equals(this.status) || "MATCHED".equals(this.status);
-    }
+    public boolean canBeCancelled() { return "PENDING".equals(this.status) || "MATCHED".equals(this.status); }
 
     // transition to CANCELLED if allowed
     public void cancel() {
@@ -143,8 +136,7 @@ public class Request {
     @Override
     public String toString() {
         return "Request{" + "id=" + id + ", type=" + type + ", subject="
-                + (subject != null ? subject.getDisplayName() : "null") + ", timeslots="
-                + timeslots.size() + ", chosenTimeslot=" + chosenTimeslot + ", status=" + status
-                + ", archived=" + archived + '}';
+                + (subject != null ? subject.getDisplayName() : "null") + ", timeslots=" + timeslots.size()
+                + ", chosenTimeslot=" + chosenTimeslot + ", status=" + status + ", archived=" + archived + '}';
     }
 }

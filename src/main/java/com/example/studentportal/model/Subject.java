@@ -58,7 +58,6 @@ public class Subject {
 
     @Override
     public String toString() {
-        return "Subject{" + "id=" + id + ", code='" + code + '\'' + ", displayName='" + displayName
-                + '\'' + '}';
+        return "Subject{" + "id=" + id + ", code='" + code + '\'' + ", displayName='" + displayName + '\'' + '}';
     }
 }

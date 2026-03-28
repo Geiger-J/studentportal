@@ -86,10 +86,11 @@
 			<artifactId>jgrapht-core</artifactId>
 			<version>1.5.1</version>
 		</dependency>
-		<dependency>
+		<!-- FOR DEVELOPMENT: STOP SERVER BUTTON -->
+		<!-- <dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
+		</dependency> -->
 	</dependencies>
 
 	<build>

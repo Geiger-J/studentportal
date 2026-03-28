@@ -48,12 +48,11 @@ public class DataSeeder implements CommandLineRunner {
                 { "ENGLISH", "English" }, { "GERMAN", "German" }, { "FRENCH", "French" },
 
                 // STEM
-                { "MATHEMATICS", "Mathematics" }, { "PHYSICS", "Physics" },
-                { "BIOLOGY", "Biology" }, { "CHEMISTRY", "Chemistry" },
+                { "MATHEMATICS", "Mathematics" }, { "PHYSICS", "Physics" }, { "BIOLOGY", "Biology" },
+                { "CHEMISTRY", "Chemistry" },
 
                 // Social Sciences
-                { "ECONOMICS", "Economics" }, { "POLITICS", "Politics" },
-                { "BUSINESS", "Business" } };
+                { "ECONOMICS", "Economics" }, { "POLITICS", "Politics" }, { "BUSINESS", "Business" } };
 
         for (String[] subjectInfo : subjectData) {
             Subject subject = new Subject(subjectInfo[0], subjectInfo[1]);

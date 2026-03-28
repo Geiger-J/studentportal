@@ -28,8 +28,7 @@ public class SecurityConfig {
     private final AccessDeniedHandler roleRedirectAccessDeniedHandler;
 
     @Autowired
-    public SecurityConfig(PasswordEncoder passwordEncoder,
-            AuthenticationSuccessHandler authenticationSuccessHandler,
+    public SecurityConfig(PasswordEncoder passwordEncoder, AuthenticationSuccessHandler authenticationSuccessHandler,
             AccessDeniedHandler roleRedirectAccessDeniedHandler) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
@@ -41,16 +40,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authz -> authz
                 // public: no auth required
-                .requestMatchers("/", "/login", "/register", "/css/**", "/images/**", "/js/**")
-                .permitAll()
+                .requestMatchers("/", "/login", "/register", "/css/**", "/images/**", "/js/**").permitAll()
                 // admin-only area
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // student-only functional pages
                 .requestMatchers("/dashboard", "/profile/**", "/requests/**").hasRole("STUDENT")
                 // any other authenticated route
                 .anyRequest().authenticated())
-                .formLogin(form -> form.loginPage("/login").permitAll()
-                        .successHandler(authenticationSuccessHandler)
+                .formLogin(form -> form.loginPage("/login").permitAll().successHandler(authenticationSuccessHandler)
                         .failureUrl("/login?error=true"))
                 .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/").permitAll())
                 .exceptionHandling(ex -> ex.accessDeniedHandler(roleRedirectAccessDeniedHandler))

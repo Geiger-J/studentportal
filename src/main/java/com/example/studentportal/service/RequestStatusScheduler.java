@@ -35,7 +35,7 @@ public class RequestStatusScheduler {
     }
 
     // poll all MATCHED requests; transition to DONE if timeslot end has passed
-    @Scheduled(fixedDelay = 60000) // every 60 s [60_000 ms]
+    @Scheduled(fixedDelay = 60_000) // every 60 s [60_000 ms]
     @Transactional
     public void markCompletedRequestsDone() {
         LocalDateTime now = timeService.now();
@@ -62,8 +62,7 @@ public class RequestStatusScheduler {
         if (request.getWeekStartDate() == null || request.getChosenTimeslot() == null) {
             return false;
         }
-        LocalDateTime endTime = Timeslots.getTimeslotEndTime(request.getWeekStartDate(),
-                request.getChosenTimeslot());
+        LocalDateTime endTime = Timeslots.getTimeslotEndTime(request.getWeekStartDate(), request.getChosenTimeslot());
         return endTime != null && now.isAfter(endTime);
 
     }

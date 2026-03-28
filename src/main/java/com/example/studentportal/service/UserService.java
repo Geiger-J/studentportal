@@ -101,8 +101,8 @@ public class UserService {
         if (newRawPassword.length() < 4) {
             throw new IllegalArgumentException("New password must be at least 4 characters");
         }
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("User not found with id: " + userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
         user.setPasswordHash(passwordEncoder.encode(newRawPassword));
         userRepository.save(user);
     }
@@ -116,8 +116,7 @@ public class UserService {
 
         // cancel partner requests: partner sees CANCELLED so they know the match fell
         // through
-        List<Request> partnerMatchedRequests = requestRepository.findByMatchedPartnerAndStatus(user,
-                "MATCHED");
+        List<Request> partnerMatchedRequests = requestRepository.findByMatchedPartnerAndStatus(user, "MATCHED");
         for (Request partnerRequest : partnerMatchedRequests) {
             partnerRequest.setStatus("CANCELLED");
             partnerRequest.setMatchedPartner(null);

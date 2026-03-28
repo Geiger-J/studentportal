@@ -24,14 +24,11 @@ public class DashboardController {
     private final RequestService requestService;
 
     @Autowired
-    public DashboardController(RequestService requestService) {
-        this.requestService = requestService;
-    }
+    public DashboardController(RequestService requestService) { this.requestService = requestService; }
 
     // role-based redirect -> profile guard -> load requests -> render
     @GetMapping("/dashboard")
-    public String dashboard(
-            @AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
+    public String dashboard(@AuthenticationPrincipal CustomUserDetailsService.CustomUserPrincipal principal,
             @RequestParam(value = "showArchived", required = false, defaultValue = "false") boolean showArchived,
             Model model) {
 

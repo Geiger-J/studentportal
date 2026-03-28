@@ -23,9 +23,7 @@ public class DateUtil {
     // convenience: next Monday from today
     public static LocalDate nextMonday() { return nextMonday(LocalDate.now()); }
 
-    public static boolean isMonday(LocalDate date) {
-        return date != null && date.getDayOfWeek() == DayOfWeek.MONDAY;
-    }
+    public static boolean isMonday(LocalDate date) { return date != null && date.getDayOfWeek() == DayOfWeek.MONDAY; }
 
     // Monday of the week containing date [used for weekStartDate on matched
     // requests]

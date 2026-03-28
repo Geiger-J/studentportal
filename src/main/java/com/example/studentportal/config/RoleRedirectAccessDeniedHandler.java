@@ -27,8 +27,7 @@ public class RoleRedirectAccessDeniedHandler implements AccessDeniedHandler {
 
         if (auth != null) {
             // role-based redirect: admin -> admin dashboard, others -> student dashboard
-            boolean isAdmin = auth.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
             if (isAdmin) {
                 response.sendRedirect("/admin/dashboard");

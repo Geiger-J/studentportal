@@ -24,12 +24,11 @@ public class Timeslots {
     public static final Map<String, String> LABELS;
 
     private static final String[] DAYS = { "MON", "TUE", "WED", "THU", "FRI" };
-    private static final String[] DAY_NAMES = { "Monday", "Tuesday", "Wednesday", "Thursday",
-            "Friday" };
+    private static final String[] DAY_NAMES = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
     private static final int PERIODS = 7;
     // end time for each period index [0 = P1, 6 = P7]
-    private static final String[] PERIOD_TIMES = { "09:00-09:50", "09:55-10:45", "11:05-11:55",
-            "12:00-12:50", "14:05-14:55", "15:00-15:50", "16:00-17:15" };
+    private static final String[] PERIOD_TIMES = { "09:00-09:50", "09:55-10:45", "11:05-11:55", "12:00-12:50",
+            "14:05-14:55", "15:00-15:50", "16:00-17:15" };
 
     // separator between day code and period number [e.g. "MON_P1"]
     private static final String TIMESLOT_SEPARATOR = "_P";

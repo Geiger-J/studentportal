@@ -50,9 +50,8 @@ public class AuthController {
     // create user -> build auth token -> persist SecurityContext -> redirect to
     // profile
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") RegistrationForm form,
-            BindingResult result, RedirectAttributes redirectAttributes,
-            HttpServletRequest request) {
+    public String registerUser(@Valid @ModelAttribute("user") RegistrationForm form, BindingResult result,
+            RedirectAttributes redirectAttributes, HttpServletRequest request) {
 
         if (result.hasErrors()) {
             return "register";
@@ -60,12 +59,11 @@ public class AuthController {
 
         try {
             // Create the user
-            User user = userService.registerUser(form.getFullName(), form.getEmail(),
-                    form.getPassword());
+            User user = userService.registerUser(form.getFullName(), form.getEmail(), form.getPassword());
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
 
             // create and store a fresh SecurityContext so session survives redirect
             SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -73,11 +71,9 @@ public class AuthController {
             SecurityContextHolder.setContext(context);
 
             HttpSession session = request.getSession(true);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    context);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
-            redirectAttributes.addFlashAttribute("message",
-                    "Registration successful! Please complete your profile.");
+            redirectAttributes.addFlashAttribute("message", "Registration successful! Please complete your profile.");
             return "redirect:/profile";
 
         } catch (IllegalArgumentException e) {

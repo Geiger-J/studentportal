@@ -24,15 +24,12 @@ import java.util.Set;
 /**
  * Demo data seeder — runs on startup when the "demo" profile is active.
  *
- * Wipes all user/request data via native SQL (respects FK constraints),
- * then seeds a fixed dataset designed to demonstrate the matching algorithm:
- *   - 22 total requests across 10 students + 1 admin
- *   - ~8 pairs that the algorithm WILL match (same subject, shared slot,
- *     tutor year >= tutee year)
- *   - ~6 requests intentionally left PENDING (no valid partner exists)
+ * Wipes all user/request data via native SQL (respects FK constraints), then seeds a fixed dataset designed to
+ * demonstrate the matching algorithm: - 22 total requests across 10 students + 1 admin - ~8 pairs that the algorithm
+ * WILL match (same subject, shared slot, tutor year >= tutee year) - ~6 requests intentionally left PENDING (no valid
+ * partner exists)
  *
- * Idempotent: every restart produces the same clean state.
- * Runs after DataSeeder (@Order 1) so subjects already exist.
+ * Idempotent: every restart produces the same clean state. Runs after DataSeeder (@Order 1) so subjects already exist.
  */
 @Component
 @Profile("demo")
@@ -50,10 +47,8 @@ public class DemoDataSeeder implements CommandLineRunner {
     private EntityManager entityManager;
 
     @Autowired
-    public DemoDataSeeder(UserRepository userRepository,
-                          RequestRepository requestRepository,
-                          SubjectRepository subjectRepository,
-                          PasswordEncoder passwordEncoder) {
+    public DemoDataSeeder(UserRepository userRepository, RequestRepository requestRepository,
+            SubjectRepository subjectRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
         this.subjectRepository = subjectRepository;
@@ -93,13 +88,13 @@ public class DemoDataSeeder implements CommandLineRunner {
         String demoHash = passwordEncoder.encode("demo");
 
         // ── 3. Resolve subjects (seeded by DataSeeder @Order 1) ─────────────
-        Subject maths    = requireSubject("MATHEMATICS");
-        Subject physics  = requireSubject("PHYSICS");
-        Subject chem     = requireSubject("CHEMISTRY");
-        Subject bio      = requireSubject("BIOLOGY");
-        Subject econ     = requireSubject("ECONOMICS");
-        Subject english  = requireSubject("ENGLISH");
-        Subject french   = requireSubject("FRENCH");
+        Subject maths = requireSubject("MATHEMATICS");
+        Subject physics = requireSubject("PHYSICS");
+        Subject chem = requireSubject("CHEMISTRY");
+        Subject bio = requireSubject("BIOLOGY");
+        Subject econ = requireSubject("ECONOMICS");
+        Subject english = requireSubject("ENGLISH");
+        Subject french = requireSubject("FRENCH");
         Subject politics = requireSubject("POLITICS");
 
         // ── 4. Create users ──────────────────────────────────────────────────
@@ -107,11 +102,6 @@ public class DemoDataSeeder implements CommandLineRunner {
         // Year groups matter for matching: tutor year >= tutee year.
         // Exam board match gives +50 weight bonus but is not a hard constraint.
         logger.info("Demo seeder: Creating users...");
-
-        // ── Admin ────────────────────────────────────────────────────────────
-        User admin = new User("Admin User", "admin@example.edu", demoHash, "ADMIN");
-        admin.updateProfileCompleteness();
-        admin = userRepository.save(admin);
 
         // ── Year 13 students (can tutor anyone) ──────────────────────────────
 
@@ -126,7 +116,7 @@ public class DemoDataSeeder implements CommandLineRunner {
 
         // James — economics/politics tutor, A-Levels
         User james = new User("James Okafor", "23002@example.edu", demoHash, "STUDENT");
-        james.setYearGroup(13);
+        james.setYearGroup(12);
         james.setExamBoard("A_LEVELS");
         james.setSubjects(Set.of(econ, politics));
         james.setAvailability(Set.of("TUE_P2", "THU_P3", "FRI_P4", "FRI_P6"));
@@ -206,8 +196,8 @@ public class DemoDataSeeder implements CommandLineRunner {
 
         // Finn — seeks politics tutoring (no eligible tutor exists — intentional)
         User finn = new User("Finn O'Brien", "23010@example.edu", demoHash, "STUDENT");
-        finn.setYearGroup(9);
-        finn.setExamBoard("GCSE");
+        finn.setYearGroup(11);
+        finn.setExamBoard("IB");
         finn.setSubjects(Set.of(politics, maths));
         finn.setAvailability(Set.of("MON_P5", "TUE_P6", "WED_P7"));
         finn.updateProfileCompleteness();
@@ -219,140 +209,142 @@ public class DemoDataSeeder implements CommandLineRunner {
         //
         // MATCHABLE PAIRS (8 pairs = 16 requests):
         //
-        //  Pair 1 — Maths, MON_P1:   Sophie (Y13, IB, TUTOR)   ↔ Aisha (Y11, IB, TUTEE)
-        //           +50 exam board bonus (both IB), year gap +20
+        // Pair 1 — Maths, MON_P1: Sophie (Y13, IB, TUTOR) ↔ Aisha (Y11, IB, TUTEE)
+        // +50 exam board bonus (both IB), year gap +20
         //
-        //  Pair 2 — Physics, WED_P2:  Sophie (Y13, IB, TUTOR)   ↔ Aisha (Y11, IB, TUTEE)
-        //           +50 exam board bonus (both IB), year gap +20
+        // Pair 2 — Physics, WED_P2: Sophie (Y13, IB, TUTOR) ↔ Aisha (Y11, IB, TUTEE)
+        // +50 exam board bonus (both IB), year gap +20
         //
-        //  Pair 3 — Maths, MON_P3:   Marcus (Y12, A_LEVELS, TUTOR) ↔ Leon (Y10, A_LEVELS, TUTEE)
-        //           +50 exam board bonus (both A_LEVELS), year gap +20
+        // Pair 3 — Maths, MON_P3: Marcus (Y12, A_LEVELS, TUTOR) ↔ Leon (Y10, A_LEVELS,
+        // TUTEE)
+        // +50 exam board bonus (both A_LEVELS), year gap +20
         //
-        //  Pair 4 — Maths, WED_P2:   Marcus (Y12, TUTOR)       ↔ Leon (Y10, TUTEE)
-        //           (second shared slot — algorithm will pick only one per request)
+        // Pair 4 — Maths, WED_P2: Marcus (Y12, TUTOR) ↔ Leon (Y10, TUTEE)
+        // (second shared slot — algorithm will pick only one per request)
         //
-        //  Pair 5 — Econ, TUE_P2:    James (Y13, A_LEVELS, TUTOR) ↔ Priya (Y10, IB, TUTEE)
-        //           no exam board bonus, year gap +15
+        // Pair 5 — Econ, TUE_P2: James (Y13, A_LEVELS, TUTOR) ↔ Priya (Y10, IB, TUTEE)
+        // no exam board bonus, year gap +15
         //
-        //  Pair 6 — Econ, THU_P3:    James (Y13, TUTOR)        ↔ Marcus (Y12, TUTEE)
-        //           no exam board bonus, year gap +30
+        // Pair 6 — Econ, THU_P3: James (Y13, TUTOR) ↔ Marcus (Y12, TUTEE)
+        // no exam board bonus, year gap +30
         //
-        //  Pair 7 — Chem, MON_P1:    Chloe (Y12, IB, TUTOR)   ↔ Tom (Y11, A_LEVELS, TUTEE)
-        //           no exam board bonus, year gap +30
+        // Pair 7 — Chem, MON_P1: Chloe (Y12, IB, TUTOR) ↔ Tom (Y11, A_LEVELS, TUTEE)
+        // no exam board bonus, year gap +30
         //
-        //  Pair 8 — Bio, WED_P4:     Chloe (Y12, IB, TUTOR)   ↔ Mei (Y9, GCSE, TUTEE)
-        //           no exam board bonus, year gap +20
+        // Pair 8 — Bio, WED_P4: Chloe (Y12, IB, TUTOR) ↔ Mei (Y9, GCSE, TUTEE)
+        // no exam board bonus, year gap +20
         //
         // UNMATCHED requests (6 requests) — reasons noted:
         //
-        //  U1 — Finn, TUTEE Politics, MON_P5/TUE_P6/WED_P7:
-        //       James is the only politics tutor but shares none of these slots → no match
+        // U1 — Finn, TUTEE Politics, MON_P5/TUE_P6/WED_P7:
+        // James is the only politics tutor but shares none of these slots → no match
         //
-        //  U2 — Finn, TUTEE Maths, MON_P5/WED_P7:
-        //       Sophie/Marcus available at MON_P1/P3/WED_P2 → no shared slot → no match
+        // U2 — Finn, TUTEE Maths, MON_P5/WED_P7:
+        // Sophie/Marcus available at MON_P1/P3/WED_P2 → no shared slot → no match
         //
-        //  U3 — Sophie, TUTOR Physics, FRI_P5:
-        //       Aisha also has FRI_P5 but Aisha's physics TUTEE request only lists MON_P1/WED_P2
-        //       (FRI_P5 is in Aisha's availability but not in her request's timeslots)
-        //       → no match for this request
+        // U3 — Sophie, TUTOR Physics, FRI_P5:
+        // Aisha also has FRI_P5 but Aisha's physics TUTEE request only lists
+        // MON_P1/WED_P2
+        // (FRI_P5 is in Aisha's availability but not in her request's timeslots)
+        // → no match for this request
         //
-        //  U4 — Leon, TUTEE French, FRI_P6:
-        //       No one offers French tutoring → no match
+        // U4 — Leon, TUTEE French, FRI_P6:
+        // No one offers French tutoring → no match
         //
-        //  U5 — Mei, TUTEE English, FRI_P3:
-        //       No one offers English tutoring in the demo set → no match
+        // U5 — Mei, TUTEE English, FRI_P3:
+        // No one offers English tutoring in the demo set → no match
         //
-        //  U6 — Marcus, TUTEE Econ, WED_P2:
-        //       James tutors Econ but is only available TUE_P2/THU_P3/FRI_P4/FRI_P6
-        //       → no shared slot on WED_P2 → this specific request won't match
-        //       (James's econ TUTOR request uses TUE_P2/FRI_P4, which will match Priya/Marcus
-        //        on other slots, but Marcus's TUTEE econ request targets WED_P2)
+        // U6 — Marcus, TUTEE Econ, WED_P2:
+        // James tutors Econ but is only available TUE_P2/THU_P3/FRI_P4/FRI_P6
+        // → no shared slot on WED_P2 → this specific request won't match
+        // (James's econ TUTOR request uses TUE_P2/FRI_P4, which will match Priya/Marcus
+        // on other slots, but Marcus's TUTEE econ request targets WED_P2)
 
         logger.info("Demo seeder: Creating requests...");
 
         List<Request> requests = List.of(
 
-            // ── Sophie (Y13, IB) ──────────────────────────────────────────────
-            // TUTOR Maths — will match Aisha on MON_P1                 [PAIR 1]
-            new Request(sophie, "TUTOR", maths,   Set.of("MON_P1", "WED_P2")),
-            // TUTOR Physics — MON_P3 slot will match Aisha; FRI_P5 slot won't [PAIR 2 + U3]
-            new Request(sophie, "TUTOR", physics, Set.of("MON_P3", "FRI_P5")),
+                // ── Sophie (Y13, IB) ──────────────────────────────────────────────
+                // TUTOR Maths — will match Aisha on MON_P1 [PAIR 1]
+                new Request(sophie, "TUTOR", maths, Set.of("MON_P1", "WED_P2")),
+                // TUTOR Physics — MON_P3 slot will match Aisha; FRI_P5 slot won't [PAIR 2 + U3]
+                new Request(sophie, "TUTOR", physics, Set.of("MON_P3", "FRI_P5")),
 
-            // ── James (Y13, A-Levels) ─────────────────────────────────────────
-            // TUTOR Economics — TUE_P2 matches Priya; THU_P3 matches Marcus  [PAIRS 5, 6]
-            new Request(james,  "TUTOR", econ,    Set.of("TUE_P2", "THU_P3", "FRI_P4")),
-            // TUTOR Politics — FRI_P6 never matches Finn's slots              [unmatchable]
-            new Request(james,  "TUTOR", politics,Set.of("FRI_P6")),
+                // ── James (Y13, A-Levels) ─────────────────────────────────────────
+                // TUTOR Economics — TUE_P2 matches Priya; THU_P3 matches Marcus [PAIRS 5, 6]
+                new Request(james, "TUTOR", econ, Set.of("TUE_P2", "THU_P3", "FRI_P4")),
+                // TUTOR Politics — FRI_P6 never matches Finn's slots [unmatchable]
+                new Request(james, "TUTOR", politics, Set.of("FRI_P6")),
 
-            // ── Chloe (Y12, IB) ───────────────────────────────────────────────
-            // TUTOR Chemistry — MON_P1 matches Tom                       [PAIR 7]
-            new Request(chloe,  "TUTOR", chem,    Set.of("MON_P1", "FRI_P3")),
-            // TUTOR Biology — WED_P4 matches Mei                         [PAIR 8]
-            new Request(chloe,  "TUTOR", bio,     Set.of("WED_P4", "THU_P5")),
+                // ── Chloe (Y12, IB) ───────────────────────────────────────────────
+                // TUTOR Chemistry — MON_P1 matches Tom [PAIR 7]
+                new Request(chloe, "TUTOR", chem, Set.of("MON_P1", "FRI_P3")),
+                // TUTOR Biology — WED_P4 matches Mei [PAIR 8]
+                new Request(chloe, "TUTOR", bio, Set.of("WED_P4", "THU_P5")),
 
-            // ── Marcus (Y12, A-Levels) ────────────────────────────────────────
-            // TUTOR Maths — MON_P3 + WED_P2 both match Leon              [PAIRS 3, 4]
-            new Request(marcus, "TUTOR", maths,   Set.of("MON_P3", "WED_P2")),
-            // TUTEE Economics — WED_P2 only; James has no WED_P2 → no match [U6]
-            new Request(marcus, "TUTEE", econ,    Set.of("WED_P2", "THU_P3")),
+                // ── Marcus (Y12, A-Levels) ────────────────────────────────────────
+                // TUTOR Maths — MON_P3 + WED_P2 both match Leon [PAIRS 3, 4]
+                new Request(marcus, "TUTOR", maths, Set.of("MON_P3", "WED_P2")),
+                // TUTEE Economics — WED_P2 only; James has no WED_P2 → no match [U6]
+                new Request(marcus, "TUTEE", econ, Set.of("WED_P2", "THU_P3")),
 
-            // ── Aisha (Y11, IB) ───────────────────────────────────────────────
-            // TUTEE Maths — MON_P1 matches Sophie                        [PAIR 1]
-            new Request(aisha,  "TUTEE", maths,   Set.of("MON_P1", "MON_P3")),
-            // TUTEE Physics — MON_P3 matches Sophie                      [PAIR 2]
-            new Request(aisha,  "TUTEE", physics, Set.of("MON_P3", "WED_P2")),
+                // ── Aisha (Y11, IB) ───────────────────────────────────────────────
+                // TUTEE Maths — MON_P1 matches Sophie [PAIR 1]
+                new Request(aisha, "TUTEE", maths, Set.of("MON_P1", "MON_P3")),
+                // TUTEE Physics — MON_P3 matches Sophie [PAIR 2]
+                new Request(aisha, "TUTEE", physics, Set.of("MON_P3", "WED_P2")),
 
-            // ── Tom (Y11, A-Levels) ───────────────────────────────────────────
-            // TUTEE Chemistry — MON_P1 matches Chloe                     [PAIR 7]
-            new Request(tom,    "TUTEE", chem,    Set.of("MON_P1", "TUE_P5")),
-            // TUTOR Biology — FRI_P3 matches Mei on FRI_P3               [bonus: Mei also matched by Chloe; whichever scores higher wins]
-            new Request(tom,    "TUTOR", bio,     Set.of("FRI_P3", "WED_P4")),
+                // ── Tom (Y11, A-Levels) ───────────────────────────────────────────
+                // TUTEE Chemistry — MON_P1 matches Chloe [PAIR 7]
+                new Request(tom, "TUTEE", chem, Set.of("MON_P1", "TUE_P5")),
+                // TUTOR Biology — FRI_P3 matches Mei on FRI_P3 [bonus: Mei also matched by
+                // Chloe; whichever scores higher wins]
+                new Request(tom, "TUTOR", bio, Set.of("FRI_P3", "WED_P4")),
 
-            // ── Priya (Y10, IB) ───────────────────────────────────────────────
-            // TUTEE Economics — TUE_P2 matches James                     [PAIR 5]
-            new Request(priya,  "TUTEE", econ,    Set.of("TUE_P2", "FRI_P4")),
-            // TUTEE English — no English tutors in demo set → no match   [U5]
-            new Request(priya,  "TUTEE", english, Set.of("TUE_P2", "THU_P3")),
+                // ── Priya (Y10, IB) ───────────────────────────────────────────────
+                // TUTEE Economics — TUE_P2 matches James [PAIR 5]
+                new Request(priya, "TUTEE", econ, Set.of("TUE_P2", "FRI_P4")),
+                // TUTEE English — no English tutors in demo set → no match [U5]
+                new Request(priya, "TUTEE", english, Set.of("TUE_P2", "THU_P3")),
 
-            // ── Leon (Y10, A-Levels) ──────────────────────────────────────────
-            // TUTEE Maths — MON_P3 + WED_P2 both match Marcus            [PAIRS 3, 4]
-            new Request(leon,   "TUTEE", maths,   Set.of("MON_P3", "WED_P2")),
-            // TUTEE French — no French tutors in demo set → no match     [U4]
-            new Request(leon,   "TUTEE", french,  Set.of("MON_P3", "FRI_P6")),
+                // ── Leon (Y10, A-Levels) ──────────────────────────────────────────
+                // TUTEE Maths — MON_P3 + WED_P2 both match Marcus [PAIRS 3, 4]
+                new Request(leon, "TUTEE", maths, Set.of("MON_P3", "WED_P2")),
+                // TUTEE French — no French tutors in demo set → no match [U4]
+                new Request(leon, "TUTEE", french, Set.of("MON_P3", "FRI_P6")),
 
-            // ── Mei (Y9, GCSE) ────────────────────────────────────────────────
-            // TUTEE Biology — WED_P4 matches Chloe (Y12, higher weight) and Tom (Y11)
-            //   Chloe wins: year gap Y12-Y9=3 → +15 vs Tom Y11-Y9=2 → +20
-            //   Actually Tom (+20 gap) beats Chloe (+15 gap) — good algorithm demo!  [PAIR 8 resolved]
-            new Request(mei,    "TUTEE", bio,     Set.of("WED_P4", "FRI_P3")),
-            // TUTEE English — no English tutors → no match                [U5]
-            new Request(mei,    "TUTEE", english, Set.of("THU_P5", "FRI_P3")),
+                // ── Mei (Y9, GCSE) ────────────────────────────────────────────────
+                // TUTEE Biology — WED_P4 matches Chloe (Y12, higher weight) and Tom (Y11)
+                // Chloe wins: year gap Y12-Y9=3 → +15 vs Tom Y11-Y9=2 → +20
+                // Actually Tom (+20 gap) beats Chloe (+15 gap) — good algorithm demo! [PAIR 8
+                // resolved]
+                new Request(mei, "TUTEE", bio, Set.of("WED_P4", "FRI_P3")),
+                // TUTEE English — no English tutors → no match [U5]
+                new Request(mei, "TUTEE", english, Set.of("THU_P5", "FRI_P3")),
 
-            // ── Finn (Y9, GCSE) ───────────────────────────────────────────────
-            // TUTEE Politics — James's only politics TUTOR slot (FRI_P6) not in Finn's set [U1]
-            new Request(finn,   "TUTEE", politics,Set.of("MON_P5", "TUE_P6", "WED_P7")),
-            // TUTEE Maths — Finn's slots don't overlap Sophie's or Marcus's availability [U2]
-            new Request(finn,   "TUTEE", maths,   Set.of("MON_P5", "WED_P7"))
-        );
+                // ── Finn (Y9, GCSE) ───────────────────────────────────────────────
+                // TUTEE Politics — James's only politics TUTOR slot (FRI_P6) not in Finn's set
+                // [U1]
+                new Request(finn, "TUTEE", politics, Set.of("MON_P5", "TUE_P6", "WED_P7")),
+                // TUTEE Maths — Finn's slots don't overlap Sophie's or Marcus's availability
+                // [U2]
+                new Request(finn, "TUTEE", maths, Set.of("MON_P5", "WED_P7")));
 
         requestRepository.saveAll(requests);
 
         logger.info("Demo seeder: Setup complete — {} users ({} students + 1 admin), {} requests",
-                userRepository.count(),
-                userRepository.count() - 1,
-                requestRepository.count());
+                userRepository.count(), userRepository.count() - 1, requestRepository.count());
         logger.info("Demo seeder: Expected on matching run — ~8 pairs matched, ~6 requests remain PENDING");
     }
 
     /**
-     * Looks up a Subject by code, throwing a descriptive exception if not found.
-     * DataSeeder (Order 1) must have already run to populate subjects.
+     * Looks up a Subject by code, throwing a descriptive exception if not found. DataSeeder (Order 1) must have already
+     * run to populate subjects.
      */
     private Subject requireSubject(String code) {
         return subjectRepository.findByCode(code).orElseThrow(() -> {
             logger.error("Demo seeder: Subject '{}' not found — has DataSeeder run?", code);
-            return new IllegalStateException(
-                    "Demo seeder: Subject '" + code + "' not found — has DataSeeder run?");
+            return new IllegalStateException("Demo seeder: Subject '" + code + "' not found — has DataSeeder run?");
         });
     }
 }
